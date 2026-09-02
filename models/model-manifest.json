@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "answer_model": {
+    "repository": "Qwen/Qwen3-8B-GGUF",
+    "revision": "7c41481f57cb95916b40956ab2f0b139b296d974",
+    "file": "Qwen3-8B-Q4_K_M.gguf",
+    "sha256": "d98cdcbd03e17ce47681435b5150e34c1417f50b5c0019dd560e4882c5745785",
+    "size_bytes": 5027783488,
+    "licence": "Apache-2.0"
+  },
+  "embedding_model": {
+    "repository": "BAAI/bge-small-en-v1.5",
+    "revision": "5c38ec7c405ec4b44b94cc5a9bb96e735b38267a",
+    "dimensions": 384,
+    "licence": "MIT"
+  },
+  "reranker_model": {
+    "repository": "BAAI/bge-reranker-base",
+    "revision": "2cfc18c9415c912f9d8155881c133215df768a70",
+    "licence": "MIT"
+  },
+  "retrieval_runtime": {
+    "local_files_only": true,
+    "embedding_server_sha256": "f27dae9820cad04bb8495e943f2baff80eff388a894242bed36eb591ec11a242"
+  }
+}

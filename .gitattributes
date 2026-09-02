@@ -1,0 +1,5 @@
+* text=auto eol=lf
+*.safetensors -text
+*.gguf -text
+*.sqlite -text
+*.zip -text

@@ -1,0 +1,37 @@
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+
+# Dependencies and runtimes
+node_modules/
+.training-venv/
+.venv/
+runtime/bin/
+runtime/downloads/
+
+# Base models, adapters, and raw approved corpus
+models/*
+!models/model-manifest.json
+adapters/
+approved-materials/index/
+approved-materials/originals/
+approved-materials/structured-facts/
+
+# Private/protected data and local state
+training-data/private/
+training/evaluation-cycle-v1/04-unseen/
+**/gold-answers.sealed.json
+**/unseen-question-set.json
+**/unseen/
+data/
+uploads/
+Logging/
+*.log
+*.sqlite*
+*.db*
+
+# Caches
+__pycache__/
+*.py[cod]
+.DS_Store

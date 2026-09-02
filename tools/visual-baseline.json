@@ -1,0 +1,18 @@
+{
+  "generatedAt": "2026-05-29T15:29:45.046Z",
+  "fingerprints": {
+    "htmlViews": {
+      "overview": "6a66c93fbd969eb46e836cfad74a3f99c9a56abd7cedfc7e57a8e83a6cdab094",
+      "pensions": "d4bb5608576bd773af155b166384c8117328c17b5a8e073b5768d0fc4ee844c0",
+      "target": "68619a4d3b230f960b96e7a4a1161d8b226269ea619b927263150534fc2d9a17",
+      "savings": "aa6e2d4c714bdc6b351a0a3b994ca1a4aada6fe1f845d7c1ec47c3cb3a5c101a",
+      "documents": "75ec9fee532a17ccdf357317ea7c08f9468cbe45e1f013278d6d5cb2d64c7356",
+      "assistant": "6b6cdc235d6f0cce12299c7928ace351fee19bb1af0fd88977429fdc369e0640",
+      "settings": "8d466f3e9ab2bf02aa4a14e93fa6d9493f9096f7a024436cd7c96e956423b365"
+    },
+    "designSystem": "b1aa8bfc1b3a6af676267bbf898de327e3c699c3a0eb05c5de84d63437d25ff1",
+    "productPolishCss": "1a1a36b4c021e491f49bfa66e24d29f5d99d680d4871cca4e3669e29eaba6ad2",
+    "assistantUi": "6b6cdc235d6f0cce12299c7928ace351fee19bb1af0fd88977429fdc369e0640",
+    "overviewUi": "6a66c93fbd969eb46e836cfad74a3f99c9a56abd7cedfc7e57a8e83a6cdab094"
+  }
+}

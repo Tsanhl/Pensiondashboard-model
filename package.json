@@ -1,0 +1,31 @@
+{
+  "name": "pensiondashboard-model",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Fail-closed UK pensions dashboard application snapshot. Visible qualification did not pass; this is not a live-qualified model release.",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "live:local": "node scripts/liveLocal.mjs",
+    "setup:models": "node scripts/setupModels.mjs",
+    "setup:runtime": "node scripts/setupRuntime.mjs",
+    "model:serve": "node scripts/modelServe.mjs",
+    "model:serve:pinned": "node scripts/modelServePinned.mjs",
+    "retrieval:serve": "node scripts/mlServe.mjs",
+    "materials:bootstrap-approved-corpus": "node scripts/bootstrapApprovedCorpus.mjs",
+    "reset:demo-data": "node scripts/resetDemoData.mjs",
+    "check": "node scripts/checkProject.mjs",
+    "test": "PENSIONS_DB_PATH=/private/tmp/pensions-dashboard-test.sqlite node --test --test-concurrency=1 test/*.test.mjs",
+    "visual:check": "node tools/visual-regression.mjs"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.879.0",
+    "@aws-sdk/s3-request-presigner": "^3.879.0",
+    "mammoth": "^1.10.0",
+    "pdf-parse": "^1.1.1",
+    "pg": "^8.16.3",
+    "redis": "^5.8.2",
+    "ws": "^8.18.3"
+  }
+}

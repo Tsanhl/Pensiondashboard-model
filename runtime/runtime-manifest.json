@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "release": "b10631",
+  "source": "ggml-org/llama.cpp",
+  "platforms": {
+    "darwin-arm64": {
+      "file": "llama-b10631-bin-macos-arm64.tar.gz",
+      "url": "https://github.com/ggml-org/llama.cpp/releases/download/b10631/llama-b10631-bin-macos-arm64.tar.gz",
+      "size_bytes": 10963010,
+      "sha256": "fe12c43703acbe7db2d8b5c57f562eed654c7c374a18cebc517ad43b5c72c04d"
+    },
+    "darwin-x64": {
+      "file": "llama-b10631-bin-macos-x64.tar.gz",
+      "url": "https://github.com/ggml-org/llama.cpp/releases/download/b10631/llama-b10631-bin-macos-x64.tar.gz",
+      "size_bytes": 11033895,
+      "sha256": "f78686f6c0ff8e58f0fba23b4c1e9b735e485778096dcbf600493850701ef560"
+    },
+    "win32-x64": {
+      "file": "llama-b10631-bin-win-cpu-x64.zip",
+      "url": "https://github.com/ggml-org/llama.cpp/releases/download/b10631/llama-b10631-bin-win-cpu-x64.zip",
+      "size_bytes": 18067757,
+      "sha256": "913a937c9d722cb86c6dfe2b9f70ec3cf4e09f73d0a2bb5b7743f66267982067"
+    },
+    "win32-arm64": {
+      "file": "llama-b10631-bin-win-cpu-arm64.zip",
+      "url": "https://github.com/ggml-org/llama.cpp/releases/download/b10631/llama-b10631-bin-win-cpu-arm64.zip",
+      "size_bytes": 11846764,
+      "sha256": "bfeed797b07bfaeea72fd255be38c3a3f736552e811b61ae5831137870d030d8"
+    }
+  }
+}

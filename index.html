@@ -1,0 +1,430 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#f8fbff" />
+    <title>Pension Plan Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css?v=20260826-local-rag-3" />
+  </head>
+  <body>
+    <div class="app-shell" id="app-shell">
+      <aside class="sidebar" aria-label="Primary navigation">
+        <div class="brand-row">
+          <a class="brand" href="#overview" data-view="overview" aria-label="Pension Plan dashboard home">
+            <span class="brand-orbit" aria-hidden="true"></span>
+            <span class="brand-name">Pension<br />Plan</span>
+          </a>
+          <button class="sidebar-toggle" type="button" data-sidebar-toggle aria-label="Collapse sidebar" aria-expanded="true">
+            <span aria-hidden="true">‹</span>
+          </button>
+        </div>
+
+        <nav class="nav-list" aria-label="Dashboard sections">
+          <button class="nav-item active" type="button" data-view="overview"><span class="nav-icon" aria-hidden="true">⌂</span><span>Dashboard</span></button>
+          <button class="nav-item" type="button" data-view="pensions"><span class="nav-icon" aria-hidden="true">▥</span><span>Accounts</span></button>
+          <button class="nav-item" type="button" data-view="contributions"><span class="nav-icon" aria-hidden="true">◉</span><span>Contributions</span></button>
+          <button class="nav-item" type="button" data-view="target"><span class="nav-icon" aria-hidden="true">◎</span><span>Target &amp; Projection</span></button>
+          <button class="nav-item" type="button" data-view="insights"><span class="nav-icon" aria-hidden="true">◌</span><span>Insights</span></button>
+          <button class="nav-item" type="button" data-view="documents"><span class="nav-icon" aria-hidden="true">▤</span><span>Documents</span></button>
+          <button class="nav-item" type="button" data-view="assistant"><span class="nav-icon" aria-hidden="true">✦</span><span>Assistant</span></button>
+          <button class="nav-item" type="button" data-view="settings"><span class="nav-icon" aria-hidden="true">⚙</span><span>Settings</span></button>
+        </nav>
+
+        <div class="sidebar-help">
+          <span class="help-icon" aria-hidden="true">☊</span>
+          <strong>Need help?</strong>
+          <p>Contact our UK based support team.</p>
+          <button type="button" class="text-link" data-view="assistant">Get in touch <span aria-hidden="true">›</span></button>
+        </div>
+      </aside>
+
+      <main class="main" id="main">
+        <header class="topbar">
+          <button class="mobile-menu" type="button" data-mobile-menu aria-label="Open navigation">☰</button>
+          <div class="topbar-spacer" aria-hidden="true"></div>
+          <div class="topbar-actions">
+            <button class="notification-button" type="button" data-toggle-alerts aria-label="Review alerts">
+              <span aria-hidden="true">♢</span><span class="notification-badge">2</span>
+            </button>
+            <button class="profile-button" type="button" data-toggle-account aria-label="Switch profile">
+              <span class="avatar" id="profile-initials">AM</span>
+              <span id="profile-name">Alex Morgan</span>
+              <span aria-hidden="true">⌄</span>
+            </button>
+          </div>
+        </header>
+
+        <aside class="account-popover hidden" id="account-popover" aria-label="Profile switcher">
+          <div class="card-title-row">
+            <div>
+              <h3>Choose profile</h3>
+              <p>Switch between the sample user and an empty setup profile.</p>
+            </div>
+            <button class="icon-only" type="button" data-close-account aria-label="Close profiles">×</button>
+          </div>
+          <div class="account-switch-list" id="account-switch-list"></div>
+          <button class="inline-link" type="button" data-view="settings">Open profile settings <span aria-hidden="true">›</span></button>
+        </aside>
+
+        <aside class="alerts-popover hidden" id="alerts-popover" aria-label="Action alerts">
+          <div class="card-title-row">
+            <div>
+              <h3>Action needed</h3>
+              <p>Tasks you need to complete before relying on the dashboard.</p>
+            </div>
+            <button class="icon-only" type="button" data-close-alerts aria-label="Close alerts">×</button>
+          </div>
+          <div class="status-list compact" id="alert-list"></div>
+          <div class="phone-preview" id="phone-preview"></div>
+        </aside>
+
+        <section class="view active" id="overview" aria-labelledby="overview-title">
+          <div class="intro-row">
+            <div>
+              <p class="eyebrow">Dashboard</p>
+              <h1 id="overview-title">Pensions dashboard</h1>
+              <p class="subtle">Your pension pots, targets, documents and savings checks in one place.</p>
+            </div>
+            <span class="action-pill danger urgent-action-pill hidden" data-urgent-action-pill><span aria-hidden="true">!</span> Action needed</span>
+          </div>
+
+          <div class="metric-grid three" id="overview-metrics"></div>
+
+          <div class="dashboard-grid two">
+            <article class="card target-summary-card">
+              <div class="card-title-row"><h3>Target gap</h3></div>
+              <div class="target-gap-layout">
+                <div class="donut interactive-gap-donut" id="overview-donut" aria-label="Interactive target gap"></div>
+                <div class="gap-copy">
+                  <strong data-bind="monthlyGap">£804</strong>
+                  <span>left each month</span>
+                  <p>You’re <span data-bind="coverage">68%</span> of the way to your target. Bridging the gap will help you reach your goal.</p>
+                  <button class="secondary-action target-summary-action" type="button" data-view="target">View target &amp; projection</button>
+                </div>
+              </div>
+            </article>
+
+            <article class="card">
+              <div class="card-title-row"><div><h3>Income sources</h3><p>Breakdown of your projected monthly income.</p></div></div>
+              <div class="split-list" id="income-source-list"></div>
+              <button class="inline-link income-source-link" type="button" data-view="pensions">View all accounts <span aria-hidden="true">›</span></button>
+            </article>
+
+            <article class="card overview-action-card">
+              <div class="card-title-row"><div><h3>Next task</h3><p>Items that need attention.</p></div></div>
+              <div class="action-centre-list grouped" id="data-check-list"></div>
+            </article>
+          </div>
+        </section>
+
+        <section class="view" id="pensions" aria-labelledby="pensions-title">
+          <div class="intro-row">
+            <div>
+              <p class="eyebrow">Accounts</p>
+              <h1 id="pensions-title">Pension accounts</h1>
+              <p class="subtle">Review your pension pots, key details and provider-linked values.</p>
+            </div>
+          </div>
+          <div class="metric-grid four" id="accounts-metrics"></div>
+          <div class="dashboard-grid accounts-layout">
+            <article class="card table-card">
+              <h3>Your accounts</h3>
+              <div class="accounts-table" id="accounts-table"></div>
+              <p class="locked-note">Values are provider-linked where available. Manual review may be required for unlinked accounts.</p>
+              <form class="manual-account-form" id="manual-account-form">
+                <div class="card-title-row compact-title"><div><h3>Add manual account</h3><p>Add an empty-profile pot or a pension that is not connected yet.</p></div></div>
+                <label class="form-field"><span>Provider</span><input name="provider" type="text" placeholder="Aviva, Nest, Legal & General" required /></label>
+                <label class="form-field"><span>Account name</span><input name="name" type="text" placeholder="Workplace pension" /></label>
+                <label class="form-field"><span>Type</span><select name="type"><option>Workplace pension</option><option>Personal pension</option><option>SIPP</option><option>Stakeholder pension</option></select></label>
+                <label class="form-field"><span>Pot value</span><input name="pot" type="number" min="0" step="1" placeholder="25000" /></label>
+                <label class="form-field"><span>Annual charge</span><input name="charges" type="number" min="0" step="0.01" placeholder="0.45" /></label>
+                <label class="form-field"><span>Policy number</span><input name="policy" type="text" placeholder="Optional" /></label>
+                <label class="form-field"><span>Last updated</span><input name="lastUpdated" type="date" /></label>
+                <div class="manual-account-actions"><button class="primary-action" type="submit">Add account</button><p class="connection-status" id="manual-account-status"></p></div>
+              </form>
+            </article>
+            <article class="card side-card">
+              <div class="card-title-row"><h3>What to check</h3><span class="card-icon">✓</span></div>
+              <ul class="check-list">
+                <li><strong>Charges</strong><span>Check annual charges and compare across your accounts.</span></li>
+                <li><strong>Guarantees</strong><span>Review any guarantees and understand what’s protected.</span></li>
+                <li><strong>Contribution rates</strong><span>Ensure employee and employer contributions are on track.</span></li>
+                <li><strong>Investment strategy</strong><span>Check your current strategy matches your goals and risk profile.</span></li>
+                <li><strong>Last updated status</strong><span>Use recent values for accurate projections.</span></li>
+              </ul>
+            </article>
+          </div>
+        </section>
+
+        <section class="view" id="contributions" aria-labelledby="contributions-title">
+          <div class="intro-row">
+            <div>
+              <p class="eyebrow">Contributions</p>
+              <h1 id="contributions-title">Contribution planning</h1>
+              <p class="subtle">Track what is going into your pensions and how changes affect your future pot.</p>
+            </div>
+          </div>
+          <div class="metric-grid four" id="contribution-metrics"></div>
+          <div class="dashboard-grid contribution-grid">
+            <article class="card">
+              <div class="card-title-row"><div><h3>Contribution breakdown</h3><p>This shows how total annual contributions are made up.</p></div></div>
+              <div class="large-kpi">£5,760</div>
+              <div class="stacked-bar" aria-hidden="true"><span style="--w:41.7%;--c:#16a765"></span><span style="--w:33.3%;--c:#0b63f6"></span><span style="--w:25%;--c:#7c3aed"></span></div>
+              <div class="split-list compact" id="contribution-breakdown"></div>
+              <div class="info-note">Tax relief is added to your personal contributions by HMRC.</div>
+            </article>
+            <article class="card wide-mid">
+              <div class="card-title-row"><div><h3>Impact if you increase contributions</h3><p>See how increasing your monthly contribution could improve your projected pension pot and reduce your monthly income gap.</p></div></div>
+              <div class="scenario-list" id="scenario-list"></div>
+              <p class="locked-note">Projections are based on 4.5% annual growth and today’s money.</p>
+              <div class="contribution-ai-strip">
+                <button class="primary-action" type="button" data-view="assistant" data-prompt="Use my dashboard and explain what I should check before changing pension contributions. Include the current contribution scenarios.">Ask AI about contributions</button>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section class="view" id="target" aria-labelledby="target-title">
+          <div class="intro-row">
+            <div>
+              <p class="eyebrow">Target &amp; Projection</p>
+              <h1 id="target-title">Projection over time</h1>
+              <p class="subtle">Based on your current pension pot, salary and contribution plan.</p>
+            </div>
+            <div class="target-actions">
+              <button class="secondary-action slim" type="button" data-view="settings" data-scroll-target="planning-data-form">Edit assumptions</button>
+              <span class="action-pill danger urgent-action-pill hidden" data-urgent-action-pill><span aria-hidden="true">!</span> Action needed</span>
+            </div>
+          </div>
+
+          <div class="metric-grid four projection-hero-grid projection-metrics">
+            <article class="card metric-card projection-metric-card">
+              <div class="metric-top"><span class="metric-label">Projected pension pot</span><span class="metric-icon" aria-hidden="true">▣</span></div>
+              <strong data-bind="finalPot">£257,984</strong>
+              <small>At age 67</small>
+            </article>
+            <article class="card metric-card projection-metric-card">
+              <div class="metric-top"><span class="metric-label">Target income</span><span class="metric-icon" aria-hidden="true">◎</span></div>
+              <strong data-bind="monthlyTarget">£2,500</strong>
+              <small>per month</small>
+            </article>
+            <article class="card metric-card projection-metric-card">
+              <div class="metric-top"><span class="metric-label">Estimated retirement income</span><span class="metric-icon green" aria-hidden="true">♧</span></div>
+              <strong data-bind="monthlyIncome">£1,696</strong>
+              <small>per month</small>
+            </article>
+            <article class="card metric-card projection-metric-card">
+              <div class="metric-top"><span class="metric-label">Monthly gap</span><span class="metric-icon amber" aria-hidden="true">!</span></div>
+              <strong data-bind="monthlyGap">£804</strong>
+              <small>per month</small>
+            </article>
+          </div>
+
+          <div class="segment-control" role="tablist" aria-label="Projection chart metric">
+            <button type="button" class="segment-btn" data-chart-tab="income">Income</button>
+            <button type="button" class="segment-btn active" data-chart-tab="pot">Pot value</button>
+            <button type="button" class="segment-btn" data-chart-tab="gap">Gap</button>
+          </div>
+
+          <article class="card chart-card">
+            <div class="card-title-row"><h3 id="projection-chart-title">Projected pension pot over time</h3></div>
+            <div class="line-chart" id="projection-chart" aria-label="Projected pension pot over time"></div>
+          </article>
+
+          <div class="dashboard-grid projection-lower-grid">
+            <article class="card">
+              <div class="card-title-row"><div><h3>Current plan summary</h3><p>This is the plan currently used for the projection.</p></div><button class="secondary-action slim" type="button" data-view="settings" data-scroll-target="planning-data-form">Edit plan</button></div>
+              <div class="summary-strip">
+                <span class="round-icon">£</span>
+                <div><strong><span data-bind="monthlyGap">£804</span> left per month</strong><span>Projected <span data-bind="monthlyIncome">£1,696</span>/month from a final pot of <span data-bind="finalPot">£257,984</span>.</span></div>
+              </div>
+              <div class="split-list compact" id="plan-summary-list"></div>
+              <button class="secondary-action centered" type="button" data-view="pensions">Review accounts</button>
+            </article>
+          </div>
+        </section>
+
+        <section class="view" id="insights" aria-labelledby="insights-title">
+          <div class="intro-row">
+            <div>
+              <p class="eyebrow">Insights</p>
+              <h1 id="insights-title">Savings and insights</h1>
+              <p class="subtle">Keep short-term savings separate from long-term pension decisions.</p>
+            </div>
+          </div>
+          <div class="metric-grid four" id="insight-metrics"></div>
+          <div class="dashboard-grid two">
+            <article class="card">
+              <div class="card-title-row"><div><h3>Emergency buffer</h3><p>Your savings coverage against monthly expenses.</p></div></div>
+              <div class="savings-ring"><span id="savings-months">5.1</span><small>months covered</small></div>
+              <div class="split-list compact" id="savings-list"></div>
+            </article>
+            <article class="card">
+              <h3>Planning insights</h3>
+              <div class="action-list" id="insight-actions"></div>
+            </article>
+          </div>
+        </section>
+
+        <section class="view" id="documents" aria-labelledby="documents-title">
+          <div class="intro-row">
+            <div>
+              <p class="eyebrow">Documents</p>
+              <h1 id="documents-title">Upload and review documents</h1>
+              <p class="subtle">Upload pension letters or statements, then review the extracted facts before saving them to your dashboard.</p>
+            </div>
+            <span class="action-pill danger urgent-action-pill hidden" data-urgent-action-pill><span aria-hidden="true">!</span> Action needed</span>
+          </div>
+          <div class="documents-grid">
+            <article class="card upload-card">
+              <div class="drop-zone" id="drop-zone">
+                <span class="upload-icon" aria-hidden="true">⇧</span>
+                <strong>Drag and drop your file here</strong>
+                <span>or</span>
+                <button class="primary-action" type="button" id="upload-button">Upload document</button>
+                <input type="file" id="document-file" accept=".pdf,.jpg,.jpeg,.png,.txt,.text" hidden />
+              </div>
+              <p class="center-note">Supported files: PDF, JPG and PNG.</p>
+              <p class="scan-status" id="scan-status" aria-live="polite"></p>
+            </article>
+            <article class="card">
+              <h3>Document status</h3>
+              <div class="status-list" id="document-status-list"></div>
+            </article>
+            <article class="card documents-list-card">
+              <h3>Uploaded documents</h3>
+              <div class="document-list" id="document-list"></div>
+              <button class="inline-link" type="button">View all documents <span aria-hidden="true">›</span></button>
+            </article>
+            <article class="card review-steps-card">
+              <h3>How review works</h3>
+              <div class="review-steps" id="review-steps"></div>
+            </article>
+            <article class="card extracted-card">
+              <h3>Extracted facts</h3>
+              <div class="facts-table" id="facts-table"></div>
+              <div class="button-row"><button class="secondary-action" type="button">Edit facts</button><button class="primary-action" type="button" id="save-facts-button">Save to dashboard</button></div>
+            </article>
+          </div>
+        </section>
+
+        <section class="view" id="assistant" aria-labelledby="assistant-title">
+          <div class="intro-row">
+            <div>
+              <p class="eyebrow">Assistant</p>
+              <h1 id="assistant-title">AI assistant</h1>
+              <p class="subtle">Ask the local pension model about verified portfolio data and indexed materials.</p>
+            </div>
+            <span class="action-pill danger urgent-action-pill hidden" data-urgent-action-pill><span aria-hidden="true">!</span> Action needed</span>
+          </div>
+          <div class="assistant-layout">
+            <article class="card chat-card">
+              <h3>Ask your questions</h3>
+              <div class="info-panel compact-panel"><strong>Read-only and evidence grounded.</strong><p>Qwen3-8B can use your verified dashboard and indexed documents. Figures, policy terms, tax and legal statements must cite supplied evidence.</p></div>
+              <div class="quick-prompt-grid" aria-label="Suggested questions">
+                <button type="button" class="quick-prompt" data-view="assistant" data-prompt="Based on my current investment style, what changes should I review?"><span aria-hidden="true">📈</span><strong>Investment changes</strong></button>
+                <button type="button" class="quick-prompt" data-view="assistant" data-prompt="Explain my £804 monthly gap and what I can review."><span aria-hidden="true">💷</span><strong>Close the gap</strong></button>
+                <button type="button" class="quick-prompt" data-view="assistant" data-prompt="Check the legal route for changing my workplace pension scheme."><span aria-hidden="true">⚖️</span><strong>Legal route</strong></button>
+                <button type="button" class="quick-prompt" data-view="assistant" data-prompt="Review the document facts that need confirmation."><span aria-hidden="true">📄</span><strong>Document facts</strong></button>
+              </div>
+              <div class="chat-log" id="chat-log" aria-live="polite"></div>
+              <form class="chat-composer" id="assistant-form">
+                <input id="assistant-input" name="question" type="text" autocomplete="off" placeholder="Ask your question…" />
+                <button class="primary-action" type="submit">Send</button>
+              </form>
+              <p class="locked-note">Assistant responses are generated from your verified dashboard data.</p>
+              <div class="assistant-sources" id="assistant-sources" aria-live="polite"></div>
+            </article>
+
+            <div class="assistant-side">
+              <article class="card">
+                <div class="card-title-row"><h3>What the assistant can use</h3><span class="card-icon">▥</span></div>
+                <ul class="dot-list">
+                  <li>Pension pots, providers, charges and last-updated dates.</li>
+                  <li>State Pension forecast, retirement targets and projections.</li>
+                  <li>Uploaded document facts and review status.</li>
+                  <li>Savings buffer and data-quality checks.</li>
+                  <li>Contribution history and employer details.</li>
+                </ul>
+              </article>
+              <article class="card">
+                <div class="card-title-row"><h3>Reference guidance</h3><span class="card-icon">✓</span></div>
+                <p>Use suggestions as planning support. Before applying fund changes, transfers, tax or legal steps, verify current documents and get professional advice where needed.</p>
+              </article>
+              <article class="card connection-card">
+                <div class="card-title-row"><div><h3>Local model</h3><p>Qwen3-8B is the only answer model. Keys and cloud-provider settings are not accepted.</p></div></div>
+                <div class="local-model-status" id="local-model-status">Checking local model…</div>
+                <button class="secondary-action slim" type="button" id="new-chat-button">New conversation</button>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <section class="view" id="actions" aria-labelledby="actions-title">
+          <div class="intro-row">
+            <div>
+              <p class="eyebrow">Actions</p>
+              <h1 id="actions-title">Action Centre</h1>
+              <p class="subtle">Review what needs attention first, based on your dashboard checks and reminders.</p>
+            </div>
+            <button class="secondary-action" type="button" id="refresh-agent-button">Refresh actions</button>
+          </div>
+          <div class="dashboard-grid">
+            <article class="card action-centre-card">
+              <div class="card-title-row"><div><h3>What to do next</h3><p>Items that need attention.</p></div></div>
+              <div class="action-centre-list grouped" id="action-centre-list"></div>
+            </article>
+          </div>
+        </section>
+
+        <section class="view" id="settings" aria-labelledby="settings-title">
+          <div class="intro-row">
+            <div>
+              <p class="eyebrow">Settings</p>
+              <h1 id="settings-title">Profile and settings</h1>
+              <p class="subtle">Manage your profile, dashboard preferences and answer behaviour.</p>
+            </div>
+          </div>
+          <div class="settings-grid">
+            <article class="card"><div class="card-title-row"><h3>Profile</h3><span class="card-icon">♙</span></div><div class="split-list compact" id="profile-list"></div></article>
+            <article class="card"><div class="card-title-row"><h3>Notifications</h3><span class="card-icon">♢</span></div><div class="toggle-list" id="notification-settings"></div></article>
+            <article class="card planning-data-card">
+              <div class="card-title-row"><div><h3>Planning data</h3><p>Enter the core figures used by projections, dashboard checks and assistant context.</p></div><span class="card-icon">▤</span></div>
+              <form class="planning-data-form" id="planning-data-form">
+                <label class="form-field"><span>Display name</span><input name="profileName" type="text" placeholder="New user" autocomplete="name" /></label>
+                <label class="form-field"><span>Notification email</span><input name="profileEmail" type="email" placeholder="you@gmail.com" autocomplete="email" /></label>
+                <label class="form-field"><span>Current age</span><input name="currentAge" type="number" min="18" max="90" placeholder="45" /></label>
+                <label class="form-field"><span>Retirement age</span><input name="retirementAge" type="number" min="50" max="90" placeholder="67" /></label>
+                <label class="form-field"><span>Annual salary</span><input name="salary" type="number" min="0" step="100" placeholder="45000" /></label>
+                <label class="form-field"><span>Monthly target income</span><input name="monthlyTarget" type="number" min="0" step="50" placeholder="2500" /></label>
+                <label class="form-field"><span>State Pension monthly forecast</span><input name="statePensionMonthly" type="number" min="0" step="10" placeholder="550" /></label>
+                <label class="form-field"><span>Current savings</span><input name="currentSavings" type="number" min="0" step="100" placeholder="8750" /></label>
+                <label class="form-field"><span>Monthly expenses</span><input name="monthlyExpenses" type="number" min="0" step="50" placeholder="1700" /></label>
+                <div class="connection-buttons planning-data-wide"><button class="primary-action" type="submit">Save planning data</button><button class="secondary-action" type="button" data-view="pensions">Add pension account</button></div>
+                <p class="connection-status planning-data-wide" id="planning-data-status"></p>
+              </form>
+            </article>
+            <article class="card risk-profile-card">
+              <div class="card-title-row"><div><h3>Risk profile</h3><p>Used by the assistant and agent before deeper investment suggestions.</p></div><span class="card-icon">↗</span></div>
+              <form class="risk-profile-form" id="risk-profile-form">
+                <label class="form-field"><span>Preferred style</span><select name="preferredStyle"><option value="">Choose style</option><option value="conservative">Conservative</option><option value="balanced">Balanced</option><option value="growth">Growth</option></select></label>
+                <label class="form-field"><span>Years until pension use</span><input name="timeHorizonYears" type="number" min="0" max="60" placeholder="12" /></label>
+                <label class="form-field"><span>Temporary loss tolerance</span><select name="lossTolerancePct"><option value="">Choose tolerance</option><option value="10">10%</option><option value="20">20%</option><option value="30">30%</option><option value="40">40%</option></select></label>
+                <label class="form-field"><span>Main goal</span><select name="mainGoal"><option value="">Choose goal</option><option>Protect the pot</option><option>Grow the pot</option><option>Close the monthly gap</option><option>Balance growth and stability</option></select></label>
+                <label class="form-field risk-profile-wide"><span>Must-check items</span><input name="mustCheckItems" type="text" placeholder="Guarantees, high charges, transfers" /></label>
+                <div class="connection-buttons risk-profile-wide"><button class="primary-action" type="submit">Save risk profile</button><button class="secondary-action" type="button" id="risk-profile-reset">Clear</button></div>
+                <p class="connection-status risk-profile-wide" id="risk-profile-status"></p>
+              </form>
+            </article>
+            <article class="card"><div class="card-title-row"><h3>Security</h3><span class="card-icon">✓</span></div><div class="status-list"><button class="status-row" type="button" data-security-action="sign-out-all"><span class="status-icon blue">↪</span><span><strong>Sign out all sessions</strong><small>Sign out from all devices except this one.</small></span><span>›</span></button><button class="status-row" type="button" data-security-action="data-deletion"><span class="status-icon amber">⌫</span><span><strong>Request data deletion</strong><small>Submit a request to delete your account and data.</small></span><span>›</span></button></div><p class="connection-status" id="security-status" aria-live="polite"></p></article>
+          </div>
+        </section>
+      </main>
+    </div>
+    <script type="module" src="app.js?v=20260826-local-rag-4"></script>
+  </body>
+</html>

@@ -1,0 +1,206 @@
+services:
+  - type: web
+    name: pensions-dashboard
+    runtime: node
+    plan: free
+    buildCommand: npm ci --omit=dev
+    startCommand: npm start
+    healthCheckPath: /api/ready
+    envVars:
+      - key: NODE_VERSION
+        value: "24"
+      - key: NODE_ENV
+        value: production
+      - key: PENSIONS_STORAGE
+        value: postgres
+      - key: AGENT_SCHEDULER_ENABLED
+        value: "false"
+      - key: REQUIRE_AUTH
+        value: "true"
+      - key: REQUIRE_2FA
+        value: "true"
+      - key: LOCAL_LLM_TRANSPORT
+        value: openai
+      - key: LOCAL_LLM_MODEL
+        value: qwen3-8b-pension
+      - key: LOCAL_LLM_BASE_URL
+        sync: false
+      - key: LOCAL_LLM_API_KEY
+        sync: false
+      - key: LOCAL_LLM_EXPECTED_ADAPTER_SHA256
+        sync: false
+      - key: LOCAL_LLM_EXPECTED_BASE_SHA256
+        sync: false
+      - key: EMBEDDING_SERVICE_URL
+        sync: false
+      - key: ALLOW_DEGRADED_EMBEDDINGS
+        value: "false"
+      - key: RERANK_SERVICE_URL
+        sync: false
+      - key: REQUIRE_CROSS_ENCODER_RERANK
+        value: "true"
+      - key: READINESS_DEPENDENCY_TIMEOUT_MS
+        value: "3000"
+      - key: READINESS_CACHE_TTL_MS
+        value: "5000"
+      - key: REDIS_URL
+        fromService:
+          name: pensions-dashboard-cache
+          type: keyvalue
+          property: connectionString
+      - key: OBJECT_STORAGE_MODE
+        value: s3
+      - key: S3_ENDPOINT
+        sync: false
+      - key: S3_REGION
+        sync: false
+      - key: S3_BUCKET
+        sync: false
+      - key: S3_ACCESS_KEY_ID
+        sync: false
+      - key: S3_SECRET_ACCESS_KEY
+        sync: false
+      - key: OCR_SERVICE_URL
+        sync: false
+      - key: MALWARE_SCAN_URL
+        sync: false
+      - key: MALWARE_SCAN_HEALTH_URL
+        sync: false
+      - key: REQUIRE_MALWARE_SCAN
+        value: "true"
+      - key: APPROVED_CORPUS_MANIFEST_PATH
+        sync: false
+      - key: APPROVED_CORPUS_MANIFEST_SHA256
+        sync: false
+      - key: APPROVED_CORPUS_MIN_DOCUMENTS
+        value: "1"
+      - key: APPROVED_CORPUS_BOOTSTRAP_ON_START
+        value: "true"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: pensions-dashboard-db
+          property: connectionString
+      - key: EMAILJS_SERVICE_ID
+        sync: false
+      - key: EMAILJS_TEMPLATE_ID
+        sync: false
+      - key: EMAILJS_PUBLIC_KEY
+        sync: false
+      - key: EMAILJS_PRIVATE_KEY
+        sync: false
+      - key: EMAIL_FROM
+        sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      - key: SENDGRID_API_KEY
+        sync: false
+      - key: POSTMARK_SERVER_TOKEN
+        sync: false
+      - key: POSTMARK_MESSAGE_STREAM
+        value: outbound
+      - key: AWS_SES_REGION
+        sync: false
+      - key: AWS_ACCESS_KEY_ID
+        sync: false
+      - key: AWS_SECRET_ACCESS_KEY
+        sync: false
+      - key: AWS_SESSION_TOKEN
+        sync: false
+
+  - type: cron
+    name: pensions-dashboard-agent-cron
+    runtime: node
+    schedule: "0 8 * * *"
+    buildCommand: npm ci --omit=dev
+    startCommand: npm run cron:agent
+    envVars:
+      - key: NODE_VERSION
+        value: "24"
+      - key: NODE_ENV
+        value: production
+      - key: PENSIONS_STORAGE
+        value: postgres
+      - key: AGENT_SCHEDULER_ENABLED
+        value: "false"
+      - key: AUTHENTICATED_USER_ID
+        value: alex-morgan
+      - key: DATABASE_URL
+        fromDatabase:
+          name: pensions-dashboard-db
+          property: connectionString
+      - key: EMAILJS_SERVICE_ID
+        fromService:
+          name: pensions-dashboard
+          type: web
+          envVarKey: EMAILJS_SERVICE_ID
+      - key: EMAILJS_TEMPLATE_ID
+        fromService:
+          name: pensions-dashboard
+          type: web
+          envVarKey: EMAILJS_TEMPLATE_ID
+      - key: EMAILJS_PUBLIC_KEY
+        fromService:
+          name: pensions-dashboard
+          type: web
+          envVarKey: EMAILJS_PUBLIC_KEY
+      - key: EMAILJS_PRIVATE_KEY
+        fromService:
+          name: pensions-dashboard
+          type: web
+          envVarKey: EMAILJS_PRIVATE_KEY
+      - key: EMAIL_FROM
+        fromService:
+          name: pensions-dashboard
+          type: web
+          envVarKey: EMAIL_FROM
+      - key: RESEND_API_KEY
+        fromService:
+          name: pensions-dashboard
+          type: web
+          envVarKey: RESEND_API_KEY
+      - key: SENDGRID_API_KEY
+        fromService:
+          name: pensions-dashboard
+          type: web
+          envVarKey: SENDGRID_API_KEY
+      - key: POSTMARK_SERVER_TOKEN
+        fromService:
+          name: pensions-dashboard
+          type: web
+          envVarKey: POSTMARK_SERVER_TOKEN
+      - key: POSTMARK_MESSAGE_STREAM
+        fromService:
+          name: pensions-dashboard
+          type: web
+          envVarKey: POSTMARK_MESSAGE_STREAM
+      - key: AWS_SES_REGION
+        fromService:
+          name: pensions-dashboard
+          type: web
+          envVarKey: AWS_SES_REGION
+      - key: AWS_ACCESS_KEY_ID
+        fromService:
+          name: pensions-dashboard
+          type: web
+          envVarKey: AWS_ACCESS_KEY_ID
+      - key: AWS_SECRET_ACCESS_KEY
+        fromService:
+          name: pensions-dashboard
+          type: web
+          envVarKey: AWS_SECRET_ACCESS_KEY
+      - key: AWS_SESSION_TOKEN
+        fromService:
+          name: pensions-dashboard
+          type: web
+          envVarKey: AWS_SESSION_TOKEN
+
+  - type: keyvalue
+    name: pensions-dashboard-cache
+    plan: free
+    ipAllowList: []
+
+databases:
+  - name: pensions-dashboard-db
+    plan: free
+    databaseName: pensions_dashboard
+    user: pensions_dashboard_user

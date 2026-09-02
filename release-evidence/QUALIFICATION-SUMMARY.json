@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "build_id": "fail-closed-20260902-v1",
+  "scope": "fail-closed public application snapshot",
+  "live_qualified": false,
+  "production_or_public_deployment_authorised": false,
+  "visible_qualification_passed": false,
+  "sealed_unseen_executed": false,
+  "legal_boundary": "Information and routing support only; not legal advice or regulated financial advice.",
+  "model_identity_hashes_only": {
+    "model_id": "pension-assistant-cumulative-visible-compact-v8-step130",
+    "checkpoint_selection_sha256": "d52b100a516a525172c13fe20675a92f11ae61d0447451257c36750fe6645d70",
+    "adapter_sha256": "84f2b1af1e60aa79e5d707826b0477fd0bcb1905b8cfa2ef627f7214b8b07acd",
+    "note": "Adapter and 4.6 GB base-model weights are deliberately excluded from this public snapshot."
+  },
+  "canonical_artifacts": {
+    "visible_qualification_closed_sha256": "3243ab3bd50240ea5c9d8f3998ae01cd29ef04b35a559e0f8e2f81781f790b25",
+    "visible_qualification_orchestration_sha256": "a75a3be55d8b15f1bb2ec1ae94e7dcda713140546c8c0a56a214442c32a8cf2e",
+    "visible_qualification_gate_topic161_sha256": "865d74eb018fcf86401dce5a51ba1add4b5b4a4940a9553dfe9f1fc24a63e2e2",
+    "approved_corpus_manifest_sha256": "04a9b90761bc0b49e6e258a784cda4c82478b4fc707a2b069b5028933e1764a0"
+  },
+  "outcome": {
+    "run_label": "20260902-recovery-step130-v4",
+    "critical4_passed": true,
+    "full69_passed": true,
+    "topic161_passed": false,
+    "topic161_wave_pass_rates": {
+      "wave-1": 69.2,
+      "wave-2": 48.5,
+      "wave-3": 48.8
+    },
+    "approved_corpus_document_count": 208
+  }
+}
