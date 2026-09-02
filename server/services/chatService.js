@@ -30,8 +30,14 @@ function summarise(messages = [], previousSummary = "") {
   return [previousSummary, ...selected.map((item) => `${item.role}: ${String(item.content).slice(0,180)}`)].filter(Boolean).join(" | ").slice(-1400);
 }
 
+export function requiresRiskProfileClarification(question, riskProfile) {
+  if (riskProfile?.completed) return false;
+  // "fund" is too broad in this domain (PPF, pension fund, fund documents).
+  return /\b(invest|allocation|risk|switch|growth|balanced|cautious)\b/i.test(String(question || ""));
+}
+
 function riskClarification(question, dashboard, riskProfile) {
-  if (!/\b(invest|allocation|fund|risk|switch|growth|balanced|cautious)\b/i.test(question) || riskProfile?.completed) return null;
+  if (!requiresRiskProfileClarification(question, riskProfile)) return null;
   return `Before I can ground an investment-style explanation in your circumstances, please provide: preferred style (cautious, balanced, or growth), years until you expect to use the pension, temporary loss tolerance, main goal, and any guarantees, transfer concerns, or charges that must be checked. Your current verified allocation remains unchanged.`;
 }
 

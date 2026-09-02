@@ -315,8 +315,8 @@
     },
     {
       "path": "server/services/chatService.js",
-      "bytes": 15224,
-      "sha256": "f076b0171efef7699f659c9920c7d9886836935b3fb383f08972fd9740bd5eeb"
+      "bytes": 15471,
+      "sha256": "dfa872de978cbc5b3502fad5a680dc32e5b67d79556bfe208dc8af192e2b19d9"
     },
     {
       "path": "server/services/chunkingService.js",
@@ -500,8 +500,8 @@
     },
     {
       "path": "test/chat-rag.test.mjs",
-      "bytes": 39253,
-      "sha256": "05e7259b295c871c0c816900711df7c35ccf78dc99feb3c9d210e9c9ec8561cc"
+      "bytes": 39803,
+      "sha256": "514e097d2ad5a95d2555d3dd2205e22c706c428935795bc9adbd46f3f77d5ae8"
     },
     {
       "path": "test/evidence-excerpt.test.mjs",

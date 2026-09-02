@@ -11,7 +11,7 @@ import { rerankSources } from "../server/services/rerankingService.js";
 import { annotateCaseTreatment, readCaseTreatmentGraph } from "../server/services/caseTreatmentService.js";
 import { renderCitationMarkers } from "../server/services/citationRendererService.js";
 import { evidencePolicyResponse } from "../server/services/evidencePolicyService.js";
-import { selectModelSources } from "../server/services/chatService.js";
+import { requiresRiskProfileClarification, selectModelSources } from "../server/services/chatService.js";
 import { listKnowledgeDocuments } from "../server/repositories/knowledgeRepository.js";
 import { writeKnowledgeDocuments, writeKnowledgeChunks } from "../server/store/userDataStore.js";
 
@@ -336,6 +336,13 @@ test("legal query expansion adds full pension-domain terms without replacing the
   const scamExpanded = expandRetrievalQuery("Can someone unlock my pension if I pay a release fee today?");
   assert.match(scamExpanded, /The Pensions Regulator Avoid and report pension scams/);
   assert.match(scamExpanded, /do not transfer/);
+});
+
+test("risk-profile clarification does not fire on ordinary fund or PPF questions", () => {
+  assert.equal(requiresRiskProfileClarification("What is the Pension Protection Fund?"), false);
+  assert.equal(requiresRiskProfileClarification("How is my occupational pension fund valued?"), false);
+  assert.equal(requiresRiskProfileClarification("Should I switch to a growth allocation?"), true);
+  assert.equal(requiresRiskProfileClarification("Should I switch to a growth allocation?", { completed:true }), false);
 });
 
 test("security fallback remains fail-closed and includes a visible urgent handoff", () => {
