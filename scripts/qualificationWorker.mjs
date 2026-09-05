@@ -38,7 +38,7 @@ if (!startupConfigGate.passed) throw new Error(`Canonical qualification config r
 Object.defineProperty(config, "__project_root", { value:PROJECT_ROOT,enumerable:false });
 for (const value of [
   config.paths.log_root, config.paths.live50_bank, config.paths.round52_baseline,
-  config.paths.t4_target_ids, config.paths.visible_output_parent,
+  config.paths.t4_target_ids,config.paths.review_calibration_pack, config.paths.visible_output_parent,
   config.runtime.approved_corpus_manifest_path,
   config.runtime.database_path,
   config.candidate.checkpoint_path, config.candidate.adapter_path, config.candidate.adapter_config_path,

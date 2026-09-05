@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import ctypes
 import json
+import os
 import struct
 import sys
 
@@ -36,7 +37,12 @@ def main() -> None:
         end = data.index(b"\0", offset)
         argv.append(data[offset:end].decode("utf-8", "surrogateescape"))
         offset = end + 1
-    print(json.dumps({"pid": pid, "executable": executable, "argv": argv}, separators=(",", ":")))
+    print(json.dumps({
+        "pid": pid,
+        "pgid": os.getpgid(pid),
+        "executable": executable,
+        "argv": argv,
+    }, separators=(",", ":")))
 
 
 if __name__ == "__main__":

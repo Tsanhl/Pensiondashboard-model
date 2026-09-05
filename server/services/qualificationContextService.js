@@ -16,6 +16,7 @@ const ALLOWED_CONTEXT_MANIFEST_VERSION = "qualification-allowed-context-manifest
 const QUALIFICATION_STAGES = new Set([
   "VERIFY_RUNTIME",
   "T4_TARGETED_REGRESSION","TOPIC161_ORIGINAL_DEVELOPMENT","LIVE50_FULL_REGRESSION",
+  "RELIABILITY_GATE",
   "VISIBLE_CRITICAL4","VISIBLE_FULL69","VISIBLE_TOPIC161_REPLACEMENT_V2","VISIBLE_FROZEN13",
 ]);
 
@@ -114,6 +115,7 @@ function stageAllowsCase(stageId,caseId) {
   if (stageId === "VISIBLE_CRITICAL4") return ["gold-011","gold-041","gold-047","gold-063"].includes(caseId);
   if (stageId === "VERIFY_RUNTIME") return caseId === "runtime-smoke";
   if (stageId === "LIVE50_FULL_REGRESSION") return /^L(?:0[1-9]|[1-4][0-9]|50)$/.test(caseId);
+  if (stageId === "RELIABILITY_GATE") return /^reliability-(?:repeat-(?:0[1-9]|1[0-5])|concurrent-0[1-4]|journey-0[1-5]|cancel|post-cancel)$/.test(caseId);
   if (["T4_TARGETED_REGRESSION","TOPIC161_ORIGINAL_DEVELOPMENT","VISIBLE_TOPIC161_REPLACEMENT_V2","VISIBLE_FROZEN13"].includes(stageId)) {
     return /^(?:v2|v2r|v2q)-[a-z0-9._-]{3,150}$/i.test(caseId);
   }

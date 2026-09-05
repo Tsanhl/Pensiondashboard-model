@@ -434,10 +434,23 @@ function topic161Assessment() {
     (readJson(resolve(replacementRoot, `${wave}/development-question-set.json`)).topics || []).flatMap((topic) => (topic.diagnostic_evaluation || []).map((item) => item.id)),
   ]));
   const allReplacementIds = Object.values(replacementIdsByWave).flat();
-  const replacementIdentityValid = replacementManifest?.version === "topic161-replacement-v2-frozen-suite-manifest-v1" &&
+  const authorisationPath=resolve(replacementRoot,"OWNER-AUTHORISATION-ID-ONLY.json");
+  const remediationPath=resolve(replacementRoot,"ID-REFREEZE-REPORT.json");
+  const independentPath=resolve(replacementRoot,"INDEPENDENT-REFREEZE-VERIFICATION.json");
+  const authorisation=existsSync(authorisationPath) ? readJson(authorisationPath) : null;
+  const remediation=existsSync(remediationPath) ? readJson(remediationPath) : null;
+  const independent=existsSync(independentPath) ? readJson(independentPath) : null;
+  const replacementIdentityValid = replacementManifest?.version === "topic161-replacement-v2-frozen-suite-manifest-v2" &&
+    replacementManifest.state === "REPLACEMENT_QUALIFICATION_REFROZEN_ID_ONLY" &&
     replacementManifest.item_count === 161 && replacementManifest.sealed_unseen_accessed === false &&
     Object.entries(EXPECTED_WAVE_COUNTS).every(([wave, count]) => replacementManifest.waves?.[wave] === count && replacementIdsByWave[wave].length === count) &&
-    allReplacementIds.length === 161 && new Set(allReplacementIds).size === 161;
+    allReplacementIds.length === 161 && new Set(allReplacementIds).size === 161 &&
+    authorisation?.substantive_changes_authorised === false && authorisation?.sealed_unseen_authorised === false &&
+    remediation?.substantive_content_equal === true && independent?.passed === true && independent?.unique_ids === 161 &&
+    independent?.substantive_content_equal === true && independent?.sealed_unseen_accessed === false &&
+    independent?.manifest_sha256 === hashFile(resolve(replacementRoot,"frozen-suite-manifest.json")) &&
+    replacementManifest.id_remediation?.owner_authorisation_sha256 === hashFile(authorisationPath) &&
+    replacementManifest.id_remediation?.report_sha256 === hashFile(remediationPath);
   const processed = Object.values(waves).reduce((sum, item) => sum + Number(item.processed || 0), 0);
   const passed = replacementIdentityValid && processed === 161 && Object.values(waves).every((item) => item.passed);
   return {

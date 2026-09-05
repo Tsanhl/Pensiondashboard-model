@@ -294,6 +294,54 @@ export function verifyOwnedRuntimeProcess({ projectRoot,runRoot,expectedPid,expe
   };
 }
 
+export async function interruptOwnedModelWorkerAndWait({
+  projectRoot,runRoot,expectedPid,expectedRunId,config,sourceBindingsSha256,expectedIdentity,
+}) {
+  const ownerBefore = verifyOwnedRuntimeProcess({ projectRoot,runRoot,expectedPid,expectedRunId,config,sourceBindingsSha256 });
+  const before = await fetchJson(`${config.runtime.model_endpoint}/health`,config.runtime.service_request_timeout_ms);
+  const workerPid = Number(before.body?.worker_pid || 0);
+  const workerScript = resolve(projectRoot,"ml/pinned_mlx_worker.py");
+  const python = verifyPythonEnvironments(projectRoot,config);
+  const probeScript = resolve(projectRoot,"scripts/processArgvDarwin.py");
+  const observation = workerPid > 0
+    ? processObservation(workerPid,python.environments.retrieval.executable,probeScript,config.runtime.argv_probe_timeout_ms)
+    : null;
+  const expectedId = String(expectedIdentity?.id || "");
+  if (!before.ok || before.body?.ready !== true || !workerPid || !observation || observation.pgid !== Number(expectedPid)
+      || !observation.argv.includes(workerScript) || before.body?.identity?.id !== expectedId) {
+    throw Object.assign(new Error("Refusing the model-outage probe because the live model worker is not exactly owned by the qualification runtime."),{ code:"RUNTIME_OWNERSHIP_MISMATCH" });
+  }
+  try { process.kill(workerPid,"SIGTERM"); }
+  catch (error) { throw Object.assign(new Error(`Owned model worker could not be interrupted: ${error.message}`),{ code:"INFRASTRUCTURE_TEMPORARY" }); }
+  const deadline = Date.now() + config.runtime.model_ready_timeout_ms;
+  let unavailableObserved = false;
+  let after = null;
+  while (Date.now() < deadline) {
+    const probe = await fetchJson(`${config.runtime.model_endpoint}/health`,config.runtime.model_status_timeout_ms);
+    if (!probe.ok || probe.body?.ready !== true) unavailableObserved = true;
+    if (probe.ok && probe.body?.ready === true && Number(probe.body?.worker_pid || 0) > 0 && Number(probe.body.worker_pid) !== workerPid
+        && Number(probe.body?.restarts || 0) > Number(before.body?.restarts || 0) && probe.body?.identity?.id === expectedId) {
+      after = probe;
+      break;
+    }
+    await sleep(config.runtime.model_retry_poll_ms);
+  }
+  if (!after) throw Object.assign(new Error("Owned model worker did not recover with the pinned identity after the controlled outage."),{ code:"INFRASTRUCTURE_TEMPORARY" });
+  const recoveredPid = Number(after.body.worker_pid);
+  const recoveredObservation = processObservation(recoveredPid,python.environments.retrieval.executable,probeScript,config.runtime.argv_probe_timeout_ms);
+  if (!recoveredObservation || recoveredObservation.pgid !== Number(expectedPid) || !recoveredObservation.argv.includes(workerScript)) {
+    throw Object.assign(new Error("Recovered model worker is outside the exactly owned qualification process group."),{ code:"RUNTIME_OWNERSHIP_MISMATCH" });
+  }
+  const ownerAfter = verifyOwnedRuntimeProcess({ projectRoot,runRoot,expectedPid,expectedRunId,config,sourceBindingsSha256 });
+  return {
+    version:"qualification-owned-model-outage-probe-v1",passed:true,completed_at:now(),
+    runtime_pid:Number(expectedPid),old_worker_pid:workerPid,new_worker_pid:recoveredPid,
+    unavailable_observed:unavailableObserved,restarts_before:Number(before.body.restarts || 0),restarts_after:Number(after.body.restarts || 0),
+    model_id:expectedId,old_worker_observation_sha256:canonicalHash(observation),new_worker_observation_sha256:canonicalHash(recoveredObservation),
+    owner_before_sha256:canonicalHash(ownerBefore),owner_after_sha256:canonicalHash(ownerAfter),sealed_unseen_accessed:false,
+  };
+}
+
 export async function stopOwnedRuntime({ projectRoot,runRoot,expectedPid,expectedRunId,timeoutMs = null,config = null,argvProbeExecutable = null,argvProbeScript = null }) {
   if (!expectedPid) return { stopped:false,reason:"no_recorded_runtime" };
   const recordPath = join(runRoot,"runtime-process.json");

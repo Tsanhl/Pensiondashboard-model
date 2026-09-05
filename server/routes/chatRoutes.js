@@ -8,6 +8,11 @@ import {
   qualificationRuntimeEnabled,
   verifyAndConsumeQualificationRequestCapability,
 } from "../services/qualificationContextService.js";
+import {
+  createCustodianBodySignature,
+  custodianRuntimeEnabled,
+  verifyAndConsumeCustodianCapability,
+} from "../services/custodianContextService.js";
 
 function match(pathname, expression) {
   const result = pathname.match(expression);
@@ -24,6 +29,8 @@ export async function handleChatRoute({ req, res, url, json, readBody, userId })
     const clientRequestId = body.client_request_id || body.clientRequestId;
     const message = body.message || body.question;
     const formalQualification = qualificationRuntimeEnabled();
+    const sealedCustodian = custodianRuntimeEnabled();
+    if (formalQualification && sealedCustodian) throw Object.assign(new Error("Qualification and sealed custodian modes cannot share one runtime."),{ status:500 });
     const qualificationStageId = String(req.headers["x-qualification-stage-id"] || "");
     const qualificationCaseId = String(req.headers["x-qualification-case-id"] || body.qualification_context?.case_id || "");
     if (formalQualification && (!qualificationStageId || !qualificationCaseId || !isLoopbackAddress(req.socket?.remoteAddress))) {
@@ -32,7 +39,10 @@ export async function handleChatRoute({ req, res, url, json, readBody, userId })
     let qualificationContext = null;
     let qualificationContextHash = null;
     let qualificationCapabilityReceipt = null;
+    const custodianRunId = String(req.headers["x-sealed-unseen-run-id"] || "");
+    const custodianCaseId = String(req.headers["x-sealed-unseen-case-id"] || body.custodian_context?.case_id || "");
     if (formalQualification) {
+      if (body.custodian_capability !== undefined || body.custodian_context !== undefined) throw Object.assign(new Error("Custodian material is forbidden in qualification mode."),{ status:400 });
       if (!isLoopbackAddress(req.socket?.remoteAddress)) {
         throw Object.assign(new Error("Qualification context is restricted to the local formal qualification runtime."), { status:403 });
       }
@@ -48,7 +58,19 @@ export async function handleChatRoute({ req, res, url, json, readBody, userId })
       if (qualificationContext && qualificationContext.case_id !== qualificationCaseId) {
         throw Object.assign(new Error("Qualification case header does not match the signed synthetic context."),{ status:403 });
       }
-    } else if (body.qualification_capability !== undefined || body.qualification_context !== undefined) {
+    } else if (sealedCustodian) {
+      if (body.qualification_capability !== undefined || body.qualification_context !== undefined) throw Object.assign(new Error("Qualification material is forbidden in custodian mode."),{ status:400 });
+      if (!isLoopbackAddress(req.socket?.remoteAddress) || !custodianRunId || !custodianCaseId) {
+        throw Object.assign(new Error("Sealed custodian requests require loopback run and case identity."),{ status:403 });
+      }
+      qualificationCapabilityReceipt = verifyAndConsumeCustodianCapability({
+        capability:body.custodian_capability,key:process.env.SEALED_UNSEEN_CONTEXT_HMAC_KEY,
+        runId:process.env.SEALED_UNSEEN_RUN_ID,caseId:custodianCaseId,clientRequestId,message,context:body.custodian_context,
+      });
+      if (custodianRunId !== process.env.SEALED_UNSEEN_RUN_ID) throw Object.assign(new Error("Sealed custodian run identity mismatch."),{ status:403 });
+      qualificationContext=qualificationCapabilityReceipt.normalized_context;
+      qualificationContextHash=qualificationCapabilityReceipt.context_sha256;
+    } else if (body.qualification_capability !== undefined || body.qualification_context !== undefined || body.custodian_capability !== undefined || body.custodian_context !== undefined) {
       throw Object.assign(new Error("Qualification capability and context are restricted to a formal qualification runtime."), { status:400 });
     }
     const controller = new AbortController();
@@ -86,16 +108,21 @@ export async function handleChatRoute({ req, res, url, json, readBody, userId })
         stageId:qualificationStageId,caseId:qualificationCaseId,clientRequestId,message,response:responsePayload,
       }) : null;
       const finalPayload = { ...responsePayload,qualification_server_receipt:qualificationServerReceipt };
-      if (formalQualification) {
+      if (formalQualification || sealedCustodian) {
         const rawBody = Buffer.from(JSON.stringify(finalPayload));
-        const bodySignature = createQualificationResponseBodySignature({
-          privateKeyPem:process.env.QUALIFICATION_RESPONSE_SIGNING_PRIVATE_KEY_PEM,runId:process.env.QUALIFICATION_RUN_ID,
-          stageId:qualificationStageId,caseId:qualificationCaseId,clientRequestId,rawBody,
-        });
+        const bodySignature = formalQualification
+          ? createQualificationResponseBodySignature({
+            privateKeyPem:process.env.QUALIFICATION_RESPONSE_SIGNING_PRIVATE_KEY_PEM,runId:process.env.QUALIFICATION_RUN_ID,
+            stageId:qualificationStageId,caseId:qualificationCaseId,clientRequestId,rawBody,
+          })
+          : createCustodianBodySignature({
+            key:process.env.SEALED_UNSEEN_CONTEXT_HMAC_KEY,runId:process.env.SEALED_UNSEEN_RUN_ID,
+            caseId:custodianCaseId,clientRequestId,rawBody,
+          });
         res.writeHead(200,{
           "Content-Type":"application/json; charset=utf-8","Cache-Control":"no-store",
-          "X-Qualification-Body-SHA256":bodySignature.body_sha256,
-          "X-Qualification-Body-Signature":bodySignature.signature,
+          [formalQualification ? "X-Qualification-Body-SHA256" : "X-Sealed-Unseen-Body-SHA256"]:bodySignature.body_sha256,
+          [formalQualification ? "X-Qualification-Body-Signature" : "X-Sealed-Unseen-Body-Signature"]:bodySignature.signature,
         });
         res.end(rawBody);
         return true;

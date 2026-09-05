@@ -2,7 +2,7 @@
 
 This is the current fail-closed source snapshot of the UK pensions dashboard and its post-T4 qualification controller.
 
-**It is not a live-qualified model release.** T4 training completed and checkpoint 104 was selected. Five Live-50 Round-53 product-path regressions were repaired, but the clean post-repair evaluation has not started because static preflight found 161 replacement-topic rows with only 136 unique IDs. The sealed unseen set has not been opened or run.
+**It is not a live-qualified model release.** T4 training completed and checkpoint 104 was selected. Five Live-50 Round-53 product-path regressions were repaired. The 25 repeated replacement-v2 IDs were corrected under an ID-only owner authorization and independently refrozen with 161 unique IDs; substantive content was unchanged. Static preflight passes on the controlled owner machine, but the clean post-repair qualification gates have not completed. The sealed unseen set has not been opened or run.
 
 ## Current gate
 
@@ -11,7 +11,8 @@ This is the current fail-closed source snapshot of the UK pensions dashboard and
 | T4 training | Complete |
 | Selected checkpoint | Iteration 104 |
 | Product-path repair | Complete and regression-tested |
-| Post-repair development evaluation | Not started |
+| Replacement-v2 ID-only refreeze | Complete and independently verified |
+| Post-repair development evaluation | Ready to start; no gate completed |
 | Visible qualification | Not started |
 | Live-qualified release | No |
 | Sealed unseen | Closed and not accessed |
@@ -22,7 +23,9 @@ The controller route is:
 
 A score of 70 is a floor. Every factual, citation-entailment, jurisdiction, safety, outcome, and personal-fact gate must pass, together with two independent isolated Codex reviews. “Fact checked” means checked against the pinned evidence supplied for that run; it is not a claim of universal or error-free truth.
 
-The worker records immutable raw response bytes, server signatures, runtime identities, sources, citations, attempts, retries, dual-review receipts, failure classifications, stage gates, and hash manifests. Training, legal-gold changes, sealed unseen, release, and Git push remain outside worker authority.
+The worker first calibrates both isolated reviewers against three supported and three deliberately incorrect cases. It then records immutable raw response bytes, server signatures, runtime identities, sources, citations, attempts, retries, dual-review receipts, failure classifications, stage gates, and hash manifests. Its reliability gate performs 15 sequential and four concurrent product-path requests, five fixed repaired journeys, one controlled model-worker outage, cancellation, restart recovery, and user/session separation checks. Training, legal-gold changes, sealed unseen, release, and Git push remain outside worker authority.
+
+The sealed-unseen custodian is a separate owner-controlled process. It uses a separate one-use HMAC capability and nonce ledger and sends each protected question through the same canonical `/chat` route. The qualification worker never receives the custodian key. The custodian runner exists for later owner authorization; this snapshot does not authorize or perform an unseen run.
 
 ## Public snapshot boundary
 
@@ -42,7 +45,7 @@ npm test
 npm run qualification:test
 ```
 
-`npm run qualification:preflight` is expected to fail in this public snapshot because protected and machine-local candidate inputs are deliberately excluded. On the controlled owner machine it currently fails on the duplicate-ID blocker in `release-evidence/POST-T4-STATUS.json`.
+`npm run qualification:preflight` is expected to fail in this public snapshot because protected and machine-local candidate inputs are deliberately excluded. The same preflight passes on the controlled owner machine with all 41 pinned inputs present.
 
 Development serving is not a qualification pass:
 

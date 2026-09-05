@@ -4,6 +4,7 @@ import { existsSync, mkdirSync, readFileSync, readdirSync, realpathSync } from "
 import { dirname, join, relative, resolve } from "node:path";
 import { CRITICAL_IDS, loadAndVerifyVisibleAssets, qualificationPaths } from "../postTrainingVisibleQualificationV1.mjs";
 import { revalidateDualAiReview, runDualAiReview,verifyReviewerExecutable } from "./aiReview.mjs";
+import { runActiveReliabilityJourneys } from "./activeReliability.mjs";
 import {
   captureBindings,
   compareBindings,
@@ -24,13 +25,14 @@ import {
   validateTopic161Summary,
 } from "./gateValidators.mjs";
 import { assertCommandAllowed, assertNoProtectedCredentials, assertPathAllowed } from "./protectedPaths.mjs";
-import { ensureRuntime, QUALIFICATION_CONTEXT_KEY_FILE, QUALIFICATION_NONCE_STORE_DIRECTORY, QUALIFICATION_RESPONSE_PUBLIC_KEY_FILE, removeQualificationContextKey, stopOwnedRuntime, verifyOwnedRuntimeProcess,verifyRuntimeStillBound } from "./runtimeSupervisor.mjs";
+import { ensureRuntime,interruptOwnedModelWorkerAndWait, QUALIFICATION_CONTEXT_KEY_FILE, QUALIFICATION_NONCE_STORE_DIRECTORY, QUALIFICATION_RESPONSE_PUBLIC_KEY_FILE, removeQualificationContextKey, stopOwnedRuntime, verifyOwnedRuntimeProcess,verifyRuntimeStillBound } from "./runtimeSupervisor.mjs";
 import { safeHostEnvironment } from "./processEnvironment.mjs";
 import { atomicWrite, canonicalHash, createExclusive, fileRecord, now, readJson, sha256Buffer, sha256File } from "./utils.mjs";
 import { bindCaseEvidence, buildTrustedEvidenceCatalog,mergeCaseEvidenceCatalog } from "./trustedEvidence.mjs";
 import { processGroupAlive, terminateProcessGroup } from "./childProcessGroup.mjs";
 import { verifyServedResponseReceipt } from "../servedResponseReceipt.mjs";
 import { combineGenerationTelemetry } from "./liveAttemptTelemetry.mjs";
+import { buildReviewCalibrationCases,validateAiReviewCalibration,validateDeterministicReviewCalibration } from "./reviewCalibration.mjs";
 
 export const EXECUTABLE_ENTRY_PATHS = Object.freeze([
   "app.js",
@@ -630,6 +632,7 @@ export function inspectReplacementV2Identity(projectRoot) {
   const paths = [
     `${root}/frozen-suite-manifest.json`,
     ...["wave-1","wave-2","wave-3"].flatMap((wave) => [`${root}/${wave}/development-question-set.json`,`${root}/${wave}/evaluation-gold.json`]),
+    ...["questions.jsonl","gold-answers.jsonl","proposition-map.jsonl","source-map.json","competency-matrix.json","independence-audit.json","OWNER-AUTHORISATION-ID-ONLY.json","ID-REFREEZE-REPORT.json","INDEPENDENT-REFREEZE-VERIFICATION.json"].map((name) => `${root}/${name}`),
   ];
   const manifest = readJson(resolve(projectRoot,paths[0]));
   const expectedCounts = { "wave-1":52,"wave-2":68,"wave-3":41 };
@@ -648,7 +651,16 @@ export function inspectReplacementV2Identity(projectRoot) {
     waveParity &&= parity;
     allIds.push(...questionIds);
   }
-  const passed = waveParity && manifest.item_count === 161 && manifest.sealed_unseen_accessed === false && allIds.length === 161 && new Set(allIds).size === 161;
+  const authorisation = readJson(resolve(projectRoot,`${root}/OWNER-AUTHORISATION-ID-ONLY.json`));
+  const remediation = readJson(resolve(projectRoot,`${root}/ID-REFREEZE-REPORT.json`));
+  const independent = readJson(resolve(projectRoot,`${root}/INDEPENDENT-REFREEZE-VERIFICATION.json`));
+  const passed = waveParity && manifest.version === "topic161-replacement-v2-frozen-suite-manifest-v2"
+    && manifest.state === "REPLACEMENT_QUALIFICATION_REFROZEN_ID_ONLY" && manifest.item_count === 161 && manifest.sealed_unseen_accessed === false
+    && allIds.length === 161 && new Set(allIds).size === 161
+    && authorisation.substantive_changes_authorised === false && authorisation.sealed_unseen_authorised === false
+    && remediation.substantive_content_equal === true && independent.passed === true && independent.unique_ids === 161
+    && independent.substantive_content_equal === true && independent.sealed_unseen_accessed === false
+    && independent.manifest_sha256 === sha256File(resolve(projectRoot,paths[0]));
   return { passed,paths,item_count:allIds.length,unique_ids:new Set(allIds).size,waves:waveCounts,sealed_unseen_accessed:manifest.sealed_unseen_accessed };
 }
 
@@ -680,6 +692,12 @@ export function qualificationStaticPreflight(projectRoot,config) {
       if (!existsSync(resolve(projectRoot,path))) blockers.push(`Candidate identity file is missing: ${path}`);
     }
     verifyReviewerExecutable(config.ai_review);
+    const calibrationPack = readJson(resolve(projectRoot,config.paths.review_calibration_pack));
+    const deterministicCalibration = validateDeterministicReviewCalibration(calibrationPack,buildReviewCalibrationCases(calibrationPack));
+    if (!deterministicCalibration.passed) {
+      blockers.push("finite reviewer calibration pack failed its deterministic false-approval/false-rejection checks");
+      failureClasses.push("EVALUATOR_DEFECT");
+    }
     const replacement = inspectReplacementV2Identity(projectRoot);
     if (!replacement.passed) {
       blockers.push(`Frozen replacement topic161 has ${replacement.item_count} rows and ${replacement.unique_ids} unique IDs; 161 unique IDs with per-wave question/gold parity are required`);
@@ -735,7 +753,7 @@ async function verifyRuntimeStage(context) {
       next_owner_action:"Review the ID-only remediation proposal and independently refreeze replacement-v2; do not alter questions, gold, sources, scores, thresholds, or ordering",
     });
   }
-  const dataPaths = ["config/qualification-worker.json", ...Object.keys(context.config.qualification_input_sha256 || {}), context.config.paths.live50_bank, context.config.paths.round52_baseline, context.config.paths.t4_target_ids, ...visibleAssetPaths, ...replacementPaths];
+  const dataPaths = ["config/qualification-worker.json", ...Object.keys(context.config.qualification_input_sha256 || {}), context.config.paths.live50_bank, context.config.paths.round52_baseline, context.config.paths.t4_target_ids,context.config.paths.review_calibration_pack, ...visibleAssetPaths, ...replacementPaths];
   const unpinnedQualificationInputs = dataPaths.filter((path) => path !== "config/qualification-worker.json" && !Object.hasOwn(context.config.qualification_input_sha256 || {}, path));
   if (unpinnedQualificationInputs.length) return writeGate(context, "VERIFY_RUNTIME", { passed:false,blockers:[`Qualification inputs lack authoritative hashes: ${unpinnedQualificationInputs.join(", ")}`] });
   const transitivePaths = discoverTransitiveLocalImports(context.projectRoot, EXECUTABLE_ENTRY_PATHS);
@@ -832,12 +850,36 @@ async function verifyRuntimeStage(context) {
   if (existsSync(immutableRuntimePath)) {
     if (canonicalHash(readJson(immutableRuntimePath)) !== canonicalHash(immutableRuntime)) throw Object.assign(new Error("Immutable runtime identity changed during resume."), { code: "CANDIDATE_IDENTITY_MISMATCH" });
   } else createExclusive(immutableRuntimePath, immutableRuntime);
+  const calibrationPack = readJson(resolve(context.projectRoot,context.config.paths.review_calibration_pack));
+  const calibrationCases = buildReviewCalibrationCases(calibrationPack);
+  const deterministicCalibration = validateDeterministicReviewCalibration(calibrationPack,calibrationCases);
+  if (!deterministicCalibration.passed) return writeGate(context,"VERIFY_RUNTIME",{ passed:false,blockers:["EVALUATOR_DEFECT","deterministic reviewer calibration failed"] });
+  let aiCalibrationGate;
+  try { aiCalibrationGate = await aiInChunks(calibrationCases,context,"EVALUATOR_CALIBRATION"); }
+  catch (error) { return writeGate(context,"VERIFY_RUNTIME",{ passed:false,blockers:[error.code || "AI_REVIEW_UNAVAILABLE",error.message] }); }
+  const aiCalibration = validateAiReviewCalibration(calibrationPack,aiCalibrationGate);
+  const calibrationResult = {
+    version:"qualification-review-calibration-result-v1",completed_at:now(),passed:deterministicCalibration.passed && aiCalibration.passed,
+    deterministic:deterministicCalibration,dual_ai:aiCalibration,pack_sha256:sha256File(resolve(context.projectRoot,context.config.paths.review_calibration_pack)),
+    bounded_batches:1,iterative_repair:false,sealed_unseen_accessed:false,
+  };
+  const calibrationResultPath = join(context.runRoot,"reports","evaluator-calibration.json");
+  if (existsSync(calibrationResultPath)) {
+    const stored = readJson(calibrationResultPath);
+    const stable = (value) => ({ ...value,completed_at:null });
+    if (canonicalHash(stable(stored)) !== canonicalHash(stable(calibrationResult))) throw Object.assign(new Error("Stored evaluator calibration result changed."),{ code:"EVALUATOR_DEFECT" });
+  } else createExclusive(calibrationResultPath,calibrationResult);
+  if (!calibrationResult.passed) return writeGate(context,"VERIFY_RUNTIME",{
+    passed:false,blockers:["EVALUATOR_DEFECT",`reviewer calibration produced ${aiCalibration.false_approvals.length} false approvals and ${aiCalibration.false_rejections.length} false rejections`],
+  },{ artifacts:uniqueRecords(fileRecord(context.projectRoot,relative(context.projectRoot,calibrationResultPath)),directoryRecords(context.projectRoot,join(context.runRoot,"ai-review","EVALUATOR_CALIBRATION"))) });
   const artifacts = uniqueRecords(
     fileRecord(context.projectRoot, relative(context.projectRoot, immutableRuntimePath)),
     fileRecord(context.projectRoot, relative(context.projectRoot, baselinePath)),
     fileRecord(context.projectRoot, relative(context.projectRoot, corpusIntegrityPath)),
     existsSync(join(context.runRoot, "runtime-process.json")) ? fileRecord(context.projectRoot, relative(context.projectRoot, join(context.runRoot, "runtime-process.json"))) : null,
     existsSync(join(context.runRoot,QUALIFICATION_RESPONSE_PUBLIC_KEY_FILE)) ? fileRecord(context.projectRoot,relative(context.projectRoot,join(context.runRoot,QUALIFICATION_RESPONSE_PUBLIC_KEY_FILE))) : null,
+    fileRecord(context.projectRoot,relative(context.projectRoot,calibrationResultPath)),
+    directoryRecords(context.projectRoot,join(context.runRoot,"ai-review","EVALUATOR_CALIBRATION")),
   );
   return writeGate(context, "VERIFY_RUNTIME", { passed: true, blockers: [] }, { runtime_started: runtime.started, runtime_identity: runtime.expected_identity, source_binding_count: Object.keys(bindings).length, executable_dependency_count: transitivePaths.length, qualification_input_count:pinnedInputRecords.length,qualification_input_manifest_sha256:canonicalHash(pinnedInputRecords),artifacts });
 }
@@ -1245,7 +1287,33 @@ async function reliability(context) {
   const topic = readJson(join(context.runRoot, "development-results", "topic161-original", "topic161-original-summary.json"));
   const meta = readJson(join(context.runRoot, "development-results", "live50", "run-meta.json"));
   const livePath = join(meta.output_dir, "results.json");
-  const gate = validateReliability({ t4Summary: t4, topicSummary: topic, liveResults: readJson(livePath) });
+  const reliabilityRoot = join(context.runRoot,"development-results","reliability");
+  mkdirSync(reliabilityRoot,{ recursive:true });
+  const outagePath = join(reliabilityRoot,"owned-model-outage.json");
+  const activePath = join(reliabilityRoot,"active-live-journeys.json");
+  let outage;
+  let active;
+  try {
+    outage = existsSync(outagePath) ? readJson(outagePath) : await interruptOwnedModelWorkerAndWait({
+      projectRoot:context.projectRoot,runRoot:context.runRoot,expectedPid:context.state.runtime_supervisor_pid,
+      expectedRunId:context.state.run_id,config:context.config,sourceBindingsSha256:canonicalHash(context.state.source_bindings || {}),
+      expectedIdentity:context.state.expected_runtime_identity,
+    });
+    if (!existsSync(outagePath)) createExclusive(outagePath,outage);
+    active = existsSync(activePath) ? readJson(activePath) : await runActiveReliabilityJourneys({
+      endpoint:context.config.runtime.canonical_endpoint,modelEndpoint:context.config.runtime.model_endpoint,
+      runId:context.state.run_id,secret:readFileSync(join(context.runRoot,QUALIFICATION_CONTEXT_KEY_FILE),"utf8"),
+      publicKeyPem:readFileSync(join(context.runRoot,QUALIFICATION_RESPONSE_PUBLIC_KEY_FILE),"utf8"),
+      modelReadyTimeoutMs:context.config.runtime.model_ready_timeout_ms,pollMs:context.config.runtime.model_retry_poll_ms,
+      limits:context.config.reliability,
+    });
+    if (!existsSync(activePath)) createExclusive(activePath,active);
+  } catch (error) {
+    return writeGate(context,"RELIABILITY_GATE",{ passed:false,blockers:[error.code || "INFRASTRUCTURE_TEMPORARY",error.message] },{
+      artifacts:existsSync(reliabilityRoot) ? directoryRecords(context.projectRoot,reliabilityRoot) : [],
+    });
+  }
+  const gate = validateReliability({ t4Summary: t4, topicSummary: topic, liveResults: readJson(livePath),active,outage });
   if (gate.passed) {
     const completionRejected = await assertRuntimeAndSourceAtCompletion(context,"RELIABILITY_GATE");
     if (completionRejected) return completionRejected;
@@ -1254,6 +1322,8 @@ async function reliability(context) {
     fileRecord(context.projectRoot, relative(context.projectRoot, join(context.runRoot, "development-results", "t4-targeted", "t4-targeted-summary.json"))),
     fileRecord(context.projectRoot, relative(context.projectRoot, join(context.runRoot, "development-results", "topic161-original", "topic161-original-summary.json"))),
     fileRecord(context.projectRoot, relative(context.projectRoot, livePath)),
+    fileRecord(context.projectRoot, relative(context.projectRoot, outagePath)),
+    fileRecord(context.projectRoot, relative(context.projectRoot, activePath)),
   );
   return writeGate(context, "RELIABILITY_GATE", gate, { artifacts });
 }

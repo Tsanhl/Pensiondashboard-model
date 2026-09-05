@@ -6,7 +6,7 @@ import { projectQualificationFixtureValues } from "../../../server/services/qual
 
 const HARD_GATES = ["all_material_claims_supported", "citations_entail_claims", "correct_jurisdiction", "no_unsafe_instruction", "no_unsupported_outcome", "no_wrong_personal_fact", "no_absolute_certainty_claim"];
 export const CANONICAL_RUNTIME_CONFIGURATION_SHA256 = "a2cbf2090d7d09ef5a659ef537e593f3b9656c5531f3e4dff7b7a16b3eaef0b2";
-export const CANONICAL_QUALIFICATION_CONFIG_SHA256 = "ebad9ae68baa88367f2fc78732a97166e94a59215875a13e9b92d4778374afb5";
+export const CANONICAL_QUALIFICATION_CONFIG_SHA256 = "edaeb6b2d1ca9f1fc11abd0c66e2278e90bcb8ce2698c40452916be77df1c212";
 const REQUIRED_DISABLED_REVIEW_FEATURES = Object.freeze([
   "shell_tool","unified_exec","browser_use","browser_use_external","computer_use",
   "apps","multi_agent","hooks","skill_search","tool_suggest",
@@ -23,6 +23,10 @@ export function validateConfig(config) {
   if (config.permissions.allow_release || config.permissions.allow_git_push || config.permissions.allow_origin_change) blockers.push("release/push/origin mutation must be disabled");
   if (config.quality.minimum_score < 70) blockers.push("quality floor is below 70");
   if (!config.quality.require_all_hard_factual_gates || !config.quality.require_dual_ai_review || config.quality.minimum_ai_agreement !== 2) blockers.push("dual factual review is not mandatory");
+  if (config.reliability?.sustained_requests !== 15 || config.reliability?.supported_concurrency !== 4
+      || config.reliability?.deterministic_latency_limit_ms !== 5000 || config.reliability?.cancellation_after_ms !== 100) {
+    blockers.push("active reliability request counts, concurrency, latency, or cancellation limits are not pinned");
+  }
   if (!config.runtime?.approved_corpus_manifest_path || !/^[0-9a-f]{64}$/.test(String(config.runtime?.approved_corpus_manifest_sha256 || "")) ||
       config.qualification_input_sha256?.[config.runtime.approved_corpus_manifest_path] !== config.runtime.approved_corpus_manifest_sha256) {
     blockers.push("approved corpus path and SHA-256 are not an authoritative qualification input");
@@ -247,7 +251,7 @@ export function validateLive50({ cases, aiGate, baseline }) {
   return { passed: blockers.length === 0, blockers, failure_classes:failureClasses, confirmed_failure_classes:confirmedFailureClasses, absolute_truth_claimed: Boolean(aiGate?.absolute_truth_claimed), counts: { total: cases.length, deterministic_pass: cases.filter((item) => item.deterministic_pass).length, ai_pass: aiGate?.cases?.filter((item) => item.passed).length || 0 }, l43_capability_label: "DETERMINISTIC_ADVICE_BOUNDARY_PASS_NOT_MODEL_CAPABILITY", regressions };
 }
 
-export function validateReliability({ t4Summary, topicSummary, liveResults }) {
+export function validateReliability({ t4Summary, topicSummary, liveResults,active,outage }) {
   const t4Errors = (t4Summary.waves || []).reduce((sum, wave) => sum + Number(wave.run_errors || 0), 0);
   const topicErrors = (topicSummary.waves || []).reduce((sum, wave) => sum + Number(wave.run_errors || 0), 0);
   const liveErrors = (liveResults.items || []).filter((item) => item.ok === false || item.confidence === "model_unavailable").length;
@@ -263,7 +267,11 @@ export function validateReliability({ t4Summary, topicSummary, liveResults }) {
   if (liveErrors) blockers.push(`${liveErrors} Live-50 infrastructure errors/holds`);
   if (missingAttemptLedgers) blockers.push(`${missingAttemptLedgers} Live-50 model cases lack a complete attempt ledger`);
   if (excessRetries) blockers.push(`${excessRetries} cases exceeded the single retry policy`);
-  return { passed: blockers.length === 0, blockers, counts: { t4_run_errors: t4Errors, topic161_run_errors: topicErrors, live_errors: liveErrors, missing_attempt_ledgers: missingAttemptLedgers, excessive_retry_records: excessRetries, retries_used: retriesUsed } };
+  if (outage?.passed !== true || outage?.unavailable_observed !== true || outage?.old_worker_pid === outage?.new_worker_pid || Number(outage?.restarts_after || 0) <= Number(outage?.restarts_before || 0)) blockers.push("controlled owned-model outage and recovery did not pass");
+  if (active?.passed !== true || active?.sequential?.total !== 15 || active?.concurrent?.total !== 4 || active?.fixed_product_journeys?.total !== 5
+      || active?.fixed_product_journeys?.passed !== true || active?.application_boundaries?.portfolio_user_separation !== true
+      || active?.application_boundaries?.invalid_session_rejected !== true || active?.cancellation?.aborted !== true || active?.post_cancel?.identity_verified !== true) blockers.push("active canonical product-path reliability journeys did not pass");
+  return { passed: blockers.length === 0, blockers, counts: { t4_run_errors: t4Errors, topic161_run_errors: topicErrors, live_errors: liveErrors, missing_attempt_ledgers: missingAttemptLedgers, excessive_retry_records: excessRetries, retries_used: retriesUsed,active_sequential:Number(active?.sequential?.total || 0),active_concurrent:Number(active?.concurrent?.total || 0),controlled_model_restarts:Number(outage?.restarts_after || 0)-Number(outage?.restarts_before || 0) } };
 }
 
 export function casesFromScorecard(resultPayload, scorecard, expectedById = new Map()) {

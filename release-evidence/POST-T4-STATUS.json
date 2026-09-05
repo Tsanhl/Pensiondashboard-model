@@ -1,7 +1,7 @@
 {
-  "schema_version": 1,
-  "status_as_at": "2026-09-05T04:42:17.064Z",
-  "state": "BLOCKED_NOT_QUALIFIED",
+  "schema_version": 2,
+  "status_as_at": "2026-09-05T05:08:45.744Z",
+  "state": "READY_TO_START_POST_REPAIR_QUALIFICATION",
   "live_qualified": false,
   "production_or_public_deployment_authorised": false,
   "training": {
@@ -23,6 +23,16 @@
     "isolated_regression_verified": true,
     "full_live50_rerun_completed": false
   },
+  "replacement_v2_refreeze": {
+    "completed": true,
+    "id_only": true,
+    "changed_occurrences": 25,
+    "item_count": 161,
+    "unique_ids": 161,
+    "substantive_content_equal": true,
+    "question_gold_position_aligned": true,
+    "independently_verified": true
+  },
   "worker": {
     "implemented": true,
     "fixed_route": [
@@ -40,27 +50,37 @@
     "minimum_score_floor": 70,
     "hard_factual_gates_required": true,
     "independent_codex_reviews_required": 2,
-    "application_tests_passed": 175,
+    "evaluator_calibration": {
+      "supported_cases": 3,
+      "deliberate_negative_cases": 3,
+      "false_approvals_allowed": 0,
+      "false_rejections_allowed": 0
+    },
+    "active_reliability": {
+      "sustained_requests": 15,
+      "concurrent_requests": 4,
+      "repaired_live_journeys": 5,
+      "controlled_model_worker_outage": true,
+      "cancellation_and_recovery": true
+    },
+    "application_tests_passed": 178,
     "worker_tests_passed": 18,
-    "javascript_files_syntax_checked": 278
+    "javascript_files_syntax_checked": 283
   },
   "formal_post_repair_gates_completed": [],
-  "blocker": {
-    "class": "FROZEN_QUALIFICATION_INPUT_DEFECT",
-    "replacement_topic_rows": 161,
-    "unique_ids": 136,
-    "duplicate_second_occurrences": 25,
-    "required_action": "Owner-authorised ID-only metadata remediation and independent refreeze; no question, gold, source, score, threshold, or ordering change."
-  },
+  "blocker": null,
   "sealed_unseen": {
     "accessed": false,
     "run": false,
     "scored": false
   },
-  "next_step": "Resolve and independently refreeze the duplicate IDs, rerun static preflight, then start T4_TARGETED_REGRESSION.",
+  "next_step": "Start a fresh bounded worker run at VERIFY_RUNTIME. It must pass the six-case evaluator calibration before T4_TARGETED_REGRESSION.",
   "source_evidence_sha256": {
     "checkpoint_selection": "e922fe49e171f96b4392b4bd9a695ddafc777aeba83deed79ec5fffb7e2fd566",
-    "worker_state": "7b7270881530ab7b452a1273bc173832dfeb514779061f0d7936c79094cd23fc",
-    "isolated_repair_results": "12f222ad5fc027479693e53adebfaaa1bfc3f23a72a8c57d628739132081327a"
+    "prior_worker_state": "7b7270881530ab7b452a1273bc173832dfeb514779061f0d7936c79094cd23fc",
+    "isolated_repair_results": "12f222ad5fc027479693e53adebfaaa1bfc3f23a72a8c57d628739132081327a",
+    "replacement_manifest": "1d7036771c98219af61d52e622867bb4d9490e2d13ec66541d3cfddd1fc8ff8d",
+    "replacement_refreeze_report": "2edb6fcd6e8f85d175a7bf7d8dc96ce301dc73da58c650903b8ddbad790d476e",
+    "replacement_independent_verification": "5959531471687a522b0c4fba24cdbf59da602bafcea418b9c4ef7007127b71ef"
   }
 }
