@@ -6,7 +6,10 @@ import { createInterface } from "node:readline";
 
 // Local development/evaluation only. No unbounded queue or automatic retry of
 // a failed inference: callers must record the failure before attempting another.
-export function createPinnedModelServer({ command, args, deadlineMs = 115_000, startupMs = 120_000 }) {
+export function createPinnedModelServer({ command, args, deadlineMs = 115_000, startupMs = 120_000, workerKillGraceMs = 1_000, workerRestartLimit = 3, requestBodyLimitBytes = 100_000, headersTimeoutMs = 10_000, runtimeBindings = {}, generationPolicy = null }) {
+  for (const [name,value] of Object.entries({ deadlineMs,startupMs,workerKillGraceMs,workerRestartLimit,requestBodyLimitBytes,headersTimeoutMs })) {
+    if (!Number.isInteger(value) || value < 1) throw new Error(`${name} must be a positive integer`);
+  }
   let worker = null, ready = false, identity = null, active = null, stopping = false, restarts = 0;
   let startupTimer, killTimer;
   const runtimeHash = createHash("sha256").update(readFileSync(new URL(import.meta.url))).digest("hex");
@@ -28,7 +31,7 @@ export function createPinnedModelServer({ command, args, deadlineMs = 115_000, s
     if (!worker) return;
     const old = worker;
     old.kill("SIGTERM");
-    killTimer = setTimeout(() => { if (worker === old) old.kill("SIGKILL"); }, 1000);
+    killTimer = setTimeout(() => { if (worker === old) old.kill("SIGKILL"); }, workerKillGraceMs);
     killTimer.unref();
   }
   function startWorker() {
@@ -44,7 +47,9 @@ export function createPinnedModelServer({ command, args, deadlineMs = 115_000, s
       try { event = JSON.parse(line); } catch { settle(502, { error: "Invalid worker protocol" }); recycle(); return; }
       if (event.type === "ready") {
         clearTimeout(startupTimer);
-        identity = { ...event.identity, supervisor_sha256: runtimeHash, request_deadline_ms: deadlineMs };
+        identity = { ...event.identity,supervisor_sha256:runtimeHash,request_deadline_ms:deadlineMs,worker_startup_ms:startupMs,
+          worker_kill_grace_ms:workerKillGraceMs,worker_restart_limit:workerRestartLimit,
+          request_body_limit_bytes:requestBodyLimitBytes,headers_timeout_ms:Math.min(deadlineMs,headersTimeoutMs),...runtimeBindings };
         ready = true;
         console.log(`Pinned model ready: ${identity.id}; adapter ${identity.adapter_sha256}`);
       } else if (active && event.id === active.id) {
@@ -62,7 +67,7 @@ export function createPinnedModelServer({ command, args, deadlineMs = 115_000, s
       worker = null; ready = false;
       settle(503, { error: "Model worker exited" });
       // Avoid an infinite restart storm on bad artifacts or missing dependencies.
-      if (!stopping && restarts++ < 3) startWorker();
+      if (!stopping && restarts++ < workerRestartLimit) startWorker();
     });
   }
   const server = createServer(async (request, response) => {
@@ -85,7 +90,7 @@ export function createPinnedModelServer({ command, args, deadlineMs = 115_000, s
       let body = "";
       for await (const chunk of request) {
         body += chunk;
-        if (Buffer.byteLength(body) > 100_000) throw new Error("Request body too large");
+        if (Buffer.byteLength(body) > requestBodyLimitBytes) throw new Error("Request body too large");
       }
       if (active?.id !== id) return;
       const input = JSON.parse(body);
@@ -93,11 +98,15 @@ export function createPinnedModelServer({ command, args, deadlineMs = 115_000, s
       if (!Array.isArray(input.messages) || !input.messages.length || input.messages.some((m) => !["system", "user", "assistant"].includes(m.role) || typeof m.content !== "string")) throw new Error("Invalid messages");
       const maxTokens = input.max_tokens ?? 320, temperature = input.temperature ?? 0, topP = input.top_p ?? 1, seed = input.seed ?? 42;
       if (!Number.isInteger(maxTokens) || maxTokens < 1 || maxTokens > 512 || !Number.isFinite(temperature) || temperature < 0 || temperature > 2 || !Number.isFinite(topP) || topP <= 0 || topP > 1 || !Number.isInteger(seed) || seed < 0 || seed > 0xffffffff) throw new Error("Invalid generation parameters");
+      if (generationPolicy?.enforce_exact === true &&
+          (maxTokens !== generationPolicy.max_tokens || temperature !== generationPolicy.temperature || topP !== generationPolicy.top_p || seed !== generationPolicy.seed)) {
+        throw new Error("Generation parameters do not match the pinned qualification policy");
+      }
       worker.stdin.write(`${JSON.stringify({ id, messages: input.messages, max_tokens: maxTokens, temperature, top_p: topP, seed })}\n`);
     } catch (error) { if (active?.id === id) settle(400, { error: error.message }); }
   });
   server.requestTimeout = deadlineMs;
-  server.headersTimeout = Math.min(deadlineMs, 10_000);
+  server.headersTimeout = Math.min(deadlineMs, headersTimeoutMs);
   startWorker();
   return { server, async stop() {
     stopping = true;

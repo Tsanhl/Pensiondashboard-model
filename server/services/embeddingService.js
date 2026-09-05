@@ -35,20 +35,39 @@ export async function embedTexts(texts = []) {
     try {
       const embeddings = [];
       const batchSize = Math.max(1,Math.min(128,Number(process.env.EMBEDDING_BATCH_SIZE || 128)));
+      const timeoutMs = Number(process.env.EMBEDDING_TIMEOUT_MS || 15_000);
+      const retries = Math.max(1, Number(process.env.EMBEDDING_RETRIES || 3));
+      const retryBackoffMs = Number(process.env.EMBEDDING_RETRY_BACKOFF_MS || 750);
+      if (!Number.isInteger(retryBackoffMs) || retryBackoffMs < 1 ||
+          (process.env.QUALIFICATION_RUNTIME_MODE === "true" && !process.env.EMBEDDING_RETRY_BACKOFF_MS)) {
+        throw Object.assign(new Error("EMBEDDING_RETRY_BACKOFF_MS must be pinned in qualification mode."), { code:"EMBEDDING_CONFIG_ERROR" });
+      }
       for (let start = 0; start < values.length; start += batchSize) {
-        const response = await fetch(`${serviceUrl}/embed`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ model: EMBEDDING_MODEL, texts: values.slice(start,start + batchSize), normalize: true }),
-          signal: AbortSignal.timeout(Number(process.env.EMBEDDING_TIMEOUT_MS || 15_000))
-        });
-        if (!response.ok) throw new Error(`embedding service returned ${response.status}`);
-        const payload = await response.json();
-        const batch = payload.embeddings;
-        if (!Array.isArray(batch) || batch.some((item) => !Array.isArray(item) || item.length !== EMBEDDING_DIMENSIONS)) {
-          throw new Error(`embedding service must return ${EMBEDDING_DIMENSIONS}-dimension vectors`);
+        let lastError = null;
+        for (let attempt = 1; attempt <= retries; attempt += 1) {
+          try {
+            const response = await fetch(`${serviceUrl}/embed`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ model: EMBEDDING_MODEL, texts: values.slice(start,start + batchSize), normalize: true }),
+              signal: AbortSignal.timeout(timeoutMs)
+            });
+            if (!response.ok) throw new Error(`embedding service returned ${response.status}`);
+            const payload = await response.json();
+            const batch = payload.embeddings;
+            if (!Array.isArray(batch) || batch.some((item) => !Array.isArray(item) || item.length !== EMBEDDING_DIMENSIONS)) {
+              throw new Error(`embedding service must return ${EMBEDDING_DIMENSIONS}-dimension vectors`);
+            }
+            embeddings.push(...batch);
+            lastError = null;
+            break;
+          } catch (error) {
+            lastError = error;
+            if (attempt === retries) break;
+            await new Promise((accept) => setTimeout(accept, attempt * retryBackoffMs));
+          }
         }
-        embeddings.push(...batch);
+        if (lastError) throw lastError;
       }
       return { embeddings: embeddings.map(normalize), model: EMBEDDING_MODEL, degraded: false };
     } catch (error) {

@@ -14,7 +14,9 @@ if (manifest?.schema_version !== 1 ||
   manifest.reranker_model?.repository !== "BAAI/bge-reranker-base" ||
   !/^[a-f0-9]{40}$/i.test(String(manifest.reranker_model?.revision || "")) ||
   manifest.retrieval_runtime?.local_files_only !== true ||
-  !fullSha(manifest.retrieval_runtime?.embedding_server_sha256)) {
+  !fullSha(manifest.retrieval_runtime?.embedding_server_sha256) ||
+  !fullSha(manifest.retrieval_runtime?.snapshot_manifest_sha256) ||
+  !fullSha(manifest.retrieval_runtime?.snapshot_contents_sha256)) {
   throw new Error("Pinned retrieval identity is missing or invalid in models/model-manifest.json.");
 }
 
@@ -30,6 +32,8 @@ export const PINNED_RERANKER_MODEL = Object.freeze({
   revision: manifest.reranker_model.revision,
 });
 export const PINNED_RETRIEVAL_SERVER_SHA256 = manifest.retrieval_runtime.embedding_server_sha256;
+export const PINNED_RETRIEVAL_SNAPSHOT_MANIFEST_SHA256 = manifest.retrieval_runtime.snapshot_manifest_sha256;
+export const PINNED_RETRIEVAL_SNAPSHOT_CONTENTS_SHA256 = manifest.retrieval_runtime.snapshot_contents_sha256;
 
 export function pinnedRetrievalHealthMatches(body) {
   return body?.ok === true && body?.model === PINNED_EMBEDDING_MODEL.repository &&
@@ -39,6 +43,8 @@ export function pinnedRetrievalHealthMatches(body) {
     body?.reranker_revision === PINNED_RERANKER_MODEL.revision &&
     body?.server_sha256 === PINNED_RETRIEVAL_SERVER_SHA256 &&
     body?.model_manifest_sha256 === PINNED_RETRIEVAL_MANIFEST_SHA256 &&
+    body?.retrieval_snapshot_manifest_sha256 === PINNED_RETRIEVAL_SNAPSHOT_MANIFEST_SHA256 &&
+    body?.retrieval_snapshot_contents_sha256 === PINNED_RETRIEVAL_SNAPSHOT_CONTENTS_SHA256 &&
     body?.local_files_only === true;
 }
 
@@ -48,6 +54,8 @@ export function pinnedEmbeddingResponseMatches(body) {
     body?.model_revision === PINNED_EMBEDDING_MODEL.revision &&
     body?.server_sha256 === PINNED_RETRIEVAL_SERVER_SHA256 &&
     body?.model_manifest_sha256 === PINNED_RETRIEVAL_MANIFEST_SHA256 &&
+    body?.snapshot_manifest_sha256 === PINNED_RETRIEVAL_SNAPSHOT_MANIFEST_SHA256 &&
+    body?.snapshot_contents_sha256 === PINNED_RETRIEVAL_SNAPSHOT_CONTENTS_SHA256 &&
     Array.isArray(vector) && vector.length === PINNED_EMBEDDING_MODEL.dimensions &&
     vector.every((value) => typeof value === "number" && Number.isFinite(value));
 }
@@ -58,6 +66,8 @@ export function pinnedRerankerResponseMatches(body) {
     body?.model_revision === PINNED_RERANKER_MODEL.revision &&
     body?.server_sha256 === PINNED_RETRIEVAL_SERVER_SHA256 &&
     body?.model_manifest_sha256 === PINNED_RETRIEVAL_MANIFEST_SHA256 &&
+    body?.snapshot_manifest_sha256 === PINNED_RETRIEVAL_SNAPSHOT_MANIFEST_SHA256 &&
+    body?.snapshot_contents_sha256 === PINNED_RETRIEVAL_SNAPSHOT_CONTENTS_SHA256 &&
     Number.isInteger(first?.index) && first.index === 0 &&
     typeof first.score === "number" && Number.isFinite(first.score);
 }
@@ -71,6 +81,8 @@ export function pinnedRetrievalIdentity() {
     reranker_revision: PINNED_RERANKER_MODEL.revision,
     server_sha256: PINNED_RETRIEVAL_SERVER_SHA256,
     model_manifest_sha256: PINNED_RETRIEVAL_MANIFEST_SHA256,
+    snapshot_manifest_sha256:PINNED_RETRIEVAL_SNAPSHOT_MANIFEST_SHA256,
+    snapshot_contents_sha256:PINNED_RETRIEVAL_SNAPSHOT_CONTENTS_SHA256,
     local_files_only: true,
   };
 }

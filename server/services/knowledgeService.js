@@ -47,7 +47,7 @@ const LEGAL_QUERY_EXPANSIONS = [
   [/\bGMPs?\b/i, "guaranteed minimum pension"],
   [/\bDB\b/i, "defined benefit"],
   [/\bDC\b/i, "defined contribution"],
-  [/\bautomatic[- ]enrolment|re[- ]enrolment|opt(?:ed)? out\b/i, "automatic enrolment jobholder employer duty re-enrolment"],
+  [/\bautomatic[- ]enrolment|re[- ]enrolment|opt(?:ed)? out\b/i, "automatic enrolment jobholder employer duty opt out opting out Regulation 9 re-enrolment"],
   [/\b(?:normally|ordinarily) work(?:ed|ing)?\b|\bhead office\b[^.!?]{0,100}\bautomatic[- ]enrolment\b/i, "automatic enrolment territorial scope worker ordinarily works Northern Ireland employer head office not determinative"],
   [/\bexecuted scheme rules?\b[^.!?]{0,120}\bnewsletter\b|\bnewsletter\b[^.!?]{0,120}\bexecuted scheme rules?\b/i, "executed trust deed scheme rules amendment power formalities effective date member announcement newsletter communication"],
   [/\b(?:red|amber) flags?|transfer scam checks?\b/i, "conditions for transfers red flags amber flags specified guidance"],

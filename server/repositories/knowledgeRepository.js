@@ -79,6 +79,18 @@ export async function listKnowledgeDocuments(userId, { includeChunkCounts = true
   });
 }
 
+export async function listKnowledgeChunksForIntegrity(userId) {
+  if (isPostgresStorage()) {
+    const result = await postgresQuery(
+      `SELECT id,document_id AS "documentId",user_id AS "userId",section_path AS "sectionPath",ordinal,content,
+              token_count AS "tokenCount",embedding::text AS embedding,metadata
+       FROM knowledge_chunks WHERE user_id=$1 ORDER BY document_id,id`, [userId]
+    );
+    return result.rows;
+  }
+  return readKnowledgeChunks(userId);
+}
+
 function legalReferencePhrases(value) {
   return [...String(value || "").matchAll(/\b(?:section|regulation|article|rule|schedule|paragraph)\s+\d+[a-z]?(?:\([0-9a-z]+\))*/gi)]
     .map((match) => match[0].toLowerCase());

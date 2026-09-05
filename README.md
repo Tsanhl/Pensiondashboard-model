@@ -1,44 +1,50 @@
 # Pensiondashboard-model
 
-Fail-closed public snapshot of the pensions dashboard application.
+This is the current fail-closed source snapshot of the UK pensions dashboard and its post-T4 qualification controller.
 
-**This repository is not a live-qualified model release.** Visible development qualification run `20260902-recovery-step130-v4` failed at the 161-case topic gate. The sealed unseen set was not opened and was not executed. `npm run live:local` remains refused until a later run actually passes the authorised gates.
+**It is not a live-qualified model release.** T4 training completed and checkpoint 104 was selected. Five Live-50 Round-53 product-path regressions were repaired, but the clean post-repair evaluation has not started because static preflight found 161 replacement-topic rows with only 136 unique IDs. The sealed unseen set has not been opened or run.
 
-## What passed and what failed
+## Current gate
 
-| Stage | Result |
+| Item | Status |
 | --- | --- |
-| critical4 | passed 4/4 |
-| full69 consumer / adversarial / advanced-law suites | passed 69/69 |
-| topic161 Wave 1 | failed 36/52 (69.2%), 2 critical, 2 run errors |
-| topic161 Wave 2 | failed 33/68 (48.5%), 18 critical, 14 run errors |
-| topic161 Wave 3 | failed 20/41 (48.8%), 13 critical, 3 run errors |
-| frozen13 / final visible gate | not reached |
-| sealed unseen | not run |
-| owner-local live approval | not issued |
+| T4 training | Complete |
+| Selected checkpoint | Iteration 104 |
+| Product-path repair | Complete and regression-tested |
+| Post-repair development evaluation | Not started |
+| Visible qualification | Not started |
+| Live-qualified release | No |
+| Sealed unseen | Closed and not accessed |
 
-Hashes for the closed record and failed topic161 gate are in `release-evidence/QUALIFICATION-SUMMARY.json`. Thresholds were not lowered.
+The controller route is:
 
-## Included and deliberately excluded
+`VERIFY_RUNTIME → T4_TARGETED_REGRESSION → TOPIC161_ORIGINAL_DEVELOPMENT → LIVE50_FULL_REGRESSION → RELIABILITY_GATE → VISIBLE_CRITICAL4 → VISIBLE_FULL69 → VISIBLE_TOPIC161_REPLACEMENT_V2 → VISIBLE_FROZEN13 → CANDIDATE_FREEZE`
 
-Included: runnable application source, application tests, fail-closed Render configuration, approved-corpus *manifest metadata*, and the visible-qualification failure evidence.
+A score of 70 is a floor. Every factual, citation-entailment, jurisdiction, safety, outcome, and personal-fact gate must pass, together with two independent isolated Codex reviews. “Fact checked” means checked against the pinned evidence supplied for that run; it is not a claim of universal or error-free truth.
 
-Excluded: the 4.6 GB Qwen3-8B-4bit base model, LoRA adapter weights, raw approved-corpus text, private training exports, databases, logs, secrets, sealed unseen questions/gold answers, and all per-case unseen output.
+The worker records immutable raw response bytes, server signatures, runtime identities, sources, citations, attempts, retries, dual-review receipts, failure classifications, stage gates, and hash manifests. Training, legal-gold changes, sealed unseen, release, and Git push remain outside worker authority.
 
-Public hosting on Render's free tier cannot serve the local 4.7 GB model. The checked-in `render.yaml` stays fail-closed and expects independently provisioned model, embedding, storage and scanning endpoints.
+## Public snapshot boundary
 
-## Local development (not a qualification pass)
+Included: application source and tests, qualification-controller source, its machine-bound configuration, approved-corpus manifest metadata, and aggregate historical/current status evidence.
 
-On an Apple Silicon Mac, after installing Node.js 22+ and Python 3:
+Excluded: model weights, adapters, raw corpus text, private training/evaluation inputs, databases, logs, credentials, sealed unseen questions, sealed unseen gold, and per-case unseen output.
+
+The checked-in qualification configuration records the local candidate identity and fails closed on another machine until the omitted local artifacts and exact pinned dependencies are restored.
+
+## Install and verify
 
 ```bash
 npm install
 cp .env.example .env
 npm run check
 npm test
+npm run qualification:test
 ```
 
-The owner-local launcher will refuse an unapproved default release. That is intentional. Development serving uses a separately downloaded base model and a locally retained adapter, then:
+`npm run qualification:preflight` is expected to fail in this public snapshot because protected and machine-local candidate inputs are deliberately excluded. On the controlled owner machine it currently fails on the duplicate-ID blocker in `release-evidence/POST-T4-STATUS.json`.
+
+Development serving is not a qualification pass:
 
 ```bash
 npm run model:serve:pinned
@@ -46,8 +52,4 @@ npm run retrieval:serve
 npm start
 ```
 
-Open `http://127.0.0.1:3000`. Answers from this path are development output only.
-
-## Safety and legal boundary
-
-The assistant is read-only. It must abstain or hand off when evidence is missing, conflicting or outside scope. It cannot transfer money, change contributions, submit forms or provide regulated advice. Output is general information and routing support, not a substitute for a solicitor, regulated financial adviser, scheme administrator, HMRC or the relevant pensions regulator/ombudsman.
+The assistant is read-only and provides information and routing support. It cannot transfer money, change contributions, submit forms, provide regulated financial advice, or replace a solicitor, regulated adviser, scheme administrator, HMRC, a regulator, or an ombudsman.

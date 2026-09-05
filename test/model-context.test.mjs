@@ -6,6 +6,27 @@ import { renderCitationMarkers } from "../server/services/citationRendererServic
 const query = { self_contained_query:"Explain the rule", jurisdiction_scope:"GREAT_BRITAIN", response_route:"ANSWER", response_requirements:["Apply the supplied facts"] };
 const source = { sourceId:"official-long-document-id_chunk_42", title:"Test Act", scope:"CURATED_PUBLIC", jurisdiction:"Great Britain", sourceRole:"legislation", snippet:"The actual source text.", oscolaCitation:"Test Act, s 1", caseTreatment:{ related:[{ direction:"incoming", relationship:"overruled", relatedDocumentId:"later-case", note:"Do not apply the earlier rule" }] } };
 
+test("verified portfolio JSON is not excerpt-truncated for the model", () => {
+  const longJson = JSON.stringify({
+    accounts: Array.from({ length: 4 }, (_, index) => ({
+      provider: ["Aviva", "Standard Life", "Nest", "OneLife"][index],
+      charges: ["0.45%", "0.55%", "0.30%", "0.80%"][index],
+      schemeName: "Scheme ".repeat(20) + index
+    }))
+  });
+  assert.ok(longJson.length > 350);
+  const structured = {
+    sourceId:"structured_accounts_demo",
+    title:"Verified pension account records",
+    scope:"USER_PORTFOLIO",
+    snippet:longJson
+  };
+  const { messages, sourceExcerpts } = buildModelContext(query, [structured], { snippetChars:350 });
+  assert.equal(sourceExcerpts[0].truncated, false);
+  assert.ok(messages[0].content.includes("0.30%"));
+  assert.ok(messages[0].content.includes("0.80%"));
+});
+
 test("compact source IDs preserve all evidence, scope and later treatment", () => {
   const { messages, citationAliases } = buildModelContext(query, [source]);
   assert.equal(citationAliases.S1, source.sourceId);

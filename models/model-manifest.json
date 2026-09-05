@@ -21,6 +21,9 @@
   },
   "retrieval_runtime": {
     "local_files_only": true,
-    "embedding_server_sha256": "f27dae9820cad04bb8495e943f2baff80eff388a894242bed36eb591ec11a242"
+    "embedding_server_sha256": "6473a068fc1b60808191c49ddcec6431e4e9cc91cc84e1955a0e1f7114a80be1",
+    "snapshot_manifest_path": "models/retrieval-snapshot-manifest.json",
+    "snapshot_manifest_sha256": "2aa50c35d80ba3682ac16273af0ca6a4e953664645eae33150cf3a9aac6fd679",
+    "snapshot_contents_sha256": "4ab15a99750f773cf77de783f120a25832e505f13b7b38f2798a3977387a8f5a"
   }
 }

@@ -15,8 +15,17 @@ import {
   productionConfigurationReadiness
 } from "../server/services/readinessService.js";
 import { rerankSources } from "../server/services/rerankingService.js";
+import { structuralChunk } from "../server/services/chunkingService.js";
 
 const sha256 = (value) => createHash("sha256").update(value).digest("hex");
+
+function indexedChunks(input) {
+  return structuralChunk(input.text,{ documentType:input.documentType }).map((chunk,index) => ({
+    id:`${input.id}_chunk_${index + 1}`,documentId:input.id,sectionPath:chunk.sectionPath,
+    ordinal:chunk.ordinal,tokenCount:chunk.tokenCount,content:chunk.content,
+    metadata:{ quarantined:false },embedding:[0.1,0.2],
+  }));
+}
 
 function allReadyProbes(overrides = {}) {
   const ready = (code) => async () => ({ ready:true,code });
@@ -115,17 +124,20 @@ test("approved-corpus bootstrap validates hashes and is idempotent", async (t) =
   const loaded = await loadApprovedCorpusManifest({ environment });
   assert.equal(loaded.documents.length, 1);
   const active = [];
+  const chunks = [];
   const listDocumentsFn = async () => active;
+  const listChunksFn = async () => chunks;
   const indexDocumentFn = async (_userId, input) => {
     const document = {
       id:input.id,version:input.version,checksum:input.checksum,status:"active",scope:input.scope,
       metadata:{ approvalStatus:input.metadata.approvalStatus,reviewer:input.metadata.reviewer }
     };
     active.push(document);
+    chunks.push(...indexedChunks(input));
     return { document,chunkCount:1 };
   };
-  const first = await bootstrapApprovedCorpus({ environment,listDocumentsFn,indexDocumentFn });
-  const second = await bootstrapApprovedCorpus({ environment,listDocumentsFn,indexDocumentFn });
+  const first = await bootstrapApprovedCorpus({ environment,listDocumentsFn,listChunksFn,indexDocumentFn });
+  const second = await bootstrapApprovedCorpus({ environment,listDocumentsFn,listChunksFn,indexDocumentFn });
   assert.equal(first.indexed, 1);
   assert.equal(first.skipped, 0);
   assert.equal(second.indexed, 0);
@@ -182,9 +194,10 @@ test("approved-corpus readiness pins the exact structured-fact snapshot", async 
     ...collection.facts[0],collectionId:"synthetic-facts",jurisdiction:"United Kingdom",validFrom:"2026-04-06",validTo:"2027-04-05",
     lastVerifiedAt:"2026-09-01",reviewCycleDays:7,fineTuningEligible:false,status:"active",
   };
-  const ready = await approvedCorpusReadiness({ environment,listDocumentsFn:async () => documents,listPublicFactsFn:() => [activeFact] });
+  const chunks = indexedChunks({ id:"doc",text,documentType:"official_guidance" });
+  const ready = await approvedCorpusReadiness({ environment,listDocumentsFn:async () => documents,listChunksFn:async () => chunks,listPublicFactsFn:() => [activeFact] });
   assert.equal(ready.ready,true);
-  const changed = await approvedCorpusReadiness({ environment,listDocumentsFn:async () => documents,listPublicFactsFn:() => [{ ...activeFact,value:11 }] });
+  const changed = await approvedCorpusReadiness({ environment,listDocumentsFn:async () => documents,listChunksFn:async () => chunks,listPublicFactsFn:() => [{ ...activeFact,value:11 }] });
   assert.equal(changed.ready,false);
   assert.equal(changed.structuredFactsMatch,false);
 });

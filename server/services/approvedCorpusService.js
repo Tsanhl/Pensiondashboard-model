@@ -2,7 +2,8 @@ import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { dirname, isAbsolute, relative, resolve } from "node:path";
 import { indexDocument } from "./knowledgeService.js";
-import { listKnowledgeDocuments } from "../repositories/knowledgeRepository.js";
+import { structuralChunk } from "./chunkingService.js";
+import { listKnowledgeChunksForIntegrity, listKnowledgeDocuments } from "../repositories/knowledgeRepository.js";
 import { upsertPublicFactCollection } from "../repositories/publicFactRepository.js";
 import { readPublicFacts } from "../store/userDataStore.js";
 
@@ -135,6 +136,41 @@ function normalizedCollectionFacts(collection) {
   })).sort((left, right) => String(left.id).localeCompare(String(right.id)));
 }
 
+function expectedDocumentChunks(document) {
+  const quarantinePattern = /\b(?:ignore (?:all |the )?(?:previous|system) instructions|system prompt|developer message|assistant must|reveal (?:the )?prompt|do not follow (?:the )?rules)\b/i;
+  return structuralChunk(document.text, { documentType:document.document_type || document.source_type }).map((chunk, index) => ({
+    id:`${document.id}_chunk_${index + 1}`,
+    documentId:document.id,
+    sectionPath:chunk.sectionPath,
+    ordinal:chunk.ordinal,
+    tokenCount:chunk.tokenCount,
+    contentSha256:sha256(chunk.content),
+    quarantined:quarantinePattern.test(chunk.content),
+  }));
+}
+
+function actualDocumentChunks(chunks, documentIds) {
+  return chunks.filter((chunk) => documentIds.has(chunk.documentId)).map((chunk) => ({
+    id:chunk.id,
+    documentId:chunk.documentId,
+    sectionPath:chunk.sectionPath,
+    ordinal:Number(chunk.ordinal),
+    tokenCount:Number(chunk.tokenCount),
+    contentSha256:sha256(String(chunk.content || "")),
+    quarantined:Boolean(chunk.metadata?.quarantined),
+    embeddingSha256:sha256(stableJson(chunk.embedding)),
+    embeddingPresent:Array.isArray(chunk.embedding) ? chunk.embedding.length > 0 && chunk.embedding.every(Number.isFinite) : /^\[[^\]]+\]$/.test(String(chunk.embedding || "")),
+  })).sort((left, right) => `${left.documentId}:${left.id}`.localeCompare(`${right.documentId}:${right.id}`));
+}
+
+function chunkContentView(chunks) {
+  return chunks.map(({ embeddingSha256,embeddingPresent,...chunk }) => chunk);
+}
+
+function chunksMatchExpected(actual, expected) {
+  return actual.length === expected.length && actual.every((chunk) => chunk.embeddingPresent) && stableJson(chunkContentView(actual)) === stableJson(expected);
+}
+
 export async function loadApprovedCorpusManifest({ environment = process.env,includeText = true } = {}) {
   const config = configuration(environment);
   if (!config.manifestPath) throw configurationError("APPROVED_CORPUS_MANIFEST_PATH is required.");
@@ -212,17 +248,21 @@ function matchingActiveDocument(existing, expected) {
 export async function bootstrapApprovedCorpus({
   environment = process.env,
   listDocumentsFn = listKnowledgeDocuments,
+  listChunksFn = listKnowledgeChunksForIntegrity,
   indexDocumentFn = indexDocument,
   upsertPublicFactCollectionFn = upsertPublicFactCollection
 } = {}) {
   const loaded = await loadApprovedCorpusManifest({ environment });
   const activeDocuments = await listDocumentsFn(PUBLIC_USER, { includeChunkCounts: false });
+  const activeChunks = await listChunksFn(PUBLIC_USER);
   const byId = new Map(activeDocuments.map((document) => [document.id, document]));
   let indexed = 0;
   let skipped = 0;
   for (const document of loaded.documents) {
     const existing = byId.get(document.id);
-    if (matchingActiveDocument(existing, document)) {
+    const expectedChunks = expectedDocumentChunks(document).sort((left, right) => `${left.documentId}:${left.id}`.localeCompare(`${right.documentId}:${right.id}`));
+    const actualChunks = actualDocumentChunks(activeChunks, new Set([document.id]));
+    if (matchingActiveDocument(existing, document) && chunksMatchExpected(actualChunks, expectedChunks)) {
       skipped += 1;
       continue;
     }
@@ -275,19 +315,25 @@ export async function bootstrapApprovedCorpus({
 export async function approvedCorpusReadiness({
   environment = process.env,
   listDocumentsFn = listKnowledgeDocuments,
+  listChunksFn = listKnowledgeChunksForIntegrity,
   listPublicFactsFn = readPublicFacts
 } = {}) {
   try {
-    const loaded = await loadApprovedCorpusManifest({ environment,includeText:false });
+    const loaded = await loadApprovedCorpusManifest({ environment,includeText:true });
     const activeDocuments = await listDocumentsFn(PUBLIC_USER, { includeChunkCounts: false });
     const byId = new Map(activeDocuments.map((document) => [document.id, document]));
     const missing = loaded.documents.filter((document) => !matchingActiveDocument(byId.get(document.id), document)).map((document) => document.id);
+    const permittedDocumentIds = new Set(loaded.documents.map((document) => document.id));
+    const expectedChunks = loaded.documents.flatMap(expectedDocumentChunks)
+      .sort((left, right) => `${left.documentId}:${left.id}`.localeCompare(`${right.documentId}:${right.id}`));
+    const activeChunks = actualDocumentChunks(await listChunksFn(PUBLIC_USER), permittedDocumentIds);
+    const chunksMatch = chunksMatchExpected(activeChunks, expectedChunks);
     const expectedFacts = loaded.structuredFactCollections.flatMap((collection) => collection.facts);
     const permittedFactIds = new Set(expectedFacts.map((fact) => fact.id));
     const activeFacts = (await listPublicFactsFn()).filter((fact) => permittedFactIds.has(fact.id))
       .sort((left, right) => String(left.id).localeCompare(String(right.id)));
     const factsMatch = stableJson(activeFacts) === stableJson(expectedFacts.sort((left, right) => String(left.id).localeCompare(String(right.id))));
-    if (missing.length || !factsMatch) {
+    if (missing.length || !factsMatch || !chunksMatch) {
       return {
         ready:false,
         code:"CORPUS_INCOMPLETE",
@@ -296,13 +342,24 @@ export async function approvedCorpusReadiness({
         missingCount:missing.length,
         expectedStructuredFacts:expectedFacts.length,
         activeStructuredFacts:activeFacts.length,
-        structuredFactsMatch:factsMatch
+        structuredFactsMatch:factsMatch,
+        expectedChunks:expectedChunks.length,
+        activeChunks:activeChunks.length,
+        indexedChunksMatch:chunksMatch
       };
     }
     return {
       ready:true,code:"CORPUS_READY",expected:loaded.documents.length,active:loaded.documents.length,
       expectedStructuredFacts:expectedFacts.length,activeStructuredFacts:activeFacts.length,
-      manifestSha256:loaded.manifestSha256
+      manifestSha256:loaded.manifestSha256,
+      indexedChunks:activeChunks.length,
+      indexedChunksMatch:true,
+      corpusIntegritySha256:sha256(stableJson({
+        manifestSha256:loaded.manifestSha256,
+        documents:loaded.documents.map((document) => ({ id:document.id,version:Number(document.version),textSha256:document.text_sha256 })).sort((left,right)=>left.id.localeCompare(right.id)),
+        chunks:activeChunks,
+        structuredFacts:activeFacts,
+      }))
     };
   } catch (error) {
     return { ready:false,code:error.code || "CORPUS_UNAVAILABLE" };

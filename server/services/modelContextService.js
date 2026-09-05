@@ -7,7 +7,12 @@ export function buildModelContext(query, sources, { history = [], snippetChars =
   const ids = new Set();
   const sourceExcerpts = [];
   const evidenceSources = sources.map((source) => {
-    const excerpt = selectEvidenceExcerpt(source.snippet, query.self_contained_query, snippetChars);
+    const isStructured = String(source.scope || "").toUpperCase() === "USER_PORTFOLIO"
+      || String(source.sourceId || "").startsWith("structured_")
+      || /^\s*[\[{]/.test(String(source.snippet || ""));
+    const excerpt = isStructured
+      ? { text:String(source.snippet || ""), start:0, end:String(source.snippet || "").length, truncated:false }
+      : selectEvidenceExcerpt(source.snippet, query.self_contained_query, snippetChars);
     sourceExcerpts.push({ sourceId:source.sourceId, start:excerpt.start, end:excerpt.end, truncated:excerpt.truncated });
     return { ...source, snippet:excerpt.text };
   });

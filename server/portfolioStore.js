@@ -4,7 +4,7 @@ const formatter = new Intl.NumberFormat("en-GB", {
   maximumFractionDigits: 0
 });
 
-import { readPortfolio } from "./store/userDataStore.js";
+import { readPortfolio, readRiskProfile } from "./store/userDataStore.js";
 import { daysSince, slugify } from "./utils/values.js";
 
 function money(value) {
@@ -19,7 +19,10 @@ const portfolio = {
   userId: "alex-morgan",
   profile: {
     name: "Alex Morgan",
-    source: "Authenticated backend profile"
+    source: "Authenticated backend profile",
+    employer: "Northbridge Retail Ltd",
+    previousEmployer: "Harbour Logistics",
+    jurisdiction: "England and Wales"
   },
   assumptions: {
     currentAge: 45,
@@ -43,7 +46,22 @@ const portfolio = {
       type: "Workplace pension",
       source: "Provider-linked",
       lastUpdated: "12 May 2026",
-      charges: 0.45
+      charges: 0.45,
+      employerName: "Northbridge Retail Ltd",
+      schemeName: "Northbridge Retail Workplace Pension",
+      schemeType: "Group personal pension",
+      schemeStatus: "Active",
+      employeeContributionPct: 5,
+      employerContributionPct: 7,
+      employeeContributionAnnual: 2250,
+      employerContributionAnnual: 3150,
+      style: "Balanced",
+      allocation: [
+        { label: "UK equity", value: "26%" },
+        { label: "Global equity", value: "36%" },
+        { label: "Bonds", value: "28%" },
+        { label: "Cash", value: "10%" }
+      ]
     },
     {
       name: "Standard Life Pension",
@@ -53,7 +71,22 @@ const portfolio = {
       type: "Workplace pension",
       source: "Provider-linked",
       lastUpdated: "12 May 2026",
-      charges: 0.55
+      charges: 0.55,
+      employerName: "Harbour Logistics",
+      schemeName: "Harbour Logistics Workplace Pension",
+      schemeType: "Group personal pension",
+      schemeStatus: "Deferred",
+      employeeContributionPct: 0,
+      employerContributionPct: 0,
+      employeeContributionAnnual: 0,
+      employerContributionAnnual: 0,
+      style: "Balanced",
+      allocation: [
+        { label: "UK equity", value: "30%" },
+        { label: "Global equity", value: "32%" },
+        { label: "Bonds", value: "30%" },
+        { label: "Cash", value: "8%" }
+      ]
     },
     {
       name: "Nest Workplace Pension",
@@ -63,7 +96,22 @@ const portfolio = {
       type: "Workplace pension",
       source: "Provider-linked",
       lastUpdated: "08 May 2026",
-      charges: 0.30
+      charges: 0.30,
+      employerName: "Northbridge Retail Ltd",
+      schemeName: "Northbridge Nest Workplace Pension",
+      schemeType: "Master trust",
+      schemeStatus: "Active",
+      employeeContributionPct: 4,
+      employerContributionPct: 5,
+      employeeContributionAnnual: 1800,
+      employerContributionAnnual: 2250,
+      style: "Balanced",
+      allocation: [
+        { label: "UK equity", value: "24%" },
+        { label: "Global equity", value: "38%" },
+        { label: "Bonds", value: "28%" },
+        { label: "Cash", value: "10%" }
+      ]
     },
     {
       name: "OneLife Personal Plan",
@@ -73,7 +121,22 @@ const portfolio = {
       type: "Personal pension",
       source: "Manual entry",
       lastUpdated: "18 Apr 2026",
-      charges: 0.80
+      charges: 0.80,
+      employerName: "",
+      schemeName: "OneLife Personal Plan",
+      schemeType: "Personal pension",
+      schemeStatus: "Active",
+      employeeContributionPct: null,
+      employerContributionPct: null,
+      employeeContributionAnnual: 960,
+      employerContributionAnnual: 0,
+      style: "Cautious",
+      allocation: [
+        { label: "UK equity", value: "18%" },
+        { label: "Global equity", value: "22%" },
+        { label: "Bonds", value: "45%" },
+        { label: "Cash", value: "15%" }
+      ]
     }
   ],
   statePension: {
@@ -109,66 +172,94 @@ const portfolio = {
   },
   documents: [
     {
-      name: "Annual Statement 2024",
+      name: "Aviva Annual Statement 2026",
       type: "Pension statement",
       provider: "Aviva",
-      date: "12 May 2024",
+      date: "12 May 2026",
       status: "Checked",
       confidence: "High",
+      source: "Provider portal",
       extracted: {
         provider: "Aviva",
-        scheme: "Workplace Pension",
+        scheme: "Northbridge Retail Workplace Pension",
+        employer: "Northbridge Retail Ltd",
         potValue: 68450,
-        contribution: 300,
-        statementDate: "12 May 2024",
+        employeeContribution: "5%",
+        employerContribution: "7%",
+        chargePct: 0.45,
+        statementDate: "12 May 2026",
         policy: "AW12345678"
       }
     },
     {
-      name: "Welcome Letter",
-      type: "Letter",
-      provider: "Standard Life",
-      date: "03 Apr 2024",
+      name: "Nest Annual Statement 2026",
+      type: "Pension statement",
+      provider: "Nest",
+      date: "08 May 2026",
       status: "Checked",
-      confidence: "Medium",
+      confidence: "High",
+      source: "Provider portal",
       extracted: {
-        provider: "Standard Life",
-        scheme: "Workplace Pension",
-        potValue: 32150,
-        contribution: 225,
-        statementDate: "03 Apr 2024",
-        policy: "SL87654321"
+        provider: "Nest",
+        scheme: "Northbridge Nest Workplace Pension",
+        employer: "Northbridge Retail Ltd",
+        potValue: 15200,
+        employeeContribution: "4%",
+        employerContribution: "5%",
+        chargePct: 0.30,
+        statementDate: "08 May 2026",
+        policy: "NE11223344"
       }
     },
     {
-      name: "Policy Document",
+      name: "OneLife Policy Document",
       type: "Policy document",
       provider: "OneLife",
-      date: "18 Mar 2024",
+      date: "18 Apr 2026",
       status: "Review",
       confidence: "Medium",
+      source: "Manual upload",
       extracted: {
         provider: "OneLife",
-        scheme: "Personal Plan",
+        scheme: "OneLife Personal Plan",
         potValue: 7650,
-        contribution: 80,
-        statementDate: "18 Mar 2024",
+        employeeContribution: "£80 / month",
+        employerContribution: "None",
+        chargePct: 0.80,
+        statementDate: "18 Apr 2026",
         policy: "OL99887766"
       }
     },
     {
-      name: "Benefits Illustration",
-      type: "Illustration",
-      provider: "Aviva",
-      date: "10 Feb 2024",
+      name: "State Pension Forecast",
+      type: "State Pension forecast",
+      provider: "UK Government",
+      date: "21 Jan 2026",
       status: "Checked",
       confidence: "High",
+      source: "GOV.UK",
+      extracted: {
+        provider: "UK Government",
+        statePensionMonthly: 550,
+        statementDate: "21 Jan 2026"
+      }
+    },
+    {
+      name: "Northbridge Workplace Scheme Booklet",
+      type: "Scheme booklet",
+      provider: "Aviva",
+      date: "04 Jan 2026",
+      status: "Checked",
+      confidence: "High",
+      source: "Employer",
       extracted: {
         provider: "Aviva",
-        scheme: "Workplace Pension",
-        potValue: 68450,
-        contribution: 300,
-        statementDate: "10 Feb 2024",
+        employer: "Northbridge Retail Ltd",
+        scheme: "Northbridge Retail Workplace Pension",
+        schemeType: "Group personal pension",
+        defaultFund: "Balanced",
+        memberAction: "Read the booklet before any scheme change request",
+        statementDate: "04 Jan 2026",
         policy: "AW12345678"
       }
     }
@@ -184,7 +275,10 @@ const emptyPortfolio = {
   userId: "empty-demo",
   profile: {
     name: "New user",
-    source: "Empty demo profile"
+    source: "Empty demo profile",
+    employer: "",
+    previousEmployer: "",
+    jurisdiction: ""
   },
   assumptions: {
     currentAge: 45,
@@ -348,6 +442,18 @@ function dataQuality(state) {
   };
 }
 
+function formatContributionRate(value) {
+  if (value == null || value === "") return "";
+  return percent(value, 1);
+}
+
+function formatYearlyContribution(value) {
+  if (value == null || value === "") return "";
+  const amount = Number(value);
+  if (!Number.isFinite(amount) || amount <= 0) return "—";
+  return `${money(amount)} /yr`;
+}
+
 function accountConnectionStatus(account) {
   const age = daysSince(account.lastUpdated);
   if (/provider-linked|connected/i.test(String(account.source || "")) && !(age != null && age >= 90)) return "Connected";
@@ -418,6 +524,7 @@ export function getVerifiedDashboardContext({ userId = "alex-morgan" } = {}) {
       personalPensions: money(personalPotValue)
     },
     investmentProfile: clone(state.investmentProfile),
+    riskProfile: readRiskProfile(state.userId),
     largestAccount: largestAccount ? {
       id: largestAccount.id,
       name: largestAccount.name,
@@ -426,6 +533,8 @@ export function getVerifiedDashboardContext({ userId = "alex-morgan" } = {}) {
       pot: money(largestAccount.pot),
       charges: percent(largestAccount.charges, 2),
       source: largestAccount.source,
+      employerName: largestAccount.employerName || "",
+      schemeName: largestAccount.schemeName || "",
       connectionStatus: accountConnectionStatus(largestAccount),
       lastUpdated: largestAccount.lastUpdated
     } : null,
@@ -440,7 +549,17 @@ export function getVerifiedDashboardContext({ userId = "alex-morgan" } = {}) {
       connectionStatus: accountConnectionStatus(account),
       isStale: (daysSince(account.lastUpdated) ?? 0) >= 90,
       charges: percent(account.charges, 2),
-      lastUpdated: account.lastUpdated
+      lastUpdated: account.lastUpdated,
+      employerName: account.employerName || "",
+      schemeName: account.schemeName || "",
+      schemeType: account.schemeType || "",
+      schemeStatus: account.schemeStatus || "",
+      employee: formatContributionRate(account.employeeContributionPct) || (account.employeeContributionAnnual ? "Personal" : "—"),
+      employer: formatContributionRate(account.employerContributionPct) || "—",
+      employeeYearly: formatYearlyContribution(account.employeeContributionAnnual),
+      employerYearly: formatYearlyContribution(account.employerContributionAnnual),
+      style: account.style || "",
+      allocation: Array.isArray(account.allocation) ? clone(account.allocation) : []
     })),
     statePension: {
       monthlyIncome: money(state.statePension.monthlyIncome),
@@ -463,6 +582,7 @@ export function getVerifiedDashboardContext({ userId = "alex-morgan" } = {}) {
       status: documentItem.status,
       date: documentItem.date,
       confidence: documentItem.confidence,
+      source: documentItem.source || "",
       extracted: documentItem.extracted || {}
     })),
     dataQuality: quality,

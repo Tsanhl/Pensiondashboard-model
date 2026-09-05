@@ -6,8 +6,8 @@ import test from "node:test";
 import { createPinnedModelServer } from "../server/services/pinnedModelServer.js";
 import { assertModelIdentity } from "../server/services/modelIdentityService.js";
 
-async function setup(t, deadlineMs = 1000) {
-  const service = createPinnedModelServer({ command: process.execPath, args: [resolve("test/fixtures/pinned-worker.mjs")], deadlineMs, startupMs: 5000 });
+async function setup(t, deadlineMs = 1000, generationPolicy = null) {
+  const service = createPinnedModelServer({ command: process.execPath, args: [resolve("test/fixtures/pinned-worker.mjs")], deadlineMs, startupMs: 5000,generationPolicy });
   service.server.listen(0, "127.0.0.1");
   await once(service.server, "listening");
   t.after(() => service.stop());
@@ -52,6 +52,13 @@ test("deadline terminates worker, rejects a concurrent request, then recovers", 
   const after = await waitReady(before.worker_pid);
   assert.notEqual(after.worker_pid, before.worker_pid);
   assert.equal((await post()).status, 200);
+});
+
+test("qualification generation policy rejects one-token warm-ups and accepts the exact pinned sampler", async (t) => {
+  const policy = { enforce_exact:true,max_tokens:192,temperature:0,top_p:1,seed:42 };
+  const { post } = await setup(t,1000,policy);
+  assert.equal((await post("warm",{ max_tokens:1,temperature:0,top_p:1,seed:42 })).status,400);
+  assert.equal((await post("warm",{ max_tokens:192,temperature:0,top_p:1,seed:42 })).status,200);
 });
 
 test("client disconnect cancels the active worker instead of leaving queued generation", async (t) => {

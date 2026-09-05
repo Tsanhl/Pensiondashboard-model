@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="styles.css?v=20260826-local-rag-3" />
+    <link rel="stylesheet" href="styles.css?v=20260902-demo-1" />
   </head>
   <body>
     <div class="app-shell" id="app-shell">
@@ -317,7 +317,7 @@
             <div>
               <p class="eyebrow">Assistant</p>
               <h1 id="assistant-title">AI assistant</h1>
-              <p class="subtle">Ask the local pension model about verified portfolio data and indexed materials.</p>
+              <p class="subtle">Sample profile: Alex Morgan at Northbridge Retail Ltd. Use the live demo script to test grounded answers.</p>
             </div>
             <span class="action-pill danger urgent-action-pill hidden" data-urgent-action-pill><span aria-hidden="true">!</span> Action needed</span>
           </div>
@@ -325,11 +325,34 @@
             <article class="card chat-card">
               <h3>Ask your questions</h3>
               <div class="info-panel compact-panel"><strong>Read-only and evidence grounded.</strong><p>Qwen3-8B can use your verified dashboard and indexed documents. Figures, policy terms, tax and legal statements must cite supplied evidence.</p></div>
-              <div class="quick-prompt-grid" aria-label="Suggested questions">
-                <button type="button" class="quick-prompt" data-view="assistant" data-prompt="Based on my current investment style, what changes should I review?"><span aria-hidden="true">📈</span><strong>Investment changes</strong></button>
-                <button type="button" class="quick-prompt" data-view="assistant" data-prompt="Explain my £804 monthly gap and what I can review."><span aria-hidden="true">💷</span><strong>Close the gap</strong></button>
-                <button type="button" class="quick-prompt" data-view="assistant" data-prompt="Check the legal route for changing my workplace pension scheme."><span aria-hidden="true">⚖️</span><strong>Legal route</strong></button>
-                <button type="button" class="quick-prompt" data-view="assistant" data-prompt="Review the document facts that need confirmation."><span aria-hidden="true">📄</span><strong>Document facts</strong></button>
+              <div class="demo-prompt-groups" aria-label="Suggested questions">
+                <section class="demo-prompt-group">
+                  <h4>Portfolio</h4>
+                  <div class="quick-prompt-grid">
+                    <button type="button" class="quick-prompt" data-view="assistant" data-prompt="Which of my workplace pensions has the lowest annual charge?"><span aria-hidden="true">%</span><strong>Lowest charge</strong></button>
+                    <button type="button" class="quick-prompt" data-view="assistant" data-prompt="How much is in my Aviva pot and when was it last updated?"><span aria-hidden="true">£</span><strong>Aviva pot</strong></button>
+                    <button type="button" class="quick-prompt" data-view="assistant" data-prompt="What is my current allocation and which pot is Cautious?"><span aria-hidden="true">◎</span><strong>Allocation</strong></button>
+                    <button type="button" class="quick-prompt" data-view="assistant" data-prompt="Who is my current employer and which workplace schemes am I in?"><span aria-hidden="true">⌂</span><strong>Employer / schemes</strong></button>
+                  </div>
+                </section>
+                <section class="demo-prompt-group">
+                  <h4>Contributions and projection</h4>
+                  <div class="quick-prompt-grid">
+                    <button type="button" class="quick-prompt" data-view="assistant" data-prompt="Explain my £804 monthly gap and what I can review."><span aria-hidden="true">£</span><strong>Close the gap</strong></button>
+                    <button type="button" class="quick-prompt" data-view="assistant" data-prompt="Use my dashboard and explain what I should check before changing pension contributions. Include the current contribution scenarios."><span aria-hidden="true">◉</span><strong>Check contributions</strong></button>
+                    <button type="button" class="quick-prompt" data-view="assistant" data-prompt="What happens to my monthly gap if I add £100 a month?"><span aria-hidden="true">↗</span><strong>Add £100</strong></button>
+                  </div>
+                </section>
+                <section class="demo-prompt-group">
+                  <h4>Documents, law and safety</h4>
+                  <div class="quick-prompt-grid">
+                    <button type="button" class="quick-prompt" data-view="assistant" data-prompt="Review the document facts that need confirmation."><span aria-hidden="true">▤</span><strong>Facts to confirm</strong></button>
+                    <button type="button" class="quick-prompt" data-view="assistant" data-prompt="What does my Aviva annual statement show?"><span aria-hidden="true">▤</span><strong>Aviva statement</strong></button>
+                    <button type="button" class="quick-prompt" data-view="assistant" data-prompt="What is the Pension Protection Fund?"><span aria-hidden="true">⚖</span><strong>PPF</strong></button>
+                    <button type="button" class="quick-prompt" data-view="assistant" data-prompt="Check the legal route for changing my workplace pension scheme."><span aria-hidden="true">⚖</span><strong>Legal route</strong></button>
+                    <button type="button" class="quick-prompt" data-view="assistant" data-prompt="Someone is pressuring me to transfer my pension urgently."><span aria-hidden="true">!</span><strong>Urgent transfer</strong></button>
+                  </div>
+                </section>
               </div>
               <div class="chat-log" id="chat-log" aria-live="polite"></div>
               <form class="chat-composer" id="assistant-form">
@@ -341,14 +364,68 @@
             </article>
 
             <div class="assistant-side">
+              <article class="card demo-script-card">
+                <div class="card-title-row"><h3>Live demo script</h3><span class="card-icon">✦</span></div>
+                <p class="subtle">Click a question. The route is the expected behaviour, not a guaranteed model score.</p>
+                <ol class="demo-script-list">
+                  <li>
+                    <button type="button" class="text-link" data-view="assistant" data-prompt="Which of my workplace pensions has the lowest annual charge?">Which workplace pension has the lowest charge?</button>
+                    <small>Portfolio · Nest 0.30%</small>
+                  </li>
+                  <li>
+                    <button type="button" class="text-link" data-view="assistant" data-prompt="How much is in my Aviva pot and when was it last updated?">How much is in my Aviva pot?</button>
+                    <small>Portfolio · £68,450, 12 May 2026</small>
+                  </li>
+                  <li>
+                    <button type="button" class="text-link" data-view="assistant" data-prompt="What is my current allocation and which pot is Cautious?">What is my allocation, and which pot is Cautious?</button>
+                    <small>Portfolio · OneLife is Cautious</small>
+                  </li>
+                  <li>
+                    <button type="button" class="text-link" data-view="assistant" data-prompt="Who is my current employer and which workplace schemes am I in?">Who is my employer, and which schemes am I in?</button>
+                    <small>Portfolio · Northbridge / Harbour</small>
+                  </li>
+                  <li>
+                    <button type="button" class="text-link" data-view="assistant" data-prompt="Explain my £804 monthly gap and what I can review.">Explain my £804 monthly gap.</button>
+                    <small>Projection · target versus forecast</small>
+                  </li>
+                  <li>
+                    <button type="button" class="text-link" data-view="assistant" data-prompt="Use my dashboard and explain what I should check before changing pension contributions. Include the current contribution scenarios.">What should I check before changing contributions?</button>
+                    <small>Contributions · scenarios from the dashboard</small>
+                  </li>
+                  <li>
+                    <button type="button" class="text-link" data-view="assistant" data-prompt="What happens to my monthly gap if I add £100 a month?">What if I add £100 a month?</button>
+                    <small>Projection · +£100 scenario</small>
+                  </li>
+                  <li>
+                    <button type="button" class="text-link" data-view="assistant" data-prompt="Review the document facts that need confirmation.">Which document facts need confirmation?</button>
+                    <small>Documents · OneLife still in review</small>
+                  </li>
+                  <li>
+                    <button type="button" class="text-link" data-view="assistant" data-prompt="What does my Aviva annual statement show?">What does my Aviva statement show?</button>
+                    <small>Documents · 2026 statement facts</small>
+                  </li>
+                  <li>
+                    <button type="button" class="text-link" data-view="assistant" data-prompt="What is the Pension Protection Fund?">What is the Pension Protection Fund?</button>
+                    <small>Public law · official PPF sources</small>
+                  </li>
+                  <li>
+                    <button type="button" class="text-link" data-view="assistant" data-prompt="Check the legal route for changing my workplace pension scheme.">What is the legal route to change my workplace scheme?</button>
+                    <small>Fail-closed unless a current official source is retrieved</small>
+                  </li>
+                  <li>
+                    <button type="button" class="text-link" data-view="assistant" data-prompt="Someone is pressuring me to transfer my pension urgently.">Someone is pressuring me to transfer urgently.</button>
+                    <small>Safety · scam warning, no transfer action</small>
+                  </li>
+                </ol>
+              </article>
               <article class="card">
                 <div class="card-title-row"><h3>What the assistant can use</h3><span class="card-icon">▥</span></div>
                 <ul class="dot-list">
-                  <li>Pension pots, providers, charges and last-updated dates.</li>
+                  <li>Employer, scheme names, pots, charges and last-updated dates.</li>
+                  <li>Per-pot allocation, contribution rates and the Balanced risk profile.</li>
                   <li>State Pension forecast, retirement targets and projections.</li>
-                  <li>Uploaded document facts and review status.</li>
-                  <li>Savings buffer and data-quality checks.</li>
-                  <li>Contribution history and employer details.</li>
+                  <li>Sample document facts, including the Northbridge scheme booklet.</li>
+                  <li>Indexed official materials for public-law questions.</li>
                 </ul>
               </article>
               <article class="card">
@@ -425,6 +502,6 @@
         </section>
       </main>
     </div>
-    <script type="module" src="app.js?v=20260826-local-rag-4"></script>
+    <script type="module" src="app.js?v=20260902-demo-1"></script>
   </body>
 </html>

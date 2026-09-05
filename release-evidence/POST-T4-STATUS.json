@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "status_as_at": "2026-09-05T04:42:17.064Z",
+  "state": "BLOCKED_NOT_QUALIFIED",
+  "live_qualified": false,
+  "production_or_public_deployment_authorised": false,
+  "training": {
+    "completed": true,
+    "model_version": "pension-assistant-cumulative-t4-legal-v1",
+    "selected_iteration": 104,
+    "forbidden_iteration": 312,
+    "selected_validation_loss": 1.231,
+    "selected_adapter_sha256": "b370306a3078abd79af14e14c4690a4f394800f1096592ca6528e213cf5a6337"
+  },
+  "product_repair": {
+    "live50_round53_regressions_repaired": [
+      "L19",
+      "L23",
+      "L26",
+      "L38",
+      "L43"
+    ],
+    "isolated_regression_verified": true,
+    "full_live50_rerun_completed": false
+  },
+  "worker": {
+    "implemented": true,
+    "fixed_route": [
+      "VERIFY_RUNTIME",
+      "T4_TARGETED_REGRESSION",
+      "TOPIC161_ORIGINAL_DEVELOPMENT",
+      "LIVE50_FULL_REGRESSION",
+      "RELIABILITY_GATE",
+      "VISIBLE_CRITICAL4",
+      "VISIBLE_FULL69",
+      "VISIBLE_TOPIC161_REPLACEMENT_V2",
+      "VISIBLE_FROZEN13",
+      "CANDIDATE_FREEZE"
+    ],
+    "minimum_score_floor": 70,
+    "hard_factual_gates_required": true,
+    "independent_codex_reviews_required": 2,
+    "application_tests_passed": 175,
+    "worker_tests_passed": 18,
+    "javascript_files_syntax_checked": 278
+  },
+  "formal_post_repair_gates_completed": [],
+  "blocker": {
+    "class": "FROZEN_QUALIFICATION_INPUT_DEFECT",
+    "replacement_topic_rows": 161,
+    "unique_ids": 136,
+    "duplicate_second_occurrences": 25,
+    "required_action": "Owner-authorised ID-only metadata remediation and independent refreeze; no question, gold, source, score, threshold, or ordering change."
+  },
+  "sealed_unseen": {
+    "accessed": false,
+    "run": false,
+    "scored": false
+  },
+  "next_step": "Resolve and independently refreeze the duplicate IDs, rerun static preflight, then start T4_TARGETED_REGRESSION.",
+  "source_evidence_sha256": {
+    "checkpoint_selection": "e922fe49e171f96b4392b4bd9a695ddafc777aeba83deed79ec5fffb7e2fd566",
+    "worker_state": "7b7270881530ab7b452a1273bc173832dfeb514779061f0d7936c79094cd23fc",
+    "isolated_repair_results": "12f222ad5fc027479693e53adebfaaa1bfc3f23a72a8c57d628739132081327a"
+  }
+}

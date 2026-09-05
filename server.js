@@ -38,7 +38,7 @@ if (String(process.env.APPROVED_CORPUS_BOOTSTRAP_ON_START || "false").toLowerCas
     const result = await bootstrapApprovedCorpus();
     console.log(`Approved corpus bootstrap complete: ${result.indexed} indexed, ${result.skipped} unchanged.`);
   } catch (error) {
-    console.error(`Approved corpus bootstrap failed (${error.code || "CORPUS_BOOTSTRAP_FAILED"}).`);
+    console.error(`Approved corpus bootstrap failed (${error.code || "CORPUS_BOOTSTRAP_FAILED"}): ${error.message}`);
   }
 }
 
@@ -151,7 +151,7 @@ const server = createServer(async (req, res) => {
     }
     if (url.pathname === "/api/ready") {
       if (req.method !== "GET") return json(res, 405, { error:"Method not allowed" });
-      const readiness = await getReadiness();
+      const readiness = await getReadiness({ force: url.searchParams.get("force") === "1" });
       return json(res, readiness.ready ? 200 : 503, readiness);
     }
     const materials = await handleMaterialRoute({ req,res,url,json,readBody });

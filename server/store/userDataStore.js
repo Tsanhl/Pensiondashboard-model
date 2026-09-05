@@ -29,6 +29,29 @@ const DEFAULT_RISK_PROFILE = {
   updatedAt: null
 };
 
+const ALEX_MORGAN_RISK_PROFILE = {
+  status: "completed",
+  completed: true,
+  preferredStyle: "balanced",
+  timeHorizonYears: 22,
+  lossTolerancePct: 15,
+  mainGoal: "Close the retirement income gap while keeping a balanced workplace default",
+  mustCheckItems: ["charges", "guarantees"],
+  answers: {
+    preferredStyle: "balanced",
+    timeHorizonYears: 22,
+    lossTolerancePct: 15,
+    mainGoal: "Close the retirement income gap while keeping a balanced workplace default"
+  },
+  updatedAt: "2026-05-12T09:00:00.000Z"
+};
+
+export function getRiskProfileSeedForUser(userId = "alex-morgan") {
+  const id = slugify(userId || "alex-morgan");
+  if (id === "alex-morgan") return clone(ALEX_MORGAN_RISK_PROFILE);
+  return clone(DEFAULT_RISK_PROFILE);
+}
+
 const DEFAULT_NOTIFICATION_PREFERENCES = {
   actionNeeded: "immediate",
   documentReview: "immediate",
@@ -456,7 +479,7 @@ export function writePortfolio(userId, portfolio) {
 export function readRiskProfile(userId) {
   return {
     ...DEFAULT_RISK_PROFILE,
-    ...readJson(fileFor(userId, "risk-profile.json"), DEFAULT_RISK_PROFILE)
+    ...readJson(fileFor(userId, "risk-profile.json"), getRiskProfileSeedForUser(userId))
   };
 }
 

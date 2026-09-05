@@ -1,9 +1,11 @@
+import { createHash } from "node:crypto";
 import { approvedCorpusReadiness } from "./approvedCorpusService.js";
 import { cacheReadiness } from "./cacheService.js";
 import { EMBEDDING_DIMENSIONS } from "./embeddingService.js";
 import { localModelStatus } from "./localModelService.js";
 import { objectStorageReadiness } from "./objectStorageService.js";
-import { dataStoreReadiness } from "../store/userDataStore.js";
+import { getPortfolioSeedForUser } from "../portfolioStore.js";
+import { dataStoreReadiness, getRiskProfileSeedForUser, readPortfolio, readRiskProfile } from "../store/userDataStore.js";
 import {
   PINNED_EMBEDDING_MODEL,
   PINNED_RERANKER_MODEL,
@@ -25,6 +27,24 @@ function production(environment) {
 
 function fullSha256(value) {
   return /^[a-f0-9]{64}$/i.test(String(value || ""));
+}
+
+function stableValue(value) {
+  if (Array.isArray(value)) return value.map(stableValue);
+  if (value && typeof value === "object") return Object.fromEntries(Object.keys(value).sort().map((key) => [key,stableValue(value[key])]));
+  return value;
+}
+
+export function canonicalQualificationFactsReadiness(environment = process.env) {
+  const userId = String(environment.QUALIFICATION_CANONICAL_USER_ID || "").trim();
+  if (!userId) return { ready:true,code:"QUALIFICATION_CANONICAL_FACTS_NOT_REQUIRED" };
+  const expected = { portfolio:getPortfolioSeedForUser(userId),riskProfile:getRiskProfileSeedForUser(userId) };
+  const actual = { portfolio:readPortfolio(userId, expected.portfolio),riskProfile:readRiskProfile(userId) };
+  const expectedJson = JSON.stringify(stableValue(expected));
+  const actualJson = JSON.stringify(stableValue(actual));
+  const expectedSha256 = createHash("sha256").update(expectedJson).digest("hex");
+  const actualSha256 = createHash("sha256").update(actualJson).digest("hex");
+  return { ready:expectedJson === actualJson,code:expectedJson === actualJson ? "QUALIFICATION_CANONICAL_FACTS_READY" : "QUALIFICATION_CANONICAL_FACTS_CHANGED",canonicalFactsSha256:expectedSha256,actualCanonicalFactsSha256:actualSha256,canonicalUserId:userId };
 }
 
 async function postJson(url, payload, environment) {
@@ -138,7 +158,8 @@ function defaultProbes(environment) {
     cache:() => cacheReadiness({ requireRedis:requireProductionServices }),
     objectStorage:() => objectStorageReadiness({ requireS3:requireProductionServices }),
     malwareScanner:() => malwareScannerReadiness(environment),
-    approvedCorpus:() => approvedCorpusReadiness({ environment })
+    approvedCorpus:() => approvedCorpusReadiness({ environment }),
+    canonicalFacts:() => canonicalQualificationFactsReadiness(environment)
   };
 }
 
@@ -168,6 +189,14 @@ export async function evaluateReadiness({ environment = process.env, probes = {}
     service:"pension-assistant",
     status:ready ? "ready" : "not_ready",
     ready,
+    qualification_source_bindings_sha256:String(environment.QUALIFICATION_SOURCE_BINDINGS_SHA256 || "") || null,
+    qualification_run_id:String(environment.QUALIFICATION_RUN_ID || "") || null,
+    qualification_context_key_sha256:environment.QUALIFICATION_CONTEXT_HMAC_KEY
+      ? createHash("sha256").update(String(environment.QUALIFICATION_CONTEXT_HMAC_KEY)).digest("hex")
+      : null,
+    qualification_response_public_key_sha256:environment.QUALIFICATION_RESPONSE_SIGNING_PUBLIC_KEY_PEM
+      ? createHash("sha256").update(String(environment.QUALIFICATION_RESPONSE_SIGNING_PUBLIC_KEY_PEM)).digest("hex")
+      : null,
     checkedAt:new Date().toISOString(),
     checks
   };

@@ -36,6 +36,7 @@ function topicMatchScore(query,source) {
   if (/\b(?:scam|unlock|release fee|transfer today|urgent(?:ly)?[^.!?]{0,40}transfer|unsolicited|pressur(?:e|ed|ing)|incentive)\b/i.test(query)
     && /\b(?:scam|unauthorised|red flag|amber flag|unsolicited|pressure|incentive|specified guidance|moneyhelper)\b/i.test(text)) return 1;
   if (/\b(?:same[- ]sex|survivor pension)\b/i.test(query) && /\b(?:sex equality|same[- ]sex|walker|survivor)\b/i.test(text)) return 1;
+  if (/\bopt(?:ing)?\s+out\b/i.test(query) && /\bopt(?:ing)?\s+out\b/i.test(text)) return 1;
   return 0;
 }
 

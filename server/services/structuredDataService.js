@@ -22,20 +22,77 @@ export function lookupStructuredData(userId, queryPlan = {}) {
       sourceId:sourceId("accounts", `${userId}:${accounts.map((item) => item.id || item.policy).join("|")}`),
       title:"Verified pension account records",section:"Authenticated Info DB lookup",scope:"USER_PORTFOLIO",score:1,
       effectiveDate:dashboard.systemUpdate?.date || null,
-      snippet:JSON.stringify(accounts.map((item) => ({ provider:item.provider,policy:item.policy,name:item.name,type:item.type,pot:item.pot,charges:item.charges,source:item.source,lastUpdated:item.lastUpdated,isStale:item.isStale })))
+      snippet:accounts.map((item) => [
+        `${item.name} (${item.provider})`,
+        item.type,
+        item.schemeStatus,
+        `policy ${item.policy}`,
+        `pot ${item.pot}`,
+        `annual charge ${item.charges}`,
+        item.employerName ? `employer ${item.employerName}` : "",
+        dashboard.profile?.employer ? `current employer ${dashboard.profile.employer}` : "",
+        dashboard.profile?.previousEmployer ? `previous employer ${dashboard.profile.previousEmployer}` : "",
+        dashboard.profile?.jurisdiction ? `profile jurisdiction ${dashboard.profile.jurisdiction}` : "",
+        item.schemeName ? `scheme ${item.schemeName}` : "",
+        item.schemeType ? `scheme type ${item.schemeType}` : "",
+        item.employee ? `employee contribution ${item.employee}${item.employeeYearly ? ` (${item.employeeYearly})` : ""}` : "",
+        item.employer && item.employer !== "—" ? `employer contribution ${item.employer}${item.employerYearly ? ` (${item.employerYearly})` : ""}` : "",
+        item.style ? `style ${item.style}` : "",
+        Array.isArray(item.allocation) && item.allocation.length ? `allocation ${item.allocation.map((part) => `${part.label} ${part.value}`).join(", ")}` : "",
+        `source ${item.source}`,
+        `last updated ${item.lastUpdated}`
+      ].filter(Boolean).join("; ")).join("\n") + (dashboard.statePension?.monthlyIncome != null ? `\nState Pension forecast ${dashboard.statePension.monthlyIncome} a month` : "")
     });
   }
   if (lookups.has("document_status")) sources.push({
     sourceId:sourceId("documents", userId),title:"Verified document status records",section:"Authenticated Info DB lookup",scope:"USER_PORTFOLIO",score:1,effectiveDate:dashboard.systemUpdate?.date || null,
-    snippet:JSON.stringify((dashboard.documents || []).filter((item) => !queryPlan.entities?.provider || String(item.provider).toLowerCase() === String(queryPlan.entities.provider).toLowerCase()).map((item) => ({ name:item.name,provider:item.provider,status:item.status,date:item.date,confidence:item.confidence })))
+    snippet:(dashboard.documents || []).filter((item) => !queryPlan.entities?.provider || String(item.provider).toLowerCase() === String(queryPlan.entities.provider).toLowerCase()).map((item) => {
+      const extracted = item.extracted || {};
+      return [
+        item.name,
+        item.provider,
+        item.type,
+        `status ${item.status}`,
+        item.confidence ? `confidence ${item.confidence}` : "",
+        item.date ? `date ${item.date}` : "",
+        extracted.policy ? `policy ${extracted.policy}` : "",
+        extracted.potValue != null ? `pot ${extracted.potValue}` : "",
+        extracted.employeeContribution ? `employee ${extracted.employeeContribution}` : "",
+        extracted.employerContribution ? `employer ${extracted.employerContribution}` : "",
+        extracted.chargePct != null ? `charge ${extracted.chargePct}%` : "",
+        extracted.scheme ? `scheme ${extracted.scheme}` : "",
+        extracted.employer ? `employer ${extracted.employer}` : "",
+        extracted.memberAction ? `member action ${extracted.memberAction}` : "",
+        extracted.defaultFund ? `default fund ${extracted.defaultFund}` : "",
+        extracted.schemeType ? `scheme type ${extracted.schemeType}` : ""
+      ].filter(Boolean).join("; ");
+    }).join("\n")
   });
   if (lookups.has("projection")) sources.push({
     sourceId:sourceId("projection", userId),title:"Deterministic pension projection",section:"Verified calculation service",scope:"USER_PORTFOLIO",score:1,effectiveDate:dashboard.systemUpdate?.date || null,
-    snippet:JSON.stringify({ pensionPotValue:dashboard.pensionPotValue,monthlyTarget:dashboard.monthlyTarget,projectedMonthlyIncome:dashboard.projectedMonthlyIncome,monthlyGap:dashboard.monthlyGap,coverage:dashboard.coverage,assumptions:dashboard.assumptions })
+    snippet:[
+      `Current pot ${dashboard.pensionPotValue}`,
+      `monthly target ${dashboard.monthlyTarget}`,
+      `projected monthly income ${dashboard.projectedMonthlyIncome}`,
+      `monthly gap ${dashboard.monthlyGap}`,
+      `coverage ${dashboard.coverage}`,
+      dashboard.statePension?.monthlyIncome != null ? `state pension forecast ${dashboard.statePension.monthlyIncome} a month` : "",
+      dashboard.savings?.currentSavings ? `cash buffer ${dashboard.savings.currentSavings}, ${dashboard.savings.monthsCovered} months covered, target 3 months` : "",
+      dashboard.assumptions ? `assumptions age ${dashboard.assumptions.currentAge}, retire ${dashboard.assumptions.retirementAge}, salary ${dashboard.assumptions.salary}, contribution ${dashboard.assumptions.monthlyContribution} (${dashboard.assumptions.totalContributionPct}), growth ${dashboard.assumptions.growthPct}, inflation ${dashboard.assumptions.inflationPct}, charges ${dashboard.assumptions.chargePct}` : "",
+      Array.isArray(dashboard.contributionScenarios) ? dashboard.contributionScenarios.map((item) => `add ${item.extraMonthlyContribution}/month: final pot ${item.projectedFinalPot}, monthly income ${item.projectedMonthlyIncome}, gap ${item.monthlyGap}`).join("; ") : ""
+    ].filter(Boolean).join(". ")
   });
   if (lookups.has("investment_profile")) sources.push({
     sourceId:sourceId("investment_profile", userId),title:"Verified investment and risk profile",section:"Authenticated Info DB lookup",scope:"USER_PORTFOLIO",score:1,effectiveDate:dashboard.systemUpdate?.date || null,
-    snippet:JSON.stringify({ investmentProfile:dashboard.investmentProfile,riskProfile:dashboard.riskProfile })
+    snippet:[
+      dashboard.investmentProfile?.currentStyle ? `current style ${dashboard.investmentProfile.currentStyle}` : "",
+      dashboard.investmentProfile?.equityExposure ? `equity ${dashboard.investmentProfile.equityExposure}` : "",
+      dashboard.investmentProfile?.bondExposure ? `bonds ${dashboard.investmentProfile.bondExposure}` : "",
+      dashboard.investmentProfile?.cashOther ? `cash/other ${dashboard.investmentProfile.cashOther}` : "",
+      Array.isArray(dashboard.investmentProfile?.allocation) ? `allocation ${dashboard.investmentProfile.allocation.map((part) => `${part.label} ${part.value}`).join(", ")}` : "",
+      Array.isArray(dashboard.investmentProfile?.accountsByStrategy) ? `pots ${dashboard.investmentProfile.accountsByStrategy.map((item) => `${item.account || item[0]} ${item.style || item[1]}`).join("; ")}` : "",
+      dashboard.riskProfile?.completed ? `risk profile completed, preferred style ${dashboard.riskProfile.preferredStyle}, horizon ${dashboard.riskProfile.timeHorizonYears} years, loss tolerance ${dashboard.riskProfile.lossTolerancePct}%, goal ${dashboard.riskProfile.mainGoal}` : "risk profile incomplete"
+    ].filter(Boolean).join(". ")
   });
   return { sources,trace:{ requested:[...lookups],matchedAccounts:accounts.length,ambiguous:!queryPlan.entities?.provider && accounts.length > 1 } };
 }

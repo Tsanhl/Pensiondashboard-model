@@ -5,7 +5,7 @@ import { join } from "node:path";
 const ROOT = fileURLToPath(new URL("../", import.meta.url));
 const envPath = join(ROOT, ".env");
 
-if (existsSync(envPath)) {
+if (String(process.env.DISABLE_DOTENV_LOAD || "false").toLowerCase() !== "true" && existsSync(envPath)) {
   for (const line of readFileSync(envPath, "utf8").split(/\r?\n/)) {
     const trimmed = line.trim();
     if (!trimmed || trimmed.startsWith("#") || !trimmed.includes("=")) continue;

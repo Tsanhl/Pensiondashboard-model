@@ -3,14 +3,17 @@
 .env.*
 !.env.example
 
-# Dependencies and runtimes
+# Dependencies and local runtimes
 node_modules/
 .training-venv/
+.retrieval-venv/
 .venv/
 runtime/bin/
 runtime/downloads/
+runtime/runtime-lock.json
+runtime/qualification-allowed-contexts/
 
-# Base models, adapters, and raw approved corpus
+# Base models, adapters and raw approved corpus
 models/*
 !models/model-manifest.json
 adapters/
@@ -18,18 +21,27 @@ approved-materials/index/
 approved-materials/originals/
 approved-materials/structured-facts/
 
-# Private/protected data and local state
+# Evaluation/training inputs and local evidence
+training/
+evaluation/
 training-data/private/
-training/evaluation-cycle-v1/04-unseen/
-**/gold-answers.sealed.json
-**/unseen-question-set.json
-**/unseen/
+Log/
+Logging/
 data/
 uploads/
-Logging/
+tmp/
+temp/
 *.log
 *.sqlite*
 *.db*
+
+# Qualification secrets and holdouts
+**/controller-integrity-private.pem
+**/runtime-qualification-context.key
+**/runtime-response-signing-private.pem
+**/gold-answers.sealed.json
+**/unseen-question-set.json
+**/unseen/
 
 # Caches
 __pycache__/

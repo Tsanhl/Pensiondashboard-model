@@ -42,7 +42,7 @@ export async function retrieveForQuery({ userId,sessionId,requestId,queryPlan,li
   const corpusPolicy = await configuredCorpusPolicy();
   const retrievalQuery = queryPlan.retrieval_query || queryPlan.self_contained_query;
   let structuredTrace = { requested:[],matchedAccounts:0 };
-  if (queryPlan.source_scopes.includes("USER_PORTFOLIO")) {
+  if (queryPlan.source_scopes.includes("USER_PORTFOLIO") || (queryPlan.structured_lookups || []).some((lookup) => ["account","charges","document_status","projection","investment_profile"].includes(lookup))) {
     const structured = lookupStructuredData(userId, queryPlan);
     sources.push(...structured.sources);
     structuredTrace = structured.trace;

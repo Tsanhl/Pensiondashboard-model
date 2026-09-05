@@ -14,5 +14,7 @@ export function configuredModelIdentity() {
     base_sha256: process.env.LOCAL_LLM_EXPECTED_BASE_SHA256,
     adapter_config_sha256: process.env.LOCAL_LLM_EXPECTED_ADAPTER_CONFIG_SHA256,
     checkpoint_sha256: process.env.LOCAL_LLM_EXPECTED_CHECKPOINT_SHA256,
+    ...(process.env.LOCAL_LLM_EXPECTED_RUNTIME_CONFIGURATION_SHA256 ? { runtime_configuration_sha256:process.env.LOCAL_LLM_EXPECTED_RUNTIME_CONFIGURATION_SHA256 } : {}),
+    ...(process.env.LOCAL_LLM_EXPECTED_PYTHON_ENVIRONMENT_SHA256 ? { python_environment_sha256:process.env.LOCAL_LLM_EXPECTED_PYTHON_ENVIRONMENT_SHA256 } : {}),
   };
 }

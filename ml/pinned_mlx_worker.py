@@ -8,6 +8,7 @@ import contextlib
 import hashlib
 import importlib.metadata
 import json
+import os
 from pathlib import Path
 import sys
 import time
@@ -23,11 +24,57 @@ def emit(payload):
     print(json.dumps(payload), flush=True)
 
 
+def canonical_hash(value):
+    return hashlib.sha256(json.dumps(value, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+
+
+def directory_records(root):
+    records = []
+    def walk(current):
+        for path in sorted(current.iterdir(), key=lambda value: value.name):
+            relative = str(path.relative_to(root))
+            if path.is_symlink():
+                target = path.resolve(strict=True)
+                records.append({"path":relative,"type":"symlink","link_target":os.readlink(path),"target_realpath":str(target),"bytes":target.stat().st_size,"sha256":digest(target)})
+            elif path.is_dir():
+                records.append({"path":relative,"type":"directory"})
+                walk(path)
+            elif path.is_file():
+                records.append({"path":relative,"type":"file","bytes":path.stat().st_size,"sha256":digest(path)})
+            else:
+                raise ValueError(f"Unsupported base-model artifact type: {path}")
+    walk(root)
+    return sorted(records,key=lambda value:value["path"])
+
+
+def verify_base_directory(base,runtime):
+    manifest_path = Path(runtime["base_model_directory_manifest_path"]).resolve(strict=True)
+    if digest(manifest_path) != runtime["base_model_directory_manifest_sha256"]:
+        raise ValueError("Base-model directory manifest hash mismatch")
+    manifest = json.loads(manifest_path.read_text())
+    records = directory_records(base)
+    records_sha256 = canonical_hash(records)
+    if manifest.get("version") != "base-model-directory-manifest-v1" or Path(manifest.get("root", "")).resolve() != base or manifest.get("records_sha256") != canonical_hash(manifest.get("records", [])) or records != manifest.get("records") or records_sha256 != runtime["base_model_directory_sha256"]:
+        raise ValueError("Complete base-model directory identity mismatch")
+
+
 def main():
     checkpoint_path = Path(sys.argv[1]).resolve()
+    runtime = json.loads(sys.argv[2])
+    required_runtime = {
+        "max_tokens", "temperature", "top_p", "seed", "context_limit_tokens", "prefill_step_size",
+        "cache_limit_bytes", "enable_thinking", "system_prefix_cache", "trust_remote_code", "add_generation_prompt",
+        "base_model_directory_manifest_path", "base_model_directory_manifest_sha256", "base_model_directory_sha256",
+    }
+    if set(runtime) != required_runtime:
+        raise ValueError("Pinned inference configuration is incomplete or contains unknown settings")
+    if not (sys.flags.isolated and sys.flags.no_user_site and sys.flags.ignore_environment and sys.flags.safe_path and sys.flags.dont_write_bytecode):
+        raise ValueError("Pinned model worker requires isolated Python startup with bytecode writes disabled")
     checkpoint = json.loads(checkpoint_path.read_text())
     training = json.loads((checkpoint_path.parent / "training-run-manifest.json").read_text())
     base = Path(training["base_model"]["path"]).resolve()
+    if runtime["base_model_directory_manifest_path"]:
+        verify_base_directory(base,runtime)
     adapter = Path(checkpoint["selected_adapter_path"]).resolve()
     expected = {
         base / "model.safetensors": training["base_model"]["model_sha256"],
@@ -47,9 +94,9 @@ def main():
         from mlx_lm.sample_utils import make_sampler
         from mlx_lm.models.cache import make_prompt_cache
 
-        mx.set_cache_limit(128 * 1024 * 1024)
+        mx.set_cache_limit(runtime["cache_limit_bytes"])
         model, tokenizer = load(str(base), adapter_path=str(adapter),
-                                tokenizer_config={"trust_remote_code": False})
+                                tokenizer_config={"trust_remote_code": runtime["trust_remote_code"]})
         mx.eval(model.parameters())
         lora_modules = sum(hasattr(module, "lora_a") for _, module in model.named_modules())
         if not lora_modules:
@@ -65,16 +112,24 @@ def main():
         "tokenizer_config_sha256": digest(base / "tokenizer_config.json"),
         "mlx_lm_version": version, "mlx_version": importlib.metadata.version("mlx"),
         "worker_sha256": digest(__file__), "lora_modules_loaded": lora_modules,
-        "prefill_step_size": 256, "cache_limit_bytes": 128 * 1024 * 1024,
-        "context_limit_tokens": 8192, "enable_thinking": False,
-        "system_prefix_cache": True, "cache_helper_sha256": digest(Path(__file__).with_name("pinned_prompt_cache.py")),
+        "prefill_step_size": runtime["prefill_step_size"], "cache_limit_bytes": runtime["cache_limit_bytes"],
+        "context_limit_tokens": runtime["context_limit_tokens"], "enable_thinking": runtime["enable_thinking"],
+        "system_prefix_cache": runtime["system_prefix_cache"], "trust_remote_code": runtime["trust_remote_code"],
+        "add_generation_prompt": runtime["add_generation_prompt"],"generation_temperature":runtime["temperature"],
+        "generation_top_p":runtime["top_p"],"generation_seed":runtime["seed"],"model_max_tokens":runtime["max_tokens"],
+        "python_isolated":bool(sys.flags.isolated),"python_no_user_site":bool(sys.flags.no_user_site),
+        "python_ignore_environment":bool(sys.flags.ignore_environment),"python_safe_path":bool(sys.flags.safe_path),
+        "python_dont_write_bytecode":bool(sys.flags.dont_write_bytecode),
+        "cache_helper_sha256": digest(Path(__file__).with_name("pinned_prompt_cache.py")),
+        "base_model_directory_manifest_sha256":runtime["base_model_directory_manifest_sha256"],
+        "base_model_directory_sha256":runtime["base_model_directory_sha256"],
     }
     emit({"type": "ready", "identity": identity})
     prefix_cache = SystemPrefixCache()
     def build_prefix(tokens):
         cache = make_prompt_cache(model)
-        for start in range(0, len(tokens), 256):
-            model(mx.array([tokens[start:start + 256]]), cache=cache)
+        for start in range(0, len(tokens), runtime["prefill_step_size"]):
+            model(mx.array([tokens[start:start + runtime["prefill_step_size"]]]), cache=cache)
             mx.eval([entry.state for entry in cache])
         return cache
     for line in sys.stdin:
@@ -84,17 +139,17 @@ def main():
             started = time.perf_counter()
             with contextlib.redirect_stdout(sys.stderr):
                 prompt = tokenizer.apply_chat_template(request["messages"], tokenize=True,
-                                                       add_generation_prompt=True, enable_thinking=False)
-                if len(prompt) + request["max_tokens"] > 8192:
+                                                       add_generation_prompt=runtime["add_generation_prompt"], enable_thinking=runtime["enable_thinking"])
+                if len(prompt) + request["max_tokens"] > runtime["context_limit_tokens"]:
                     raise ValueError("Prompt exceeds pinned context limit")
                 full_prompt_tokens = len(prompt)
                 prompt, request_cache, cached_tokens = prefix_cache.prepare(request["messages"], prompt, tokenizer, build_prefix)
-                mx.random.seed(request.get("seed", 42))
+                mx.random.seed(request.get("seed", runtime["seed"]))
                 parts = []
                 for response in stream_generate(
                     model, tokenizer, prompt, max_tokens=request["max_tokens"],
-                    sampler=make_sampler(temp=request.get("temperature", 0), top_p=request.get("top_p", 1)),
-                    prefill_step_size=256,
+                    sampler=make_sampler(temp=request.get("temperature", runtime["temperature"]), top_p=request.get("top_p", runtime["top_p"])),
+                    prefill_step_size=runtime["prefill_step_size"],
                     prompt_cache=request_cache,
                 ):
                     parts.append(response.text)

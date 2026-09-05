@@ -17,7 +17,13 @@ const DEMO_ACCOUNTS = {
   }
 };
 const DEFAULT_PORTFOLIO = {
-  profile: { name: "Alex Morgan", source: "Authenticated backend profile" },
+  profile: {
+    name: "Alex Morgan",
+    source: "Authenticated backend profile",
+    employer: "Northbridge Retail Ltd",
+    previousEmployer: "Harbour Logistics",
+    jurisdiction: "England and Wales"
+  },
   dataSource: "Backend verified portfolio snapshot",
   monthlyTarget: "£2,500",
   projectedMonthlyIncome: "£1,696",
@@ -37,19 +43,21 @@ const DEFAULT_PORTFOLIO = {
   },
   pensionPotValue: "£123,450",
   potBreakdown: { workplacePensions: "£115,800", personalPensions: "£7,650" },
-  largestAccount: { name: "Aviva Workplace Pension", provider: "Aviva", pot: "£68,450", charges: "0.45%", source: "Provider-linked", lastUpdated: "12 May 2026" },
+  largestAccount: { name: "Aviva Workplace Pension", provider: "Aviva", pot: "£68,450", charges: "0.45%", source: "Provider-linked", lastUpdated: "12 May 2026", employerName: "Northbridge Retail Ltd", schemeName: "Northbridge Retail Workplace Pension" },
   pensionAccounts: [
-    { name: "Aviva Workplace Pension", provider: "Aviva", type: "Workplace pension", policy: "AW12345678", pot: "£68,450", source: "Provider-linked", charges: "0.45%", lastUpdated: "12 May 2026", employee: "5%", employer: "7%", employeeYearly: "£3,245 /yr", employerYearly: "£4,531 /yr" },
-    { name: "Standard Life Pension", provider: "Standard Life", type: "Workplace pension", policy: "SL87654321", pot: "£32,150", source: "Provider-linked", charges: "0.55%", lastUpdated: "12 May 2026", employee: "4%", employer: "6%", employeeYearly: "£1,852 /yr", employerYearly: "£2,778 /yr" },
-    { name: "Nest Workplace Pension", provider: "Nest", type: "Workplace pension", policy: "NE11223344", pot: "£15,200", source: "Provider-linked", charges: "0.30%", lastUpdated: "08 May 2026", employee: "4%", employer: "5%", employeeYearly: "£1,440 /yr", employerYearly: "£1,800 /yr" },
-    { name: "OneLife Personal Plan", provider: "OneLife", type: "Personal pension", policy: "OL99887766", pot: "£7,650", source: "Manual review", charges: "0.80%", lastUpdated: "18 Apr 2026", employee: "—", employer: "—", employeeYearly: "N/A", employerYearly: "N/A" }
+    { name: "Aviva Workplace Pension", provider: "Aviva", type: "Workplace pension", policy: "AW12345678", pot: "£68,450", source: "Provider-linked", charges: "0.45%", lastUpdated: "12 May 2026", employerName: "Northbridge Retail Ltd", schemeName: "Northbridge Retail Workplace Pension", schemeType: "Group personal pension", schemeStatus: "Active", employee: "5%", employer: "7%", employeeYearly: "£2,250 /yr", employerYearly: "£3,150 /yr", style: "Balanced" },
+    { name: "Standard Life Pension", provider: "Standard Life", type: "Workplace pension", policy: "SL87654321", pot: "£32,150", source: "Provider-linked", charges: "0.55%", lastUpdated: "12 May 2026", employerName: "Harbour Logistics", schemeName: "Harbour Logistics Workplace Pension", schemeType: "Group personal pension", schemeStatus: "Deferred", employee: "0%", employer: "0%", employeeYearly: "—", employerYearly: "—", style: "Balanced" },
+    { name: "Nest Workplace Pension", provider: "Nest", type: "Workplace pension", policy: "NE11223344", pot: "£15,200", source: "Provider-linked", charges: "0.30%", lastUpdated: "08 May 2026", employerName: "Northbridge Retail Ltd", schemeName: "Northbridge Nest Workplace Pension", schemeType: "Master trust", schemeStatus: "Active", employee: "4%", employer: "5%", employeeYearly: "£1,800 /yr", employerYearly: "£2,250 /yr", style: "Balanced" },
+    { name: "OneLife Personal Plan", provider: "OneLife", type: "Personal pension", policy: "OL99887766", pot: "£7,650", source: "Manual entry", charges: "0.80%", lastUpdated: "18 Apr 2026", employerName: "", schemeName: "OneLife Personal Plan", schemeType: "Personal pension", schemeStatus: "Active", employee: "Personal", employer: "—", employeeYearly: "£960 /yr", employerYearly: "—", style: "Cautious" }
   ],
   statePension: { monthlyIncome: "£550", source: "Official forecast", lastUpdated: "12 May 2026" },
   savings: { currentSavings: "£8,750", monthlyExpenses: "£1,700", target: "£5,100", monthsCovered: "5.1", status: "On track", lastUpdated: "12 May 2026" },
   documents: [
-    { name: "Aviva annual statement.pdf", provider: "Aviva", type: "Pension statement", status: "Needs review", date: "12 Apr 2026", source: "Email", confidence: "Medium", extracted: { provider: "Aviva", policy: "AV-48291", potValue: 48230, employerContribution: "5%", employeeContribution: "4%", chargePct: 0.45, statementDate: "12 Apr 2026" } },
-    { name: "Workplace pension update.pdf", provider: "Standard Life", type: "Pension statement", status: "Reviewed", date: "05 Mar 2026", source: "Email", confidence: "High", extracted: { provider: "Standard Life", policy: "SL87654321", potValue: 32150, chargePct: 0.55, statementDate: "05 Mar 2026" } },
-    { name: "State Pension forecast.pdf", provider: "UK Government", type: "State Pension forecast", status: "Reviewed", date: "21 Jan 2026", source: "Portal", confidence: "High", extracted: { provider: "UK Government", statePensionMonthly: 550, statementDate: "21 Jan 2026" } }
+    { name: "Aviva Annual Statement 2026", provider: "Aviva", type: "Pension statement", status: "Checked", date: "12 May 2026", source: "Provider portal", confidence: "High", extracted: { provider: "Aviva", policy: "AW12345678", potValue: 68450, employerContribution: "7%", employeeContribution: "5%", chargePct: 0.45, statementDate: "12 May 2026", scheme: "Northbridge Retail Workplace Pension" } },
+    { name: "Nest Annual Statement 2026", provider: "Nest", type: "Pension statement", status: "Checked", date: "08 May 2026", source: "Provider portal", confidence: "High", extracted: { provider: "Nest", policy: "NE11223344", potValue: 15200, employerContribution: "5%", employeeContribution: "4%", chargePct: 0.30, statementDate: "08 May 2026" } },
+    { name: "OneLife Policy Document", provider: "OneLife", type: "Policy document", status: "Review", date: "18 Apr 2026", source: "Manual upload", confidence: "Medium", extracted: { provider: "OneLife", policy: "OL99887766", potValue: 7650, employerContribution: "None", employeeContribution: "£80 / month", chargePct: 0.80, statementDate: "18 Apr 2026" } },
+    { name: "State Pension Forecast", provider: "UK Government", type: "State Pension forecast", status: "Checked", date: "21 Jan 2026", source: "GOV.UK", confidence: "High", extracted: { provider: "UK Government", statePensionMonthly: 550, statementDate: "21 Jan 2026" } },
+    { name: "Northbridge Workplace Scheme Booklet", provider: "Aviva", type: "Scheme booklet", status: "Checked", date: "04 Jan 2026", source: "Employer", confidence: "High", extracted: { provider: "Aviva", policy: "AW12345678", scheme: "Northbridge Retail Workplace Pension", employer: "Northbridge Retail Ltd", schemeType: "Group personal pension" } }
   ],
   dataQuality: { connected: 3, totalAccounts: 4, reviewDocs: 1, highCharge: 1, status: "Needs review" },
   investmentProfile: {
@@ -65,11 +73,10 @@ const DEFAULT_PORTFOLIO = {
       { label: "Alternatives", value: "2%", color: "#f59e0b" }
     ],
     accountsByStrategy: [
-      ["Workplace Pension", "Balanced"],
-      ["Personal Pension", "Balanced"],
-      ["SIPP", "Balanced"],
-      ["Junior SIPP", "Growth"],
-      ["Stakeholder Pension", "Cautious"]
+      { account: "Aviva Workplace Pension", provider: "Aviva", style: "Balanced" },
+      { account: "Standard Life Pension", provider: "Standard Life", style: "Balanced" },
+      { account: "Nest Workplace Pension", provider: "Nest", style: "Balanced" },
+      { account: "OneLife Personal Plan", provider: "OneLife", style: "Cautious" }
     ]
   },
   systemUpdate: { date: "12 May 2026", label: "Latest provider update", note: "Provider values received and projection recalculated." },
@@ -429,7 +436,7 @@ function renderAccounts() {
     const employeeYearly = account.employeeYearly || "";
     const employerYearly = account.employerYearly || "";
     return `<div class="account-row">
-      <div class="provider-cell"><span class="provider-logo ${providerClass(account.provider)}">${escapeHtml(account.provider?.slice(0, 2).toUpperCase() || "PP")}</span><span class="account-title"><strong>${escapeHtml(account.name)}</strong><small>${escapeHtml(account.policy || "Policy details stored")}</small><span class="account-pills"><span class="pill ${/personal/i.test(account.type) ? "purple" : ""}">${escapeHtml(account.type)}</span></span></span></div>
+      <div class="provider-cell"><span class="provider-logo ${providerClass(account.provider)}">${escapeHtml(account.provider?.slice(0, 2).toUpperCase() || "PP")}</span><span class="account-title"><strong>${escapeHtml(account.name)}</strong><small>${escapeHtml([account.policy, account.employerName, account.schemeName].filter(Boolean).join(" · ") || "Policy details stored")}</small><span class="account-pills"><span class="pill ${/personal/i.test(account.type) ? "purple" : ""}">${escapeHtml(account.type)}</span>${account.schemeStatus ? `<span class="pill">${escapeHtml(account.schemeStatus)}</span>` : ""}${account.style ? `<span class="pill">${escapeHtml(account.style)}</span>` : ""}</span></span></div>
       <strong>${escapeHtml(account.pot)}</strong>
       <span class="contribution-cell"><strong>${escapeHtml(employee)}</strong><small>${escapeHtml(employeeYearly)}</small></span>
       <span class="contribution-cell"><strong>${escapeHtml(employer)}</strong><small>${escapeHtml(employerYearly)}</small></span>
@@ -655,12 +662,12 @@ function renderDocuments() {
 function renderFacts(extracted = {}) {
   const rows = [
     ["provider", "Provider", extracted.provider || "Aviva"],
-    ["policy", "Policy number", extracted.policy || extracted.policyNumber || "AV-48291"],
-    ["potValue", "Current pot value", extracted.potValue != null ? money(extracted.potValue) : "£48,230"],
-    ["contributionEmployer", "Employer contribution", extracted.contributionEmployer != null ? money(extracted.contributionEmployer) : (extracted.employerContribution || "5%")],
-    ["contributionEmployee", "Employee contribution", extracted.contributionEmployee != null ? money(extracted.contributionEmployee) : (extracted.employeeContribution || "4%")],
+    ["policy", "Policy number", extracted.policy || extracted.policyNumber || "AW12345678"],
+    ["potValue", "Current pot value", extracted.potValue != null ? money(extracted.potValue) : "£68,450"],
+    ["contributionEmployer", "Employer contribution", extracted.contributionEmployer != null ? money(extracted.contributionEmployer) : (extracted.employerContribution || "7%")],
+    ["contributionEmployee", "Employee contribution", extracted.contributionEmployee != null ? money(extracted.contributionEmployee) : (extracted.employeeContribution || "5%")],
     ["chargePct", "Annual charge", extracted.chargePct != null ? `${extracted.chargePct}%` : "0.45%"],
-    ["statementDate", "Statement date", extracted.statementDate || "12 Apr 2026"]
+    ["statementDate", "Statement date", extracted.statementDate || "12 May 2026"]
   ];
   $("#facts-table").innerHTML = rows.map(([, label, value]) => `<div class="fact-row"><span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong></div>`).join("");
 }
@@ -686,6 +693,20 @@ function renderChatLog() {
   log.scrollTop = log.scrollHeight;
 }
 
+function isStructuredSourceSnippet(text = "") {
+  const raw = String(text || "").trim();
+  return raw.startsWith("{") || raw.startsWith("[");
+}
+
+function formatChatSourceSnippet(source = {}) {
+  const raw = String(source.snippet || "").trim();
+  if (!raw) return "";
+  if (isStructuredSourceSnippet(raw) || /authenticated info db/i.test(String(source.section || ""))) {
+    return "Verified dashboard record used for this answer.";
+  }
+  return raw;
+}
+
 function renderChatSources() {
   const panel = $("#assistant-sources");
   if (!panel) return;
@@ -693,7 +714,16 @@ function renderChatSources() {
     panel.innerHTML = "";
     return;
   }
-  panel.innerHTML = `<h4>Sources used</h4>${app.chatSources.map((source) => `<article class="assistant-source"><strong>${escapeHtml(source.title || "Source")}</strong><span>${escapeHtml(source.section || "")}${source.effective_date ? ` · Effective ${escapeHtml(String(source.effective_date).slice(0, 10))}` : ""}</span><p>${escapeHtml(source.snippet || "")}</p></article>`).join("")}`;
+  panel.innerHTML = `<h4>Sources used</h4>${app.chatSources.map((source) => {
+    const title = source.title || "Source";
+    const oscola = String(source.oscola || "").trim();
+    const section = String(source.section || "").trim();
+    const citation = oscola && oscola !== title ? oscola : section;
+    const date = source.effective_date ? `Effective ${String(source.effective_date).slice(0, 10)}` : "";
+    const meta = [citation, date].filter(Boolean).join(" · ");
+    const snippet = formatChatSourceSnippet(source);
+    return `<article class="assistant-source"><strong>${escapeHtml(title)}</strong>${meta ? `<span>${escapeHtml(meta)}</span>` : ""}${snippet ? `<p>${escapeHtml(snippet)}</p>` : ""}</article>`;
+  }).join("")}`;
 }
 
 function renderLocalModelStatus() {
@@ -725,8 +755,9 @@ function renderSettings() {
   $("#profile-list").innerHTML = splitRows([
     ["", "Full name", meta.name, "blue"],
     ["", "Notification email", meta.email || "Not added", "blue"],
+    ["", "Employer", app.portfolio.profile?.employer || "Not added", "blue"],
     ["", "Retirement age", String(app.portfolio.assumptions?.retirementAge || "Not added"), "blue"],
-    ["", "Country", "United Kingdom", "blue"]
+    ["", "Country", app.portfolio.profile?.jurisdiction || "United Kingdom", "blue"]
   ]);
   $("#notification-settings").innerHTML = toggleRows([
     ["actionAlerts", "Action-needed alerts", "Get notified when something needs your attention.", settings.actionAlerts],
@@ -894,6 +925,11 @@ async function sendChat(message, requestId) {
       closeChatSocket();
     }
   }
+  const pending = app.chatMessages.at(-1);
+  if (pending?.pending) {
+    pending.text = "The local model is working…";
+    renderChatLog();
+  }
   return fetchJson("/chat", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -919,7 +955,7 @@ async function handleAssistantSubmit(event) {
   if (!message) return;
   input.value = "";
   const requestId = crypto.randomUUID();
-  app.chatMessages.push({ role: "user", text: message }, { role: "assistant", text: "Saving your message…", pending: true });
+  app.chatMessages.push({ role: "user", text: message }, { role: "assistant", text: "Working on your question…", pending: true });
   app.chatSources = [];
   renderAssistant();
   try {
@@ -1258,6 +1294,9 @@ function wireEvents() {
         const input = $("#assistant-input");
         input.value = prompt;
         input.focus();
+        if (viewButton.classList.contains("quick-prompt") || viewButton.closest(".demo-script-card")) {
+          handleAssistantSubmit(new Event("submit"));
+        }
       }
     }
   });
