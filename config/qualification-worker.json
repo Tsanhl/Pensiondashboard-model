@@ -2,6 +2,14 @@
   "version": "pensions-post-t4-qualification-worker-v1",
   "worker_id": "pensions-post-t4-qualification-v1",
   "start_state": "VERIFY_RUNTIME",
+  "review_selection": {
+    "selected_route": "AI",
+    "selected_by": "OWNER",
+    "selection_reference": "docs/review-route-owner-selection-2026-09-05.md",
+    "automatic_fallback": false,
+    "claim_scope": "TESTED_CASES_AGAINST_PINNED_EVIDENCE",
+    "universal_accuracy_guarantee": false
+  },
   "candidate": {
     "checkpoint_path": "training/evaluation-cycle-v2/30-cumulative-legal-training-20260902/checkpoint-selection.json",
     "adapter_path": "adapters/pension-assistant-cumulative-t4-legal-v1-selected/adapters.safetensors",
@@ -143,6 +151,13 @@
   },
   "ai_review": {
     "provider": "codex",
+    "worker_protocol": {
+      "worker_count": 2,
+      "execution": "ISOLATED_SEQUENTIAL",
+      "decision": "BOTH_PASS_ALL_GATES",
+      "source_policy": "PINNED_CASE_EVIDENCE_ONLY",
+      "share_reviewer_outputs": false
+    },
     "require_tool_free": true,
     "isolated_codex_home": true,
     "disabled_features": [
@@ -163,10 +178,14 @@
     "codex_executable_sha256": "61b0194f3bb6534439c8d26a3ed57d0805f84b884588b761795323eeb92fcf70",
     "codex_version": "codex-cli 0.153.2",
     "reviewer_a": {
+      "worker_id": "pensions-factual-review-a",
+      "focus": "FACTUAL_COMPLETENESS",
       "model": "gpt-5.6-sol",
       "reasoning_effort": "high"
     },
     "reviewer_b": {
+      "worker_id": "pensions-evidence-review-b",
+      "focus": "SOURCE_CITATION_VERIFICATION",
       "model": "gpt-5.6-terra",
       "reasoning_effort": "high"
     },
@@ -181,7 +200,7 @@
     "live50_bank": "training/live-demo-round-50-20260902/questions.json",
     "round52_baseline": "Log/2026-09-02/live-round-52-final/adjudicated-results.json",
     "t4_target_ids": "training/evaluation-cycle-v2/33-post-repair-development-regression-20260903/t4-targeted-ids.json",
-    "review_calibration_pack": "evaluation/qualification-review-calibration-v1.json",
+    "review_calibration_pack": "evaluation/qualification-review-calibration-v2.json",
     "visible_output_parent": "training/evaluation-cycle-v2/34-post-t4-visible-qualification-20260904"
   },
   "qualification_input_sha256": {
@@ -198,7 +217,7 @@
     "training/gold-answer-review.json": "8b85ae2faf3c2c8e8b10d54c97e3ceb7539b7562556ef3abdab844e5aa97b3c8",
     "training/evaluation-cycle-v1/02-error-analysis/per-question-scorecard.json": "794b507eb4fc284c6008935b6c4c026b3bd2ae07a486ab34206914ff2c2ed3ba",
     "training/evaluation-cycle-v2/03-wave-4-release-gate/selection.json": "aaf54c9f8e30d13cc77c1852a023fa0ba835bbb7d1ec06658baaed654b6e3d63",
-    "evaluation/qualification-review-calibration-v1.json": "d6f42c0badc2833c55d95f756076d8863b3e63c2e68eeb7370949cb51ad7329e",
+    "evaluation/qualification-review-calibration-v2.json": "5ce0a38d7fb7702d57618b23014de7954b34a9fd9118ddd609814f7a4ffebd17",
     "training/evaluation-cycle-v2/29-topic161-replacement-visible-qualification-20260902/frozen-suite-manifest.json": "1d7036771c98219af61d52e622867bb4d9490e2d13ec66541d3cfddd1fc8ff8d",
     "training/evaluation-cycle-v2/01-question-set-review-revision-v2/wave-1/development-question-set.json": "b34e4722d9980eb40cc55a3958762a2d7760add12dc8110a49fe4c90b0a14fee",
     "training/evaluation-cycle-v2/02-wave-1-execution/preflight.json": "01946850eec3bc8f4d6e523fa8a955f8bba64479103fd384135834cb237145fd",

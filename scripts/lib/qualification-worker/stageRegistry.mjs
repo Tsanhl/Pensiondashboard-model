@@ -1,5 +1,4 @@
 import { spawn } from "node:child_process";
-import { createHmac } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, readdirSync, realpathSync } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
 import { CRITICAL_IDS, loadAndVerifyVisibleAssets, qualificationPaths } from "../postTrainingVisibleQualificationV1.mjs";
@@ -33,6 +32,7 @@ import { processGroupAlive, terminateProcessGroup } from "./childProcessGroup.mj
 import { verifyServedResponseReceipt } from "../servedResponseReceipt.mjs";
 import { combineGenerationTelemetry } from "./liveAttemptTelemetry.mjs";
 import { buildReviewCalibrationCases,validateAiReviewCalibration,validateDeterministicReviewCalibration } from "./reviewCalibration.mjs";
+import { deriveQualificationStageCapabilityKey } from "../../../server/services/qualificationContextService.js";
 
 export const EXECUTABLE_ENTRY_PATHS = Object.freeze([
   "app.js",
@@ -193,6 +193,7 @@ export function qualificationStageSandboxProfile({ projectRoot,config,logPath,en
     ...writable.map((path) => `(allow file-read* file-write* (subpath ${sandboxLiteral(path)}))`),
     ...denied.map((path) => `(deny file-read* file-write* (literal ${sandboxLiteral(path)}))`),
     "(deny process-info*)",
+    "(allow process-info* (target self))",
   ].join("\n");
 }
 
@@ -540,7 +541,7 @@ function baseEnvironment(context,stageId) {
   }
   const qualificationStageId = String(stageId || "");
   if (!/^[A-Z0-9_]{3,80}$/.test(qualificationStageId)) throw Object.assign(new Error("Qualification stage identity is missing or malformed."),{ code:"EVALUATOR_DEFECT" });
-  const stageCapabilityKey = createHmac("sha256",capabilityKey).update(`qualification-stage-capability-v1:${qualificationStageId}`).digest("hex");
+  const stageCapabilityKey = deriveQualificationStageCapabilityKey(capabilityKey,qualificationStageId);
   return {
     LOCAL_LLM_BASE_URL: context.config.runtime.model_endpoint,
     EMBEDDING_SERVICE_URL: context.config.runtime.retrieval_endpoint,
@@ -870,7 +871,7 @@ async function verifyRuntimeStage(context) {
     if (canonicalHash(stable(stored)) !== canonicalHash(stable(calibrationResult))) throw Object.assign(new Error("Stored evaluator calibration result changed."),{ code:"EVALUATOR_DEFECT" });
   } else createExclusive(calibrationResultPath,calibrationResult);
   if (!calibrationResult.passed) return writeGate(context,"VERIFY_RUNTIME",{
-    passed:false,blockers:["EVALUATOR_DEFECT",`reviewer calibration produced ${aiCalibration.false_approvals.length} false approvals and ${aiCalibration.false_rejections.length} false rejections`],
+    passed:false,blockers:["EVALUATOR_DEFECT",`reviewer calibration produced ${aiCalibration.false_approvals.length} false approvals and ${aiCalibration.false_rejections.length} false rejections`,...aiCalibration.blockers],
   },{ artifacts:uniqueRecords(fileRecord(context.projectRoot,relative(context.projectRoot,calibrationResultPath)),directoryRecords(context.projectRoot,join(context.runRoot,"ai-review","EVALUATOR_CALIBRATION"))) });
   const artifacts = uniqueRecords(
     fileRecord(context.projectRoot, relative(context.projectRoot, immutableRuntimePath)),
@@ -1083,7 +1084,8 @@ async function topic161(context) {
   const summary = readJson(summaryPath);
   const assets = loadAndVerifyVisibleAssets();
   const expectedIdsByWave = Object.fromEntries(Object.entries(assets.waves).map(([wave, value]) => [wave, value.ids]));
-  const deterministic = validateTopic161Summary(summary, expectedIdsByWave, context.config.candidate);
+  const expectedTopicById = Object.assign({},...Object.values(assets.waves).map((value) => value.topic_by_id));
+  const deterministic = validateTopic161Summary(summary, expectedIdsByWave, context.config.candidate,expectedTopicById);
   if (canonicalHash(summary.evaluation_configuration) !== canonicalHash(expectedEvaluationConfiguration(context.config))) {
     deterministic.passed = false;
     deterministic.blockers.push("topic161 summary is not bound to the canonical evaluation configuration");
@@ -1302,7 +1304,11 @@ async function reliability(context) {
     if (!existsSync(outagePath)) createExclusive(outagePath,outage);
     active = existsSync(activePath) ? readJson(activePath) : await runActiveReliabilityJourneys({
       endpoint:context.config.runtime.canonical_endpoint,modelEndpoint:context.config.runtime.model_endpoint,
-      runId:context.state.run_id,secret:readFileSync(join(context.runRoot,QUALIFICATION_CONTEXT_KEY_FILE),"utf8"),
+      runId:context.state.run_id,
+      secret:deriveQualificationStageCapabilityKey(
+        readFileSync(join(context.runRoot,QUALIFICATION_CONTEXT_KEY_FILE),"utf8"),
+        "RELIABILITY_GATE",
+      ),
       publicKeyPem:readFileSync(join(context.runRoot,QUALIFICATION_RESPONSE_PUBLIC_KEY_FILE),"utf8"),
       modelReadyTimeoutMs:context.config.runtime.model_ready_timeout_ms,pollMs:context.config.runtime.model_retry_poll_ms,
       limits:context.config.reliability,

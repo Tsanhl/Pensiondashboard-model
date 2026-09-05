@@ -24,6 +24,9 @@ approved-materials/structured-facts/
 # Evaluation/training inputs and local evidence
 training/
 evaluation/
+!evaluation/
+evaluation/*
+!evaluation/qualification-review-calibration-v2.json
 training-data/private/
 Log/
 Logging/

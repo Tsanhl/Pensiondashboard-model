@@ -108,6 +108,9 @@ test("qualification child sandboxes deny controller secrets and process-environm
     assert.notEqual(runtimeCat.status,0,"model and retrieval children must not read controller integrity material");
     const runtimePs = spawnSync("/usr/bin/sandbox-exec",["-p",runtimeProfile,"/bin/ps","eww","-p",String(process.pid)],{ encoding:"utf8" });
     assert.notEqual(runtimePs.status,0,"model and retrieval children must not inspect another process environment");
+    const runtimeNode = spawnSync("/usr/bin/sandbox-exec",["-p",runtimeProfile,process.execPath,"-e",'console.log(JSON.stringify(require("node:os").userInfo()))'],{ encoding:"utf8" });
+    assert.equal(runtimeNode.status,0,`runtime Node must be able to resolve its own identity: ${runtimeNode.stderr}`);
+    assert.doesNotThrow(() => JSON.parse(runtimeNode.stdout));
     const aliasRoot = join(root,"..",`qualification-sandbox-alias-${Date.now()}`);
     const rename = spawnSync("/usr/bin/sandbox-exec",["-p",stageProfile,"/bin/mv",root,aliasRoot],{ encoding:"utf8" });
     assert.notEqual(rename.status,0,"a stage child must not rename the project root to bypass path controls");
@@ -182,7 +185,7 @@ test("reviewer receipt binds immutable schema, execution and output files", () =
 });
 
 test("Codex reviewer event audit accepts messages and rejects tool execution", () => {
-  const clean = [{ type:"thread.started" },{ type:"item.completed",item:{ type:"reasoning" } },{ type:"item.completed",item:{ type:"agent_message" } }].map(JSON.stringify).join("\n");
+  const clean = [{ type:"thread.started" },{ type:"turn.started" },{ type:"item.completed",item:{ type:"reasoning" } },{ type:"item.completed",item:{ type:"agent_message",text:"{}" } },{ type:"turn.completed" }].map(JSON.stringify).join("\n");
   assert.equal(inspectCodexJsonEvents(clean).tool_event_count,0);
   assert.throws(() => inspectCodexJsonEvents(`${clean}\n${JSON.stringify({ type:"item.completed",item:{ type:"command_execution" } })}`),/forbidden tool event/);
 });

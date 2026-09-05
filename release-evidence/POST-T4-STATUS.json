@@ -1,6 +1,6 @@
 {
-  "schema_version": 2,
-  "status_as_at": "2026-09-05T05:18:46.154Z",
+  "schema_version": 3,
+  "status_as_at": "2026-09-05T07:25:16.221Z",
   "state": "BLOCKED_NOT_QUALIFIED",
   "live_qualified": false,
   "production_or_public_deployment_authorised": false,
@@ -51,10 +51,12 @@
     "hard_factual_gates_required": true,
     "independent_codex_reviews_required": 2,
     "evaluator_calibration": {
-      "supported_cases": 3,
-      "deliberate_negative_cases": 3,
+      "version": "qualification-review-calibration-v2",
+      "supported_cases": 8,
+      "deliberate_negative_cases": 8,
       "false_approvals_allowed": 0,
-      "false_rejections_allowed": 0
+      "false_rejections_allowed": 0,
+      "completed": false
     },
     "active_reliability": {
       "sustained_requests": 15,
@@ -63,23 +65,21 @@
       "controlled_model_worker_outage": true,
       "cancellation_and_recovery": true
     },
-    "application_tests_passed": 178,
-    "worker_tests_passed": 18,
-    "javascript_files_syntax_checked": 284
+    "source_snapshot_test_receipt": null,
+    "source_snapshot_test_evidence": "unavailable; this build does not infer test counts from environment variables"
   },
   "formal_post_repair_gates_completed": [],
   "latest_run": {
-    "run_id": "post-t4-20260905051406-d3256fc6",
+    "run_id": "post-t4-20260905071509-eb857ef9",
     "stage": "VERIFY_RUNTIME",
     "runtime_identity_completed": false,
     "reviewer_calibration_cases_run": 0,
-    "development_cases_run": 0,
-    "visible_qualification_cases_run": 0
+    "development_stages_completed": [],
+    "visible_qualification_stages_completed": []
   },
   "blocker": {
-    "class": "INFRASTRUCTURE_TEMPORARY",
     "stage": "VERIFY_RUNTIME",
-    "detail": "Both sandboxed Node runtime children aborted with SIGTRAP before opening a service port. macOS 26.4.1 crash records report that libdispatch could not obtain the process's own PID; the runtime sandbox currently denies process-info*.",
+    "detail": "INFRASTRUCTURE_TEMPORARY; Runtime supervisor exited during startup. See /Users/hltsang/Desktop/Pensions dashboard demo/Log/qualification-worker/runs/post-t4-20260905071509-eb857ef9/runtime.log",
     "automatic_rerun_authorised": false
   },
   "sealed_unseen": {
@@ -87,10 +87,10 @@
     "run": false,
     "scored": false
   },
-  "next_step": "Review and test a narrow macOS sandbox compatibility rule that permits required self-PID metadata while preserving denial of cross-process environment inspection. Start no new qualification run until that isolated test passes.",
+  "next_step": "Review failure triage and repair evidence; do not open unseen",
   "source_evidence_sha256": {
     "checkpoint_selection": "e922fe49e171f96b4392b4bd9a695ddafc777aeba83deed79ec5fffb7e2fd566",
-    "current_worker_state": "04d400b8682bca2d29c03bbd87c4d9ad1ec7516479ebb5ac5d804eae45191b5d",
+    "current_worker_state": "f78e9fbb8b1872112fcbca4e88b6123b9cbc7f4bb62ea0a06a2d14b389c4a1e7",
     "isolated_repair_results": "12f222ad5fc027479693e53adebfaaa1bfc3f23a72a8c57d628739132081327a",
     "replacement_manifest": "1d7036771c98219af61d52e622867bb4d9490e2d13ec66541d3cfddd1fc8ff8d",
     "replacement_refreeze_report": "2edb6fcd6e8f85d175a7bf7d8dc96ce301dc73da58c650903b8ddbad790d476e",

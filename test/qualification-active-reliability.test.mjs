@@ -1,13 +1,26 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { generateKeyPairSync,randomBytes } from "node:crypto";
+import { mkdtempSync,rmSync } from "node:fs";
 import { createServer } from "node:http";
-import { createQualificationResponseBodySignature,createQualificationServerResponseReceipt } from "../server/services/qualificationContextService.js";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { createQualificationResponseBodySignature,createQualificationServerResponseReceipt,deriveQualificationStageCapabilityKey,verifyAndConsumeQualificationRequestCapability } from "../server/services/qualificationContextService.js";
 import { runActiveReliabilityJourneys } from "../scripts/lib/qualification-worker/activeReliability.mjs";
 
 test("active reliability uses signed canonical chat for sequential, concurrent and cancellation recovery",async (t) => {
   const keys=generateKeyPairSync("ed25519",{ publicKeyEncoding:{ type:"spki",format:"pem" },privateKeyEncoding:{ type:"pkcs8",format:"pem" } });
   const runId="post-t4-20260905000000-1234abcd";
+  const masterSecret=randomBytes(32).toString("hex");
+  const stageSecret=deriveQualificationStageCapabilityKey(masterSecret,"RELIABILITY_GATE");
+  const nonceRoot=mkdtempSync(join(tmpdir(),"qualification-reliability-nonces-"));
+  const priorNonceRoot=process.env.QUALIFICATION_NONCE_STORE_PATH;
+  process.env.QUALIFICATION_NONCE_STORE_PATH=nonceRoot;
+  t.after(() => {
+    if (priorNonceRoot===undefined) delete process.env.QUALIFICATION_NONCE_STORE_PATH;
+    else process.env.QUALIFICATION_NONCE_STORE_PATH=priorNonceRoot;
+    rmSync(nonceRoot,{ recursive:true,force:true });
+  });
   const server=createServer(async (req,res) => {
     if (req.method==="GET" && req.url==="/health") {
       res.writeHead(200,{ "content-type":"application/json" });
@@ -26,6 +39,10 @@ test("active reliability uses signed canonical chat for sequential, concurrent a
     for await (const chunk of req) raw+=chunk;
     const body=JSON.parse(raw);
     const caseId=String(req.headers["x-qualification-case-id"] || "");
+    verifyAndConsumeQualificationRequestCapability({
+      capability:body.qualification_capability,secret:masterSecret,runId,stageId:"RELIABILITY_GATE",
+      caseId,clientRequestId:body.client_request_id,message:body.message,
+    });
     if (caseId==="reliability-cancel") {
       await new Promise((resolve) => setTimeout(resolve,300));
       if (res.destroyed) return;
@@ -55,7 +72,7 @@ test("active reliability uses signed canonical chat for sequential, concurrent a
   await new Promise((resolve) => server.listen(0,"127.0.0.1",resolve));
   t.after(() => new Promise((resolve) => server.close(resolve)));
   const endpoint=`http://127.0.0.1:${server.address().port}`;
-  const result=await runActiveReliabilityJourneys({ endpoint,modelEndpoint:endpoint,runId,secret:randomBytes(32).toString("hex"),publicKeyPem:keys.publicKey,modelReadyTimeoutMs:2_000,pollMs:10,limits:{ sustained_requests:15,supported_concurrency:4,deterministic_latency_limit_ms:5_000,cancellation_after_ms:100 } });
+  const result=await runActiveReliabilityJourneys({ endpoint,modelEndpoint:endpoint,runId,secret:stageSecret,publicKeyPem:keys.publicKey,modelReadyTimeoutMs:2_000,pollMs:10,limits:{ sustained_requests:15,supported_concurrency:4,deterministic_latency_limit_ms:5_000,cancellation_after_ms:100 } });
   assert.equal(result.passed,true);
   assert.equal(result.sequential.total,15);
   assert.equal(result.concurrent.total,4);

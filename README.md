@@ -2,7 +2,7 @@
 
 This is the current fail-closed source snapshot of the UK pensions dashboard and its post-T4 qualification controller.
 
-**It is not a live-qualified model release.** T4 training completed and checkpoint 104 was selected. Five Live-50 Round-53 product-path regressions were repaired. The 25 repeated replacement-v2 IDs were corrected under an ID-only owner authorization and independently refrozen with 161 unique IDs; substantive content was unchanged. Static preflight passes on the controlled owner machine, but the latest run stopped in `VERIFY_RUNTIME` before any evaluator or question case ran. Both sandboxed Node children aborted with `SIGTRAP` because the macOS 26.4.1 runtime could not obtain its own PID under the current sandbox profile. The sealed unseen set has not been opened or run.
+**It is not a live-qualified model release.** T4 training completed and checkpoint 104 was selected. Five Live-50 Round-53 product-path regressions were repaired. The 25 repeated replacement-v2 IDs were corrected under an ID-only owner authorization and independently refrozen with 161 unique IDs; substantive content was unchanged. The latest recorded controller state is `BLOCKED_NOT_QUALIFIED`, with 0 of 10 ordered gates complete. The sealed unseen set has not been opened or run.
 
 ## Current gate
 
@@ -12,9 +12,9 @@ This is the current fail-closed source snapshot of the UK pensions dashboard and
 | Selected checkpoint | Iteration 104 |
 | Product-path repair | Complete and regression-tested |
 | Replacement-v2 ID-only refreeze | Complete and independently verified |
-| Runtime verification | Blocked by macOS sandbox self-PID compatibility |
-| Post-repair development evaluation | Not started; no case consumed |
-| Visible qualification | Not started |
+| Runtime verification | Not passed in the latest recorded run |
+| Post-repair development evaluation | Incomplete |
+| Visible qualification | Incomplete |
 | Live-qualified release | No |
 | Sealed unseen | Closed and not accessed |
 
@@ -24,7 +24,7 @@ The controller route is:
 
 A score of 70 is a floor. Every factual, citation-entailment, jurisdiction, safety, outcome, and personal-fact gate must pass, together with two independent isolated Codex reviews. “Fact checked” means checked against the pinned evidence supplied for that run; it is not a claim of universal or error-free truth.
 
-The worker first calibrates both isolated reviewers against three supported and three deliberately incorrect cases. It then records immutable raw response bytes, server signatures, runtime identities, sources, citations, attempts, retries, dual-review receipts, failure classifications, stage gates, and hash manifests. Its reliability gate performs 15 sequential and four concurrent product-path requests, five fixed repaired journeys, one controlled model-worker outage, cancellation, restart recovery, and user/session separation checks. Training, legal-gold changes, sealed unseen, release, and Git push remain outside worker authority.
+The worker first calibrates both isolated reviewers against eight supported and eight deliberately incorrect synthetic cases. It then records immutable raw response bytes, server signatures, runtime identities, sources, citations, attempts, retries, dual-review receipts, failure classifications, stage gates, and hash manifests. Its reliability gate performs 15 sequential and four concurrent product-path requests, five fixed repaired journeys, one controlled model-worker outage, cancellation, restart recovery, and user/session separation checks. Training, legal-gold changes, sealed unseen, release, and Git push remain outside worker authority.
 
 The sealed-unseen custodian is a separate owner-controlled process. It uses a separate one-use HMAC capability and nonce ledger and sends each protected question through the same canonical `/chat` route. The qualification worker never receives the custodian key. The custodian runner exists for later owner authorization; this snapshot does not authorize or perform an unseen run.
 
@@ -55,5 +55,7 @@ npm run model:serve:pinned
 npm run retrieval:serve
 npm start
 ```
+
+Use `docs/manual-live-owner-checks.md` for the development-versus-frozen-smoke boundary, evidence checklist and failure route.
 
 The assistant is read-only and provides information and routing support. It cannot transfer money, change contributions, submit forms, provide regulated financial advice, or replace a solicitor, regulated adviser, scheme administrator, HMRC, a regulator, or an ombudsman.

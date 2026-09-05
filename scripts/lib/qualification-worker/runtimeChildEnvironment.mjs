@@ -59,6 +59,10 @@ export function qualificationRuntimeChildSandboxProfile({ runRoot,projectRoot,no
     ...(childName === "dashboard" && allowedContextManifestPath ? [`(allow file-read* (literal ${sandboxLiteral(resolve(allowedContextManifestPath))}))`] : []),
     `(deny file-read* file-write* (literal ${sandboxLiteral(resolve(controllerRoot,"controller-integrity-private.pem"))}))`,
     "(deny process-info*)",
+    // Native macOS initialisers (including CoreFoundation user lookup) need
+    // access to the current process identity. Keep cross-process inspection
+    // denied while allowing only the sandboxed child to inspect itself.
+    "(allow process-info* (target self))",
   ].join("\n");
 }
 

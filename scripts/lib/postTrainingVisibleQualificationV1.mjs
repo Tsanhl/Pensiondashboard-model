@@ -615,6 +615,7 @@ export function loadAndVerifyVisibleAssets() {
       count: expected,
       ids: items.map((item) => item.id),
       topics: Object.fromEntries(payload.topics.map((topic) => [topic.topic_id, topic.diagnostic_evaluation.length])),
+      topic_by_id: Object.fromEntries(items.map((item) => [item.id,item.topic_id])),
       question_bank: fileRecord(questionPath),
       evaluation_gold: fileRecord(goldPath),
     };

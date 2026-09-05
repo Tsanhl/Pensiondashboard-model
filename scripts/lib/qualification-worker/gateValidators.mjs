@@ -3,10 +3,11 @@ import { basename, isAbsolute, join, resolve } from "node:path";
 import { canonicalHash, readJson, sha256Buffer } from "./utils.mjs";
 import { normaliseQualificationContext, qualificationContextSha256, qualificationJurisdictionFromValues } from "../../../server/services/qualificationContextService.js";
 import { projectQualificationFixtureValues } from "../../../server/services/qualificationFixtureSchema.js";
+import { validateReviewWorkerPolicy } from "./reviewWorkerPolicy.mjs";
 
 const HARD_GATES = ["all_material_claims_supported", "citations_entail_claims", "correct_jurisdiction", "no_unsafe_instruction", "no_unsupported_outcome", "no_wrong_personal_fact", "no_absolute_certainty_claim"];
 export const CANONICAL_RUNTIME_CONFIGURATION_SHA256 = "a2cbf2090d7d09ef5a659ef537e593f3b9656c5531f3e4dff7b7a16b3eaef0b2";
-export const CANONICAL_QUALIFICATION_CONFIG_SHA256 = "edaeb6b2d1ca9f1fc11abd0c66e2278e90bcb8ce2698c40452916be77df1c212";
+export const CANONICAL_QUALIFICATION_CONFIG_SHA256 = "d3dbdcda2aebab12d856b66add9a3460f6917868e23c283b1aa74e3f7d27f4b9";
 const REQUIRED_DISABLED_REVIEW_FEATURES = Object.freeze([
   "shell_tool","unified_exec","browser_use","browser_use_external","computer_use",
   "apps","multi_agent","hooks","skill_search","tool_suggest",
@@ -14,7 +15,12 @@ const REQUIRED_DISABLED_REVIEW_FEATURES = Object.freeze([
 
 export function validateConfig(config) {
   const blockers = [];
+  blockers.push(...validateReviewWorkerPolicy(config.ai_review).blockers);
   if (canonicalHash(config || {}) !== CANONICAL_QUALIFICATION_CONFIG_SHA256) blockers.push("qualification config differs from the canonical source-controlled profile");
+  if (config.review_selection?.selected_route !== "AI" || config.review_selection?.selected_by !== "OWNER"
+      || config.review_selection?.automatic_fallback !== false) blockers.push("the owner-selected AI route requires explicit selection and forbids automatic reviewer fallback");
+  if (config.review_selection?.claim_scope !== "TESTED_CASES_AGAINST_PINNED_EVIDENCE"
+      || config.review_selection?.universal_accuracy_guarantee !== false) blockers.push("review claims must be limited to tested cases against pinned evidence; universal accuracy cannot be guaranteed");
   if (canonicalHash(config.runtime || {}) !== CANONICAL_RUNTIME_CONFIGURATION_SHA256) blockers.push("runtime configuration differs from the canonical qualification profile");
   if (config.candidate.selected_iteration !== 104) blockers.push("selected iteration is not 104");
   if (config.candidate.forbidden_iteration !== 312) blockers.push("forbidden iteration is not 312");
@@ -119,7 +125,7 @@ export function validateT4Summary(summary, expected = null, candidate = null) {
   return { passed: blockers.length === 0, blockers, counts: { source: source.length, source_pass: source.filter((x) => x.status === "pass").length, prior: prior.length, prior_pass: prior.filter((x) => x.status === "pass").length } };
 }
 
-export function validateTopic161Summary(summary, expectedIdsByWave = null, candidate = null) {
+export function validateTopic161Summary(summary, expectedIdsByWave = null, candidate = null, expectedTopicById = null) {
   const items = (summary.waves || []).flatMap((wave) => wave.items || []);
   const blockers = [];
   const processed = items.length;
@@ -127,10 +133,10 @@ export function validateTopic161Summary(summary, expectedIdsByWave = null, candi
   const overall = processed ? (100 * pass) / processed : 0;
   if (processed !== 161) blockers.push(`processed ${processed}/161`);
   if (summary.processed !== processed || summary.pass !== pass) blockers.push("topic161 top-level counts do not match item rows");
+  const expectedAll = expectedIdsByWave ? Object.values(expectedIdsByWave).flat() : null;
   if (expectedIdsByWave) {
     const waveNames = (summary.waves || []).map((wave) => wave.wave);
     if (!exactUniqueIds(waveNames, ["wave-1", "wave-2", "wave-3"])) blockers.push("topic161 does not contain exactly three expected waves");
-    const expectedAll = Object.values(expectedIdsByWave).flat();
     if (!exactUniqueIds(items.map((item) => item.question_id), expectedAll)) blockers.push("topic161 item IDs do not exactly match the bound original banks");
   }
   if (candidate && (summary.selected_iteration !== candidate.selected_iteration || summary.adapter_sha256 !== candidate.adapter_sha256)) blockers.push("topic161 candidate identity mismatch");
@@ -145,7 +151,31 @@ export function validateTopic161Summary(summary, expectedIdsByWave = null, candi
     if (Number(wave.run_errors || 0) > 0) blockers.push(`${wave.wave} has run errors`);
     if ((wave.items || []).some((item) => item.critical_failure)) blockers.push(`${wave.wave} has a critical failure`);
   }
-  return { passed: blockers.length === 0, blockers, counts: { processed, pass, overall_pass_rate: Number(overall.toFixed(1)) } };
+  const topicRates = [];
+  if (expectedTopicById) {
+    const topicEntries = Object.entries(expectedTopicById);
+    if (!expectedAll || topicEntries.length !== expectedAll.length || new Set(topicEntries.map(([id]) => id)).size !== topicEntries.length ||
+        !expectedAll.every((id) => typeof expectedTopicById[id] === "string" && expectedTopicById[id].trim())) {
+      blockers.push("authoritative topic mapping is incomplete, duplicated, or malformed");
+    } else {
+      const byTopic = new Map();
+      for (const item of items) {
+        const topic = expectedTopicById[item.question_id];
+        if (!topic) continue;
+        const rows = byTopic.get(topic) || [];
+        rows.push(item);
+        byTopic.set(topic,rows);
+      }
+      for (const [topic,topicItems] of [...byTopic].sort(([left],[right]) => left.localeCompare(right))) {
+        const topicPass = topicItems.filter((item) => item.status === "pass").length;
+        const rate = topicItems.length ? 100 * topicPass / topicItems.length : 0;
+        topicRates.push({ topic,total:topicItems.length,pass:topicPass,pass_rate:Number(rate.toFixed(1)) });
+        if (rate < 85) blockers.push(`${topic} topic pass rate ${rate.toFixed(1)}% is below 85%`);
+      }
+      if (topicRates.reduce((sum,row) => sum + row.total,0) !== processed) blockers.push("topic-level scoring does not cover every processed item");
+    }
+  }
+  return { passed: blockers.length === 0, blockers, counts: { processed, pass, overall_pass_rate: Number(overall.toFixed(1)),topics:topicRates } };
 }
 
 function contains(text, value) {

@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "manifest_type": "pensiondashboard-model-post-t4-fail-closed-source-v2",
-  "build_id": "post-t4-qualification-blocked-20260905",
+  "build_id": "post-t4-harness-runtime-blocker-20260905",
   "deterministic": true,
   "protected_content_included": false,
   "sealed_unseen_detail_included": false,
@@ -20,8 +20,8 @@
     },
     {
       "path": ".gitignore",
-      "bytes": 853,
-      "sha256": "f72744d7fa36e6bcd3011d9a3e061ea88a68c2e9a8fb91c54b15cb4667ecd0de"
+      "bytes": 932,
+      "sha256": "e1ebddcbea4939131fe962fe6d3d69ff40a3a437f388315c73f0758fb451e3c2"
     },
     {
       "path": "answering/answer-policy-v1.md",
@@ -50,18 +50,23 @@
     },
     {
       "path": "config/qualification-worker.json",
-      "bytes": 16753,
-      "sha256": "aadaec98d267c20ad729f55abe6f7e0cc36c45bbc23e39d4fcc2025dd4c57132"
+      "bytes": 17463,
+      "sha256": "49a9dca7b370ce9ac5aea240abd6e71499d6e9a7917f5c4ca487e82c270792aa"
+    },
+    {
+      "path": "docs/manual-live-owner-checks.md",
+      "bytes": 3819,
+      "sha256": "e509f8857457fe2efff71382bb197324ad2f7bfe82cd570a5c8852be279d7810"
     },
     {
       "path": "docs/post-t4-qualification-worker.md",
-      "bytes": 16335,
-      "sha256": "7ed9763e4f3695b1d8c0c85de30c0a91611c451d0c6aab29dfb2a374a158edc3"
+      "bytes": 18094,
+      "sha256": "6dffd4b3f61e8c10dc0f7bdc876ef192d77066a7e396124ba60a1f885ead9bc0"
     },
     {
-      "path": "evaluation/qualification-review-calibration-v1.json",
-      "bytes": 2047,
-      "sha256": "d6f42c0badc2833c55d95f756076d8863b3e63c2e68eeb7370949cb51ad7329e"
+      "path": "evaluation/qualification-review-calibration-v2.json",
+      "bytes": 5018,
+      "sha256": "5ce0a38d7fb7702d57618b23014de7954b34a9fd9118ddd609814f7a4ffebd17"
     },
     {
       "path": "index.html",
@@ -110,13 +115,13 @@
     },
     {
       "path": "README.md",
-      "bytes": 4325,
-      "sha256": "16a8f925e019530b4c8a1070fad4de5833d630e319aea00c7baa0b18a1a4d148"
+      "bytes": 4239,
+      "sha256": "62632b492d882bc1fd143ad9b343495ba0f0033e6f26293e397b0d3c272a2898"
     },
     {
       "path": "release-evidence/POST-T4-STATUS.json",
-      "bytes": 3643,
-      "sha256": "6f62e5ad5bc179daa613e3ae8e315415e9673ad93099bb141124d7a2d62536f0"
+      "bytes": 3544,
+      "sha256": "ad055d2e478c46b89aa680e33b990f46352278544220fd93985e1fbf13442919"
     },
     {
       "path": "release-evidence/QUALIFICATION-SUMMARY.json",
@@ -215,8 +220,8 @@
     },
     {
       "path": "scripts/installQualificationWorkerLaunchd.mjs",
-      "bytes": 2955,
-      "sha256": "4716e14743cfee8503414d517ad31948e26f88b7b1da771ab532545891cf173f"
+      "bytes": 4772,
+      "sha256": "c3c81dceb59bfa6530bb0aaf7ba65f5aaa30066d407ced6295d88e96a8be4f67"
     },
     {
       "path": "scripts/isolatedPythonLauncher.py",
@@ -225,13 +230,13 @@
     },
     {
       "path": "scripts/lib/postTrainingVisibleQualificationV1.mjs",
-      "bytes": 45963,
-      "sha256": "aeda75eeb8d57427fd52d9f9e1e5476397ad3474f22dd5553e3df3fd024c06f2"
+      "bytes": 46048,
+      "sha256": "b267c8590feb30f970866b72a5d086b56f2936ac809d694a6eec5b73da00ba5c"
     },
     {
       "path": "scripts/lib/qualification-worker/__tests__/smoke.test.mjs",
-      "bytes": 33074,
-      "sha256": "4a00897234c12161c0de776c7d9ff489356f94265ce54f455f1ed1434ed2067a"
+      "bytes": 33501,
+      "sha256": "3dde8dc0d0b47297669d2f27a9cd6167e20577a9975c73cbbc4d502752c5e435"
     },
     {
       "path": "scripts/lib/qualification-worker/activeReliability.mjs",
@@ -240,8 +245,8 @@
     },
     {
       "path": "scripts/lib/qualification-worker/aiReview.mjs",
-      "bytes": 74730,
-      "sha256": "ded41bff9554bf885c0f61ebae52aace50f481671fbb16f6b5d8fa6982d5d3c1"
+      "bytes": 82094,
+      "sha256": "da359759d95c4c4d7f1401abbf32f2c8a25133e7eebc742434ad854826aca006"
     },
     {
       "path": "scripts/lib/qualification-worker/artifactManifest.mjs",
@@ -265,8 +270,13 @@
     },
     {
       "path": "scripts/lib/qualification-worker/gateValidators.mjs",
-      "bytes": 36287,
-      "sha256": "b7177a8f06727c8b023917355ca30e0f5ff6528a6ea43aee76b97cc6d0f7cb28"
+      "bytes": 38467,
+      "sha256": "3f70f1d2b8794683a1745094297a3f8589babf9e5776429c42e06c5c3a6532c4"
+    },
+    {
+      "path": "scripts/lib/qualification-worker/launchdLifecycle.mjs",
+      "bytes": 4584,
+      "sha256": "fe98c433765ab51046256e13967e347f466aed9bd03ec14c6c296fc8b6d65a05"
     },
     {
       "path": "scripts/lib/qualification-worker/liveAttemptTelemetry.mjs",
@@ -300,8 +310,8 @@
     },
     {
       "path": "scripts/lib/qualification-worker/reporting.mjs",
-      "bytes": 1724,
-      "sha256": "c221b7b34694bbe7437614d004ce617dfaeafd8a06c34a1f7bdf370428f60e6a"
+      "bytes": 2125,
+      "sha256": "426a276f0852a248e356397fb49c652282e74bae920146f474946a1975326896"
     },
     {
       "path": "scripts/lib/qualification-worker/resumeIntegrity.mjs",
@@ -310,8 +320,13 @@
     },
     {
       "path": "scripts/lib/qualification-worker/reviewCalibration.mjs",
-      "bytes": 3466,
-      "sha256": "e7050725dbc97b05203d5bef3ee6155e914bb975938c8c3380e9cb96d51c6f4c"
+      "bytes": 6487,
+      "sha256": "d58d9258e779e81b83b4d5de414db51f9e4970a555402a37f1f88d021a13d392"
+    },
+    {
+      "path": "scripts/lib/qualification-worker/reviewWorkerPolicy.mjs",
+      "bytes": 1889,
+      "sha256": "95a7670361914ef59fd98d567248ebb4530d9c910dd048a0744d4eebda602310"
     },
     {
       "path": "scripts/lib/qualification-worker/runtimeArtifactManifests.mjs",
@@ -320,8 +335,8 @@
     },
     {
       "path": "scripts/lib/qualification-worker/runtimeChildEnvironment.mjs",
-      "bytes": 2866,
-      "sha256": "01523dd0338e678d6cab28d12db9e9a24c000ede3f1f2fe20f6f3d29e5178cd2"
+      "bytes": 3136,
+      "sha256": "32d3f7100f80f1328bdb31b1f0ed51bcfdfc2d186b6ec9612af449aaca653001"
     },
     {
       "path": "scripts/lib/qualification-worker/runtimeSupervisor.mjs",
@@ -330,8 +345,8 @@
     },
     {
       "path": "scripts/lib/qualification-worker/stageRegistry.mjs",
-      "bytes": 114298,
-      "sha256": "fc146143e9bd8da5ec8df761516fdba25612e58fd64314a7e476c6bfb212af2a"
+      "bytes": 114616,
+      "sha256": "a1da58444d61e4084f1ead73178de7a8cdfa41571af2714affbadd2671f863e9"
     },
     {
       "path": "scripts/lib/qualification-worker/stateStore.mjs",
@@ -420,13 +435,13 @@
     },
     {
       "path": "scripts/qualificationWorker.mjs",
-      "bytes": 40795,
-      "sha256": "54b908eb35e45dd8c701b5583db843175c72170e35bc6d8dfc745a3e801c0661"
+      "bytes": 41166,
+      "sha256": "5002cd89178fbfa6af396a2b6986cd089ee3aed249e17e85a90a850b3fbfcf63"
     },
     {
       "path": "scripts/qualificationWorkerLaunchdEntrypoint.mjs",
-      "bytes": 3870,
-      "sha256": "5abe78ec019e79878e140feb85d02b7cbd8309ebbceb4bc913379310015d152c"
+      "bytes": 7116,
+      "sha256": "b3ef33867872beeb9d88a411d1374e7f76c92d0ac1edce029c69502821e563f2"
     },
     {
       "path": "scripts/qualificationWorkerStatus.mjs",
@@ -860,13 +875,13 @@
     },
     {
       "path": "test/qualification-active-reliability.test.mjs",
-      "bytes": 4431,
-      "sha256": "71450ab750d91bff3c759c0654c24fa52b6aa1d07f8f247ac3c9c0ebb71ccef8"
+      "bytes": 5430,
+      "sha256": "800017688b363d32be66aee5f51f8218eefeb08840e9ff605bda445acb08fd15"
     },
     {
       "path": "test/qualification-review-calibration.test.mjs",
-      "bytes": 1175,
-      "sha256": "9b101302c7147978bc9c7a146cc5e16fccdccba5ce72f1e178269c75fbfe1819"
+      "bytes": 4451,
+      "sha256": "b43c93ebdf28d5e1425c2d2dfa9f7c2bc9784e2e7e06f83e3a4c680dcb2c0392"
     },
     {
       "path": "test/readiness.test.mjs",
@@ -901,7 +916,7 @@
   ],
   "source_artifact_hashes": {
     "checkpoint_selection": "e922fe49e171f96b4392b4bd9a695ddafc777aeba83deed79ec5fffb7e2fd566",
-    "current_worker_state": "04d400b8682bca2d29c03bbd87c4d9ad1ec7516479ebb5ac5d804eae45191b5d",
+    "current_worker_state": "f78e9fbb8b1872112fcbca4e88b6123b9cbc7f4bb62ea0a06a2d14b389c4a1e7",
     "isolated_repair_results": "12f222ad5fc027479693e53adebfaaa1bfc3f23a72a8c57d628739132081327a",
     "replacement_manifest": "1d7036771c98219af61d52e622867bb4d9490e2d13ec66541d3cfddd1fc8ff8d",
     "replacement_refreeze_report": "2edb6fcd6e8f85d175a7bf7d8dc96ce301dc73da58c650903b8ddbad790d476e",

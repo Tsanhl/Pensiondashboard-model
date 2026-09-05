@@ -17,6 +17,7 @@ import { terminateProcessGroup } from "./lib/qualification-worker/childProcessGr
 import { hasStickyWorkerInterruption } from "./lib/qualification-worker/resumeIntegrity.mjs";
 import { ensureQualificationTerminalSeal } from "./lib/qualification-worker/terminalSeal.mjs";
 import { stageGateCommitment,verifyCommittedStageTransitions } from "./lib/qualification-worker/transitionIntegrity.mjs";
+import { reviewWorkerPlan } from "./lib/qualification-worker/reviewWorkerPolicy.mjs";
 
 const PROJECT_ROOT = resolve(fileURLToPath(new URL("../", import.meta.url)));
 const argv = process.argv.slice(2);
@@ -88,6 +89,8 @@ function initialState() {
     retries_used: 0,
     repairs_used: 0,
     selected_iteration: config.candidate.selected_iteration,
+    review_selection: structuredClone(config.review_selection),
+    review_workers: reviewWorkerPlan(config.ai_review),
     candidate_id: null,
     configured_endpoint:config.runtime.canonical_endpoint,
     active_endpoint:null,
@@ -107,6 +110,9 @@ function printPlan() {
     stages: Object.keys(STAGE_HANDLERS),
     terminal_states: TERMINAL_STATES,
     quality: config.quality,
+    review_selection: config.review_selection,
+    review_workers: reviewWorkerPlan(config.ai_review),
+    review_worker_protocol: config.ai_review.worker_protocol,
     permissions: config.permissions,
     sealed_unseen: "closed",
   }, null, 2));
