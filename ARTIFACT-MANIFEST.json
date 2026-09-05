@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "manifest_type": "pensiondashboard-model-post-t4-fail-closed-source-v2",
-  "build_id": "post-t4-qualification-ready-20260905",
+  "build_id": "post-t4-qualification-blocked-20260905",
   "deterministic": true,
   "protected_content_included": false,
   "sealed_unseen_detail_included": false,
@@ -110,13 +110,13 @@
     },
     {
       "path": "README.md",
-      "bytes": 4081,
-      "sha256": "66860a0f0056e603c71d7b918ad32e20e99d1335154dad8d5ad3cf7d13ecd9ea"
+      "bytes": 4325,
+      "sha256": "16a8f925e019530b4c8a1070fad4de5833d630e319aea00c7baa0b18a1a4d148"
     },
     {
       "path": "release-evidence/POST-T4-STATUS.json",
-      "bytes": 2944,
-      "sha256": "79b3875453eecf0ac2cc2bbe139f15d5f96dffcbff80ed8c922bae2f449adac0"
+      "bytes": 3643,
+      "sha256": "6f62e5ad5bc179daa613e3ae8e315415e9673ad93099bb141124d7a2d62536f0"
     },
     {
       "path": "release-evidence/QUALIFICATION-SUMMARY.json",
@@ -901,7 +901,7 @@
   ],
   "source_artifact_hashes": {
     "checkpoint_selection": "e922fe49e171f96b4392b4bd9a695ddafc777aeba83deed79ec5fffb7e2fd566",
-    "prior_worker_state": "23678350404689f67c4325d7fb4ac2310285ce8469f9072b28d8e3f42a827c3c",
+    "current_worker_state": "04d400b8682bca2d29c03bbd87c4d9ad1ec7516479ebb5ac5d804eae45191b5d",
     "isolated_repair_results": "12f222ad5fc027479693e53adebfaaa1bfc3f23a72a8c57d628739132081327a",
     "replacement_manifest": "1d7036771c98219af61d52e622867bb4d9490e2d13ec66541d3cfddd1fc8ff8d",
     "replacement_refreeze_report": "2edb6fcd6e8f85d175a7bf7d8dc96ce301dc73da58c650903b8ddbad790d476e",

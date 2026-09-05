@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "status_as_at": "2026-09-05T05:13:39.242Z",
-  "state": "READY_TO_START_POST_REPAIR_QUALIFICATION",
+  "status_as_at": "2026-09-05T05:18:46.154Z",
+  "state": "BLOCKED_NOT_QUALIFIED",
   "live_qualified": false,
   "production_or_public_deployment_authorised": false,
   "training": {
@@ -68,16 +68,29 @@
     "javascript_files_syntax_checked": 284
   },
   "formal_post_repair_gates_completed": [],
-  "blocker": null,
+  "latest_run": {
+    "run_id": "post-t4-20260905051406-d3256fc6",
+    "stage": "VERIFY_RUNTIME",
+    "runtime_identity_completed": false,
+    "reviewer_calibration_cases_run": 0,
+    "development_cases_run": 0,
+    "visible_qualification_cases_run": 0
+  },
+  "blocker": {
+    "class": "INFRASTRUCTURE_TEMPORARY",
+    "stage": "VERIFY_RUNTIME",
+    "detail": "Both sandboxed Node runtime children aborted with SIGTRAP before opening a service port. macOS 26.4.1 crash records report that libdispatch could not obtain the process's own PID; the runtime sandbox currently denies process-info*.",
+    "automatic_rerun_authorised": false
+  },
   "sealed_unseen": {
     "accessed": false,
     "run": false,
     "scored": false
   },
-  "next_step": "Start a fresh bounded worker run at VERIFY_RUNTIME. It must pass the six-case evaluator calibration before T4_TARGETED_REGRESSION.",
+  "next_step": "Review and test a narrow macOS sandbox compatibility rule that permits required self-PID metadata while preserving denial of cross-process environment inspection. Start no new qualification run until that isolated test passes.",
   "source_evidence_sha256": {
     "checkpoint_selection": "e922fe49e171f96b4392b4bd9a695ddafc777aeba83deed79ec5fffb7e2fd566",
-    "prior_worker_state": "23678350404689f67c4325d7fb4ac2310285ce8469f9072b28d8e3f42a827c3c",
+    "current_worker_state": "04d400b8682bca2d29c03bbd87c4d9ad1ec7516479ebb5ac5d804eae45191b5d",
     "isolated_repair_results": "12f222ad5fc027479693e53adebfaaa1bfc3f23a72a8c57d628739132081327a",
     "replacement_manifest": "1d7036771c98219af61d52e622867bb4d9490e2d13ec66541d3cfddd1fc8ff8d",
     "replacement_refreeze_report": "2edb6fcd6e8f85d175a7bf7d8dc96ce301dc73da58c650903b8ddbad790d476e",

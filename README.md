@@ -2,7 +2,7 @@
 
 This is the current fail-closed source snapshot of the UK pensions dashboard and its post-T4 qualification controller.
 
-**It is not a live-qualified model release.** T4 training completed and checkpoint 104 was selected. Five Live-50 Round-53 product-path regressions were repaired. The 25 repeated replacement-v2 IDs were corrected under an ID-only owner authorization and independently refrozen with 161 unique IDs; substantive content was unchanged. Static preflight passes on the controlled owner machine, but the clean post-repair qualification gates have not completed. The sealed unseen set has not been opened or run.
+**It is not a live-qualified model release.** T4 training completed and checkpoint 104 was selected. Five Live-50 Round-53 product-path regressions were repaired. The 25 repeated replacement-v2 IDs were corrected under an ID-only owner authorization and independently refrozen with 161 unique IDs; substantive content was unchanged. Static preflight passes on the controlled owner machine, but the latest run stopped in `VERIFY_RUNTIME` before any evaluator or question case ran. Both sandboxed Node children aborted with `SIGTRAP` because the macOS 26.4.1 runtime could not obtain its own PID under the current sandbox profile. The sealed unseen set has not been opened or run.
 
 ## Current gate
 
@@ -12,7 +12,8 @@ This is the current fail-closed source snapshot of the UK pensions dashboard and
 | Selected checkpoint | Iteration 104 |
 | Product-path repair | Complete and regression-tested |
 | Replacement-v2 ID-only refreeze | Complete and independently verified |
-| Post-repair development evaluation | Ready to start; no gate completed |
+| Runtime verification | Blocked by macOS sandbox self-PID compatibility |
+| Post-repair development evaluation | Not started; no case consumed |
 | Visible qualification | Not started |
 | Live-qualified release | No |
 | Sealed unseen | Closed and not accessed |
