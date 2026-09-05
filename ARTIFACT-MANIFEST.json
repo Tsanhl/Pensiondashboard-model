@@ -55,8 +55,8 @@
     },
     {
       "path": "docs/post-t4-qualification-worker.md",
-      "bytes": 16053,
-      "sha256": "ceedc1b6d843f4fc0c0fd9d1b0e45cf4af2606eb886cd894f5f21fc86355000b"
+      "bytes": 16335,
+      "sha256": "7ed9763e4f3695b1d8c0c85de30c0a91611c451d0c6aab29dfb2a374a158edc3"
     },
     {
       "path": "evaluation/qualification-review-calibration-v1.json",
@@ -116,7 +116,7 @@
     {
       "path": "release-evidence/POST-T4-STATUS.json",
       "bytes": 2944,
-      "sha256": "c2737d3d3b3d764042764010aad37da387a5d29ca80ab9070c828c15e4387373"
+      "sha256": "b0c12786a308208c0ced8bf2dd202e187605697a08377263e6c6ce7f1ea18859"
     },
     {
       "path": "release-evidence/QUALIFICATION-SUMMARY.json",
@@ -215,8 +215,8 @@
     },
     {
       "path": "scripts/installQualificationWorkerLaunchd.mjs",
-      "bytes": 2203,
-      "sha256": "41ede6387fa0b9a91075a40edfb490e7280b86fc380daecaab2a2daa80e71f4c"
+      "bytes": 2955,
+      "sha256": "4716e14743cfee8503414d517ad31948e26f88b7b1da771ab532545891cf173f"
     },
     {
       "path": "scripts/isolatedPythonLauncher.py",
@@ -422,6 +422,11 @@
       "path": "scripts/qualificationWorker.mjs",
       "bytes": 40795,
       "sha256": "54b908eb35e45dd8c701b5583db843175c72170e35bc6d8dfc745a3e801c0661"
+    },
+    {
+      "path": "scripts/qualificationWorkerLaunchdEntrypoint.mjs",
+      "bytes": 3870,
+      "sha256": "5abe78ec019e79878e140feb85d02b7cbd8309ebbceb4bc913379310015d152c"
     },
     {
       "path": "scripts/qualificationWorkerStatus.mjs",

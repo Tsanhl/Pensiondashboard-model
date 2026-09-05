@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "status_as_at": "2026-09-05T05:08:45.744Z",
+  "status_as_at": "2026-09-05T05:11:17.140Z",
   "state": "READY_TO_START_POST_REPAIR_QUALIFICATION",
   "live_qualified": false,
   "production_or_public_deployment_authorised": false,
@@ -65,7 +65,7 @@
     },
     "application_tests_passed": 178,
     "worker_tests_passed": 18,
-    "javascript_files_syntax_checked": 283
+    "javascript_files_syntax_checked": 284
   },
   "formal_post_repair_gates_completed": [],
   "blocker": null,
