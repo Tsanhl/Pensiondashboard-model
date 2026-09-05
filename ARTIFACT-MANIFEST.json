@@ -116,7 +116,7 @@
     {
       "path": "release-evidence/POST-T4-STATUS.json",
       "bytes": 2944,
-      "sha256": "b0c12786a308208c0ced8bf2dd202e187605697a08377263e6c6ce7f1ea18859"
+      "sha256": "79b3875453eecf0ac2cc2bbe139f15d5f96dffcbff80ed8c922bae2f449adac0"
     },
     {
       "path": "release-evidence/QUALIFICATION-SUMMARY.json",
@@ -380,8 +380,8 @@
     },
     {
       "path": "scripts/liveLocal.mjs",
-      "bytes": 27033,
-      "sha256": "f55f44d5b638c2f46de0b3a7171f2c0eb55ec68a4b954c218de775a1d4deaa44"
+      "bytes": 27042,
+      "sha256": "246c0fbdf74a04f2b36edfa094cd103963324697fb89422f34a36caeb30a564a"
     },
     {
       "path": "scripts/liveLogStore.mjs",
@@ -901,7 +901,7 @@
   ],
   "source_artifact_hashes": {
     "checkpoint_selection": "e922fe49e171f96b4392b4bd9a695ddafc777aeba83deed79ec5fffb7e2fd566",
-    "prior_worker_state": "7b7270881530ab7b452a1273bc173832dfeb514779061f0d7936c79094cd23fc",
+    "prior_worker_state": "23678350404689f67c4325d7fb4ac2310285ce8469f9072b28d8e3f42a827c3c",
     "isolated_repair_results": "12f222ad5fc027479693e53adebfaaa1bfc3f23a72a8c57d628739132081327a",
     "replacement_manifest": "1d7036771c98219af61d52e622867bb4d9490e2d13ec66541d3cfddd1fc8ff8d",
     "replacement_refreeze_report": "2edb6fcd6e8f85d175a7bf7d8dc96ce301dc73da58c650903b8ddbad790d476e",

@@ -2,7 +2,7 @@ import "../server/loadEnv.js";
 import { createHash } from "node:crypto";
 import { spawn, spawnSync } from "node:child_process";
 import { existsSync, readFileSync, statSync } from "node:fs";
-import { join, resolve } from "node:path";
+import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { ANSWER_SYSTEM_POLICY } from "../server/prompts/answerPolicy.js";
 import { deriveQualificationStageCapabilityKey, mintQualificationRequestCapability } from "../server/services/qualificationContextService.js";

@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "status_as_at": "2026-09-05T05:11:17.140Z",
+  "status_as_at": "2026-09-05T05:13:39.242Z",
   "state": "READY_TO_START_POST_REPAIR_QUALIFICATION",
   "live_qualified": false,
   "production_or_public_deployment_authorised": false,
@@ -77,7 +77,7 @@
   "next_step": "Start a fresh bounded worker run at VERIFY_RUNTIME. It must pass the six-case evaluator calibration before T4_TARGETED_REGRESSION.",
   "source_evidence_sha256": {
     "checkpoint_selection": "e922fe49e171f96b4392b4bd9a695ddafc777aeba83deed79ec5fffb7e2fd566",
-    "prior_worker_state": "7b7270881530ab7b452a1273bc173832dfeb514779061f0d7936c79094cd23fc",
+    "prior_worker_state": "23678350404689f67c4325d7fb4ac2310285ce8469f9072b28d8e3f42a827c3c",
     "isolated_repair_results": "12f222ad5fc027479693e53adebfaaa1bfc3f23a72a8c57d628739132081327a",
     "replacement_manifest": "1d7036771c98219af61d52e622867bb4d9490e2d13ec66541d3cfddd1fc8ff8d",
     "replacement_refreeze_report": "2edb6fcd6e8f85d175a7bf7d8dc96ce301dc73da58c650903b8ddbad790d476e",
