@@ -1,0 +1,20 @@
+{
+  "version":"four-layer-memory-repair-20260912",
+  "authority_source":"Current user explicitly authorizes amending everything needed to train automatically; not a new owner signature",
+  "owner_quote":"i authorise to remove and amend everything neded to do training",
+  "owner_authorized_training":true,
+  "training_execution_authorized":true,
+  "main_trajectories":1,
+  "main_update_cap":48,
+  "disposable_updates":2,
+  "diagnostic_attempts":4,
+  "prior_current_attempts_consumed":3,
+  "current_attempt_scope":"One changed four-layer full-model proof; preserve 16-layer failed receipt with one completed disposable update, no main credit. No duplicate main run.",
+  "configuration_change":"Keep full 16-layer parent adapter in model and saved checkpoints; freeze all but final four layers during gradients. No dataset/context truncation or base-model replacement.",
+  "evidence":"run-v3-kernel-metrics/diagnostic-byte-view: longest-example backward reached physical footprint9.383GiB, swap growth2838.26MiB and free9%; supervisor stopped it. Shorter example completed one update with finite gradients.",
+  "resource_limits":{"prestart_swap_max_mib":6144,"system_swap_absolute_max_mib":8192,"swap_growth_max_mib":2048,"system_free_min_percent":15,"process_physical_footprint_max_gib":12,"mlx_peak_max_decimal_gb":14,"total_seconds":1800},
+  "main_timeout_seconds":7200,
+  "preserve_checkpoint":104,
+  "sealed_unseen_authorized":false,
+  "release_authorized":false
+}

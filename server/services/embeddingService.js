@@ -21,7 +21,8 @@ function degradedEmbedding(text) {
   return normalize(vector);
 }
 
-export async function embedTexts(texts = []) {
+export async function embedTexts(texts = [], {signal} = {}) {
+  signal?.throwIfAborted();
   const values = texts.map((value) => String(value || ""));
   const serviceUrl = String(process.env.EMBEDDING_SERVICE_URL || "").replace(/\/$/, "");
   const degradedFallbackAllowed = String(process.env.ALLOW_DEGRADED_EMBEDDINGS || "true").toLowerCase() === "true";
@@ -50,7 +51,7 @@ export async function embedTexts(texts = []) {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ model: EMBEDDING_MODEL, texts: values.slice(start,start + batchSize), normalize: true }),
-              signal: AbortSignal.timeout(timeoutMs)
+              signal: signal ? AbortSignal.any([signal,AbortSignal.timeout(timeoutMs)]) : AbortSignal.timeout(timeoutMs)
             });
             if (!response.ok) throw new Error(`embedding service returned ${response.status}`);
             const payload = await response.json();
@@ -62,6 +63,7 @@ export async function embedTexts(texts = []) {
             lastError = null;
             break;
           } catch (error) {
+            signal?.throwIfAborted();
             lastError = error;
             if (attempt === retries) break;
             await new Promise((accept) => setTimeout(accept, attempt * retryBackoffMs));
@@ -71,6 +73,7 @@ export async function embedTexts(texts = []) {
       }
       return { embeddings: embeddings.map(normalize), model: EMBEDDING_MODEL, degraded: false };
     } catch (error) {
+      signal?.throwIfAborted();
       if (!degradedFallbackAllowed) throw error;
     }
   }

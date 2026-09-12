@@ -1,0 +1,89 @@
+{
+  "status": "SYNTHETIC_ARITHMETIC_REFERENCE_NOT_MODEL_EVALUATION",
+  "formula": {
+    "engine_convention_required": "real-cashflows-v2-compatible; fixture-specific arithmetic must be independently verified",
+    "current_age": 42,
+    "retirement_age": 67,
+    "current_dc_pot_gbp": 100000,
+    "total_gross_monthly_credit_gbp": 580,
+    "annual_nominal_growth": 0.045,
+    "annual_fee_rate": 0.006,
+    "annual_inflation": 0.025,
+    "annual_drawdown_rate": 0.05,
+    "target_monthly_income_today_money_gbp": 2500,
+    "payment_timing": "MONTH_START",
+    "cashflow_units": "CONSTANT_TODAYS_MONEY",
+    "annual_real_factor_definition": "(1+growth)*(1-fee)/(1+inflation)",
+    "extra_gross_monthly_scenarios": [
+      0,
+      50,
+      100,
+      200
+    ],
+    "db_income_start_age": 65,
+    "db_annual_income_today_money_gbp": 2400,
+    "state_income_start_age": 68,
+    "state_monthly_income_today_money_gbp": 700,
+    "source_ref": "projection-settings",
+    "future_returns_guaranteed": false
+  },
+  "main_scenarios": [
+    {
+      "retirement_age": 67,
+      "extra_gross_monthly": 0,
+      "dc_pot_unrounded": 346016.860858593,
+      "monthly_income_unrounded": 1641.7369202441378,
+      "gap_unrounded": 858.2630797558622,
+      "db_monthly_included": 200.0,
+      "state_monthly_included": 0,
+      "illustration_only": true
+    },
+    {
+      "retirement_age": 67,
+      "extra_gross_monthly": 50,
+      "dc_pot_unrounded": 363822.9171986996,
+      "monthly_income_unrounded": 1715.9288216612485,
+      "gap_unrounded": 784.0711783387515,
+      "db_monthly_included": 200.0,
+      "state_monthly_included": 0,
+      "illustration_only": true
+    },
+    {
+      "retirement_age": 67,
+      "extra_gross_monthly": 100,
+      "dc_pot_unrounded": 381628.97353880544,
+      "monthly_income_unrounded": 1790.120723078356,
+      "gap_unrounded": 709.8792769216441,
+      "db_monthly_included": 200.0,
+      "state_monthly_included": 0,
+      "illustration_only": true
+    },
+    {
+      "retirement_age": 67,
+      "extra_gross_monthly": 200,
+      "dc_pot_unrounded": 417241.0862190188,
+      "monthly_income_unrounded": 1938.5045259125784,
+      "gap_unrounded": 561.4954740874216,
+      "db_monthly_included": 200.0,
+      "state_monthly_included": 0,
+      "illustration_only": true
+    }
+  ],
+  "retire60": {
+    "retirement_age": 60,
+    "extra_gross_monthly": 0,
+    "dc_pot_unrounded": 268697.44485321245,
+    "monthly_income_unrounded": 1119.5726868883853,
+    "gap_unrounded": 1380.4273131116147,
+    "db_monthly_included": 0,
+    "state_monthly_included": 0,
+    "illustration_only": true
+  },
+  "charge_illustrations": {
+    "fern": 340,
+    "bracken": 168,
+    "cedar": 72,
+    "total": 580
+  },
+  "note": "Apply only to exactly matching declared inputs/convention. Compare float computations at GBP0.01 tolerance and separately test rendering rounding. Benefits are included only when recorded start age is reached; no personalised legal access or return guarantee is asserted. Do not import these outputs into the generator context."
+}

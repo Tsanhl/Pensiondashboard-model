@@ -1,0 +1,21 @@
+{
+  "suite_id": "PDU50-v1",
+  "created": "2026-09-10",
+  "role": "VISIBLE_DEVELOPMENT_DIAGNOSTIC_NOT_SEALED_UNSEEN",
+  "status": "AUTHORED_NOT_EXECUTED_LABEL_REVIEW_PENDING",
+  "counts": {
+    "cases": 50,
+    "followups": 10,
+    "user_turns": 60,
+    "legal_mixed_cases": 38,
+    "fixtures": 26,
+    "source_leads": 24
+  },
+  "legacy_live50_replacement": false,
+  "default_gradient_training_allowed": false,
+  "default_checkpoint_selection_allowed": false,
+  "as_of_mode": "pin 2026-09-10 for this fixture version; rebase and re-review to test later law",
+  "estimated_candidate_answer_turns": 60,
+  "default_main_comparison": "104 baseline once, validation-selected candidate once; no every-checkpoint tuning on PDU50",
+  "scope": "Mixed user records, private documents, applicable public evidence, calculation, conversation, privacy and read-only boundaries."
+}

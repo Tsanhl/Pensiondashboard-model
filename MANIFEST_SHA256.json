@@ -1,0 +1,22 @@
+{
+  "scope": "integrity only; no evidence of model or source accuracy",
+  "files": {
+    "CHANGELOG_v3.md": "a09f4aaf5d2e15f373e3fdecd90b3157a6f83f8a2a46e881232eab45ba35dcb6",
+    "PDU50_Questions.md": "0a76fb101614e9fe5916633c25476ccc34ab24f03ea8a153bbef373f9e383858",
+    "Pension_Dashboard_Full_Execution_Contract_v3.txt": "044ef9e08720bfad297b1a7fe209cfee055171cfe84e57cd78745d9e1d8adafe",
+    "README_START_HERE.md": "4c6c35cea7ae2293f09b0241ed429cd8e4d3ad5a935621572a9380f7305394fd",
+    "START_CODEX.txt": "179d6ee43e581d24fc7e242330402d98f4036e90f365858fd4dc572a32800d44",
+    "evaluation/pdu50/Evaluator_Guide.md": "aa8a63f2f0186e8129956c3fc318d73fa6bc40ea3ae8cbab32230f097d61a127",
+    "evaluation/pdu50/evaluator_manifest.jsonl": "a3fe5af3601696ad4f63e3ac7eee13002139d10e1be8de46c1e67e4a6d26313e",
+    "evaluation/pdu50/harness_setup.jsonl": "a959ccba04947a845a69201607bd9cccce03791fb2e7484b090dd33de0ff7a2b",
+    "evaluation/pdu50/numeric_reference.json": "1a1110e84961f1f30275bc2a433b53343c277434c29cd9d5c05371f9f554fe22",
+    "evaluation/pdu50/official_source_catalog.json": "3f14531323cf70c097452498ffef1bfd2e274a9615a4bab4426401df4aac475b",
+    "evaluation/pdu50/product_messages.jsonl": "ca79a624346b04f04b9b0b5f7d8e42c0f7a908b1963023e4d37a8f560eea92d1",
+    "evaluation/pdu50/result_template.json": "52a408433bc1c711dba624a2a870453127f285dc020035b2bda9a0854ea348b4",
+    "evaluation/pdu50/suite_manifest.json": "b66654ea8750ffca354af8c41ac3fbc76c9a5e8e4ed570829b986d00820ab1df",
+    "fixtures/synthetic_portfolios.json": "5e843277d6366320c4f643291fe204a4b170e9f08bb6ce0a59b4ae5dad58154b",
+    "policy/Training_Duration_and_PDU50_Amendment.txt": "d89519b376818a5ac57033942d239d363d9bf87911a1b7955de6a2cfbc7612c4",
+    "policy/training_duration_study_template.json": "d6474b1ffe3ae4bea767458c9c44caded00da7a9ea4f664132039b016cb55d70",
+    "tools/validate_pack.py": "90ad7284d943eaa550d51e9369977448a15ea9b99f3dd03da2c7595646953b79"
+  }
+}

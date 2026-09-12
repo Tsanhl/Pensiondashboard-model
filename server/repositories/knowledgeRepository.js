@@ -1,3 +1,4 @@
+import {isAnnotationOnlyPassage} from '../services/legalPassageService.js';
 import { isoNow } from "../utils/values.js";
 import {
   isPostgresStorage,
@@ -99,7 +100,7 @@ function legalReferencePhrases(value) {
 function phraseCoverage(phrases, value) {
   if (!phrases.length) return 0;
   const normalized = String(value || "").toLowerCase();
-  return phrases.filter((phrase) => normalized.includes(phrase)).length / phrases.length;
+  return phrases.filter((phrase) => new RegExp(phrase.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "(?![a-z0-9])", "i").test(normalized)).length / phrases.length;
 }
 
 function lexicalScore(query, content, { title = "",section = "" } = {}) {
@@ -111,7 +112,8 @@ function lexicalScore(query, content, { title = "",section = "" } = {}) {
   return coverage;
 }
 
-export async function searchKnowledge(userId, embedding, limit = 8, query = "") {
+export async function searchKnowledge(userId, embedding, limit = 8, query = "", { documentIds = null } = {}) {
+  if (Array.isArray(documentIds) && !documentIds.length) return [];
   if (isPostgresStorage()) {
     const legalReferences = legalReferencePhrases(query);
     const result = await postgresQuery(
@@ -128,10 +130,13 @@ export async function searchKnowledge(userId, embedding, limit = 8, query = "") 
                   ) THEN 0.15 ELSE 0 END
                 + CASE WHEN position(lower(d.title) in lower($5)) > 0 THEN 0.10 ELSE 0 END) AS score,
               d.authority,d.canonical_location,d.id AS document_id,d.version,d.expires_at,d.metadata AS document_metadata
-       FROM knowledge_chunks c JOIN knowledge_documents d ON d.id=c.document_id
+       FROM knowledge_chunks c JOIN knowledge_documents d ON d.id=c.document_id AND d.user_id=c.user_id
        WHERE c.user_id IN ($1,$2) AND d.status='active' AND (d.expires_at IS NULL OR d.expires_at > now())
          AND COALESCE(c.metadata->>'quarantined','false') <> 'true'
-       ORDER BY score DESC LIMIT $4`, [userId, PUBLIC_USER, vectorLiteral(embedding), Math.min(300, limit), query, legalReferences]
+         AND ($8::boolean OR NOT (c.content ~* '(inserted|substituted|omitted|repealed|in force|specified purposes).*(inserted|substituted|omitted|repealed|in force|specified purposes).*(inserted|substituted|omitted|repealed|in force|specified purposes)'
+           AND c.content !~* '(must|shall|may not|is void|voidable|does not apply|requirements? (apply|are)|(^|[[:space:]])[(][0-9]+[A-Za-z]?[)])'))
+         AND (cardinality($7::text[]) = 0 OR d.id = ANY($7::text[]))
+       ORDER BY score DESC LIMIT $4`, [userId, PUBLIC_USER, vectorLiteral(embedding), Math.min(300, limit), query, legalReferences, documentIds || [], /commencement|amendment history|when.*(?:inserted|substituted|repealed)|legislative history/i.test(query)]
     );
     return result.rows.map((row) => ({
       sourceId: row.source_id, title: row.title, section: row.section_path, snippet: row.content,
@@ -143,9 +148,9 @@ export async function searchKnowledge(userId, embedding, limit = 8, query = "") 
   }
   const owners = [userId, ...(userId === PUBLIC_USER ? [] : [PUBLIC_USER])];
   const legalReferences = legalReferencePhrases(query);
-  const documents = new Map(owners.flatMap((owner) => readKnowledgeDocuments(owner)).filter((item) => item.status === "active" && (!item.expiryDate || Date.parse(item.expiryDate) > Date.now())).map((item) => [item.id, item]));
-  return owners.flatMap((owner) => readKnowledgeChunks(owner)).filter((chunk) => documents.has(chunk.documentId) && !chunk.metadata?.quarantined).map((chunk) => {
-    const document = documents.get(chunk.documentId);
+  const documents = new Map(owners.flatMap((owner) => readKnowledgeDocuments(owner).map(d=>({...d,userId:owner}))).filter((item) => item.status === "active" && (!item.expiryDate || Date.parse(item.expiryDate) > Date.now())).map((item) => [`${item.userId}:${item.id}`, item]));
+  return owners.flatMap((owner) => readKnowledgeChunks(owner).map(c=>({...c,userId:owner}))).filter((chunk) => documents.has(`${chunk.userId}:${chunk.documentId}`) && (!documentIds || documentIds.includes(chunk.documentId)) && !chunk.metadata?.quarantined && !isAnnotationOnlyPassage(chunk,query)).map((chunk) => {
+    const document = documents.get(`${chunk.userId}:${chunk.documentId}`);
     return {
       sourceId: chunk.id, title: document.title, section: chunk.sectionPath, snippet: chunk.content,
       effectiveDate: document.effectiveDate || null, updatedAt: document.updatedAt, scope: document.scope,
@@ -156,7 +161,7 @@ export async function searchKnowledge(userId, embedding, limit = 8, query = "") 
         0.65 * cosineSimilarity(embedding, chunk.embedding)
         + 0.20 * lexicalScore(query, chunk.content, { title:document.title,section:chunk.sectionPath })
         + 0.05 * phraseCoverage(legalReferences, `${document.title} ${chunk.sectionPath} ${chunk.content}`)
-        + 0.15 * phraseCoverage(legalReferences, chunk.sectionPath)
+        + 0.15 * phraseCoverage(legalReferences, String(chunk.sectionPath).split(" > ").at(-1).length <= 200 ? chunk.sectionPath : "")
         + 0.10 * (document.title && String(query).toLowerCase().includes(String(document.title).toLowerCase()) ? 1 : 0)
       )
     };

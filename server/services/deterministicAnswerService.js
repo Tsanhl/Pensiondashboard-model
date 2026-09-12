@@ -1,3 +1,4 @@
+import { describeDocumentEvidence } from "./documentEvidenceService.js";
 import { buildCanonicalFacts, factDisplay } from "./canonicalFactService.js";
 
 function cite(source) {
@@ -20,13 +21,13 @@ function investmentSource(sources) {
   return sources.find((source) => String(source.sourceId || "").includes("structured_investment") || /investment and risk/i.test(source.title || ""));
 }
 
-export function personalisedAdviceBoundaryAnswer(question, { userId, sources = [] } = {}) {
-  const registry = buildCanonicalFacts(userId);
+export function personalisedAdviceBoundaryAnswer(question, { userId, sources = [], dashboardSnapshot = null } = {}) {
+  const registry = buildCanonicalFacts(userId,dashboardSnapshot);
   const account = accountsSource(sources);
   const investment = investmentSource(sources);
-  const style = registry.dashboard?.investmentProfile?.currentStyle || "Balanced";
+  const style = registry.dashboard?.investmentProfile?.currentStyle || "not recorded";
   const cautious = (registry.dashboard?.investmentProfile?.accountsByStrategy || []).find((item) => /cautious/i.test(item.style || ""));
-  const cautiousLabel = cautious ? `${cautious.provider || cautious.account} ${cautious.style}` : "OneLife Cautious";
+  const cautiousLabel = cautious ? `${cautious.provider || cautious.account} ${cautious.style}` : "no recorded Cautious account";
   return {
     reason: "deterministic_personalised_advice_boundary",
     answer: `I cannot give personalised investment advice. I cannot recommend a specific fund. The recorded overall style is ${style}, with ${cautiousLabel}.${cite(investment || account)} Speak to a regulated financial adviser.`,
@@ -35,24 +36,26 @@ export function personalisedAdviceBoundaryAnswer(question, { userId, sources = [
   };
 }
 
-export function deterministicDashboardAnswer(question, { userId, sources = [] } = {}) {
+export function deterministicDashboardAnswer(question, { userId, sources = [], dashboardSnapshot = null } = {}) {
   const text = String(question || "");
   const combineQuestion = /\bcombin(?:e|ing)\b/i.test(text) && /\b(?:pension|pots?)\b/i.test(text);
   const adviceBoundary = /\b(?:should i (?:keep|buy|sell|switch|invest|transfer|combine|consolidat|stop)|which one should i keep|which fund|best returns?|recommend|combine all my pensions|better than an ISA)\b/i.test(text);
   if (/\b(?:scam|unlock|pressur|whatsapp|release fee|transfer my .{0,40} for me now)\b/i.test(text)) return null;
   if (/\b(?:legal route|annual allowance|tax-free|auto(?:matic)?[- ]enrolment|pension protection fund|complain|divorc|die before)\b/i.test(text)) return null;
 
-  const registry = buildCanonicalFacts(userId);
+  const registry = buildCanonicalFacts(userId,dashboardSnapshot);
   const facts = registry.facts;
   const account = accountsSource(sources);
   const projection = projectionSource(sources);
   const documents = documentsSource(sources);
 
+  const recordedAccounts = registry.dashboard.pensionAccounts || [];
+  const accountSummary = recordedAccounts.map(a=>`${a.name || a.provider} (${a.type || "type not recorded"}): ${a.pot || "value not recorded"}, ${a.schemeStatus || "status not recorded"}${a.employerName ? `, employer ${a.employerName}` : ""}`).join("; ") || "no pension accounts recorded";
   if (combineQuestion) {
     const current = facts["profile.currentEmployer"]?.value;
     return {
       reason: "deterministic_consolidation_boundary",
-      answer: `I cannot recommend combining your pensions. The recorded pots are separate arrangements: Aviva and Nest are current ${current} workplace pensions, Standard Life is a deferred Harbour Logistics workplace pension, and OneLife is a personal pension. Check charges, guarantees and scam warnings with a human adviser before any transfer.${cite(account)}`,
+      answer: `I cannot recommend combining your pensions. Recorded accounts: ${accountSummary}. Check charges, guarantees and scam warnings with a human adviser before any transfer.${cite(account)}`,
       citationIds: [account?.sourceId].filter(Boolean),
       sources: [account].filter(Boolean)
     };
@@ -70,7 +73,7 @@ export function deterministicDashboardAnswer(question, { userId, sources = [] } 
   }
 
   if (adviceBoundary && !combineQuestion) {
-    return personalisedAdviceBoundaryAnswer(question, { userId, sources });
+    return personalisedAdviceBoundaryAnswer(question, { userId, sources, dashboardSnapshot });
   }
 
   const total = facts["derivedFacts.totalPots"];
@@ -78,13 +81,14 @@ export function deterministicDashboardAnswer(question, { userId, sources = [] } 
     const parts = (registry.dashboard.pensionAccounts || []).map((item) => `${item.provider} ${item.pot}`).join(", ");
     return {
       reason: "deterministic_portfolio_total",
-      answer: `Your recorded pension pots total ${total.display}: ${parts}.${cite(account)}`,
-      citationIds: [account?.sourceId].filter(Boolean),
-      sources: [account].filter(Boolean)
+      answer: `Your recorded pension pots total ${total.display}.${cite(projection || account)} Recorded accounts: ${parts}.${cite(account)}`,
+      citationIds: [...new Set([projection?.sourceId,account?.sourceId].filter(Boolean))],
+      sources: [projection,account].filter(Boolean)
     };
   }
 
   if (/\baviva\b/i.test(text) && /\b(?:pot|how much|policy number)\b/i.test(text)) {
+    if (facts["accounts.aviva.pot"]?.value == null) return null;
     if (/\bpolicy number\b/i.test(text)) {
       const policy = facts["accounts.aviva.policyNumber"];
       return {
@@ -105,6 +109,7 @@ export function deterministicDashboardAnswer(question, { userId, sources = [] } 
   }
 
   if (/\bnest\b/i.test(text) && /\b(?:percentage|pay into|employer pay)\b/i.test(text)) {
+    if (facts["accounts.nest.employeeContributionPercent"]?.value == null) return null;
     const employee = facts["accounts.nest.employeeContributionPercent"];
     const employer = facts["accounts.nest.employerContributionPercent"];
     return {
@@ -233,18 +238,18 @@ export function deterministicDashboardAnswer(question, { userId, sources = [] } 
     };
   }
 
-  if (/\bfacts that need confirmation\b/i.test(text) || /\bneed confirmation\b/i.test(text)) {
-    const review = (registry.dashboard.documents || []).filter((item) => /review/i.test(item.status));
-    const names = review.map((item) => `${item.name} (${item.status}, ${item.confidence})`).join("; ") || "none";
-    return {
-      reason: "deterministic_document_review",
-      answer: `Document facts still needing confirmation: ${names}.${cite(documents || account)}`,
-      citationIds: [documents?.sourceId || account?.sourceId].filter(Boolean),
-      sources: [documents || account].filter(Boolean)
-    };
+  if (/\b(?:facts?.*(?:confirm|review)|(?:pending|unconfirmed).*facts?|need confirmation)\b/i.test(text)) {
+    if (!documents) return null;
+    const review = (registry.dashboard.documents || []).filter(item => /review/i.test(item.status));
+    const lines = review.map(item => {
+      return `${item.name}: status ${item.status}${item.confidence ? `, confidence ${item.confidence}` : ""}. ${describeDocumentEvidence(item)}. Review the original document and compare each extracted value before confirming it.${cite(documents)}`;
+    });
+    if (!review.length) lines.push(`No documents with Review status are recorded.${cite(documents)}`);
+    return {reason:"deterministic_document_review",answer:lines.join("\n"),citationIds:[documents.sourceId],sources:[documents]};
   }
 
   if (/\bonelife\b/i.test(text) && /\b(?:fully checked|manual entry|figures)\b/i.test(text)) {
+    if (facts["accounts.oneLife.pot"]?.value == null) return null;
     const status = facts["documents.oneLife.status"];
     const confidence = facts["documents.oneLife.confidence"];
     const pot = facts["accounts.oneLife.pot"];
@@ -260,12 +265,13 @@ export function deterministicDashboardAnswer(question, { userId, sources = [] } 
 
   if ((/\bstandard life\b/i.test(text) && /\b(?:still paying|did that stop|left|old|harbour|what(?:'s| is) left|how much|pot)\b/i.test(text))
       || (/\bleft\b/i.test(text) && /\bharbour logistics\b/i.test(text))) {
+    if (facts["accounts.standardLife.pot"]?.value == null) return null;
     const status = facts["accounts.standardLife.status"];
     const pot = facts["accounts.standardLife.pot"];
     const current = facts["profile.currentEmployer"]?.value;
     return {
       reason: "deterministic_deferred_status",
-      answer: `Harbour Logistics is recorded as a previous employer. The Harbour Logistics workplace pension is the Standard Life pot (${pot?.display}), recorded as ${status?.value || "Deferred"} with no current employee or employer contributions. Aviva and Nest are current ${current} workplace pensions; the Harbour pot is not recorded as transferred into those schemes.${cite(account)}`,
+      answer: `Recorded accounts: ${accountSummary}. Check the recorded employer, status and contribution fields; the account list alone does not establish whether a transfer occurred.${cite(account)}`,
       citationIds: [account?.sourceId].filter(Boolean),
       sources: [account].filter(Boolean)
     };
@@ -273,8 +279,9 @@ export function deterministicDashboardAnswer(question, { userId, sources = [] } 
 
   if (/\b(?:scheme booklet|member booklet|workplace scheme booklet)\b/i.test(text)) {
     const booklet = (registry.dashboard.documents || []).find((item) => /booklet/i.test(`${item.type || ""} ${item.name || ""}`));
-    const action = booklet?.extracted?.memberAction || "Read the booklet before any scheme change request";
-    const scheme = booklet?.extracted?.scheme || "Northbridge Retail Workplace Pension";
+    const action = booklet?.extracted?.memberAction;
+    if (!booklet?.extracted?.memberAction) return null;
+    const scheme = booklet.extracted.scheme || "scheme named in the booklet";
     return {
       reason: "deterministic_scheme_booklet",
       answer: `The ${booklet?.name || "Northbridge workplace scheme booklet"} says: ${action}. That is a booklet instruction for the ${scheme}, not a statutory scheme-change procedure.${cite(documents || account)}`,
@@ -284,28 +291,32 @@ export function deterministicDashboardAnswer(question, { userId, sources = [] } 
   }
 
   if (/\bcontribution scenarios?\b/i.test(text) || (/\bchang(?:e|ing) (?:pension |my )?contributions?\b/i.test(text) && /\b(?:dashboard|check|scenario)\b/i.test(text))) {
-    const extra50 = facts["projection.scenarios.extra50.remainingGap"];
-    const extra100 = facts["projection.scenarios.extra100.remainingGap"];
-    const extra200 = facts["projection.scenarios.extra200.remainingGap"];
-    const avivaEmployee = facts["accounts.aviva.employeeContributionPercent"];
-    const avivaEmployer = facts["accounts.aviva.employerContributionPercent"];
-    const nestEmployee = facts["accounts.nest.employeeContributionPercent"];
-    const nestEmployer = facts["accounts.nest.employerContributionPercent"];
-    return {
-      reason: "deterministic_contribution_scenarios",
-      answer: `Before changing pension contributions, check the recorded current rates, charges, snapshot dates and cash buffer. Aviva is ${avivaEmployee?.display} employee / ${avivaEmployer?.display} employer; Nest is ${nestEmployee?.display} employee / ${nestEmployer?.display} employer. The recorded contribution scenarios leave remaining monthly gaps of ${extra50?.display} at +£50, ${extra100?.display} at +£100, and ${extra200?.display} at +£200. This is not a recommendation to change contributions.${cite(projection || account)}`,
-      citationIds: [projection?.sourceId || account?.sourceId].filter(Boolean),
-      sources: [projection || account].filter(Boolean)
-    };
+    if (!account || !projection) return null;
+    const dash = registry.dashboard;
+    if (!(dash.pensionAccounts || []).length) return {reason:"deterministic_missing_contribution_inputs",answer:`No pension accounts are recorded. Contribution amounts, rates and account inputs are missing. Please add or confirm your pension account records before relying on contribution scenarios.${cite(account)}`,citationIds:[account.sourceId],sources:[account]};
+    if (dash.projection?.status !== "ready") return {reason:"deterministic_missing_projection_inputs",answer:`Projection inputs are missing or invalid: ${(dash.projection?.missing || []).join(", ") || "check ages, amounts and rates"}. Confirm them before using contribution scenarios.${cite(projection)}`,citationIds:[projection.sourceId],sources:[projection]};
+    const lines = [];
+    const recorded = value => value == null || value === "" || value === "—" ? "not recorded" : value;
+    lines.push(`Check contribution basis, gross/net treatment, employer matching, affordability, charges and snapshot dates. I cannot recommend a contribution change; this is not a recommendation.${cite(account)}${cite(projection)}`);
+    for (const item of dash.pensionAccounts || []) {
+      lines.push(`${item.provider || item.name}: recorded employee contribution ${recorded(item.employee)}${item.employeeYearly ? ` (${item.employeeYearly})` : ""}; employer contribution ${recorded(item.employer)}${item.employerYearly ? ` (${item.employerYearly})` : ""}; annual charge ${recorded(item.charges)}; updated ${recorded(item.lastUpdated)}.${cite(account)}`);
+    }
+    if (!(dash.pensionAccounts || []).length) lines.push(`No pension accounts are recorded.${cite(account)}`);
+    lines.push(`Recorded baseline: projected monthly income ${recorded(dash.projectedMonthlyIncome)}, monthly target ${recorded(dash.monthlyTarget)}, remaining monthly gap ${recorded(dash.monthlyGap)}.${cite(projection)}`);
+    for (const scenario of dash.contributionScenarios || []) {
+      lines.push(`Recorded ${recorded(scenario.extraMonthlyContribution)} per month scenario: projected monthly income ${recorded(scenario.projectedMonthlyIncome)}, remaining monthly gap ${recorded(scenario.monthlyGap)}.${cite(projection)}`);
+    }
+    if (!(dash.contributionScenarios || []).length) lines.push(`Contribution scenarios are not recorded.${cite(projection)}`);
+    if (dash.projectionMethod) lines.push(`${dash.projectionMethod}${cite(projection)}`);
+    if (dash.assumptions?.contributionBasis) lines.push(`${dash.assumptions.contributionBasis}.${cite(projection)}`);
+    const assumptions = dash.assumptions || {};
+    lines.push(`Recorded assumptions: current age ${recorded(assumptions.currentAge)}, retirement age ${recorded(assumptions.retirementAge)}, monthly contribution ${recorded(assumptions.monthlyContribution)}, growth ${recorded(assumptions.growthPct)}, inflation ${recorded(assumptions.inflationPct)}, charges ${recorded(assumptions.chargePct)}.${cite(projection)}`);
+    lines.push(`Check with the provider whether these recorded inputs still apply, and confirm gross/net units, contribution basis and matching terms before relying on the scenarios.${cite(projection)}`);
+    return { reason:"deterministic_contribution_scenarios",explicitClaimCitations:true,answer:lines.join("\n"),citationIds:[account.sourceId,projection.sourceId],sources:[account,projection] };
   }
 
   if (/\b(?:lost pension|find a lost pension|trace a (?:lost |missing )?pension|missing a pension from a (?:job|employer)|pension from an employer before)\b/i.test(text)) {
-    return {
-      reason: "deterministic_lost_pension_tracing",
-      answer: `The dashboard does not list a pension from a job before Harbour Logistics. That absence does not prove a pension never existed. Use the GOV.UK Pension Tracing Service or MoneyHelper find-pension contact details; do not treat Aviva or Standard Life as a missing pre-Harbour pot.${cite(account)}`,
-      citationIds: [account?.sourceId].filter(Boolean),
-      sources: [account].filter(Boolean)
-    };
+    return null; // Public tracing claims require public evidence, not an account citation.
   }
 
   if (/\bredundan/i.test(text) && /\bworkplace pensions?\b/i.test(text)) {
@@ -315,19 +326,14 @@ export function deterministicDashboardAnswer(question, { userId, sources = [] } 
     const sl = facts["accounts.standardLife.pot"]?.display;
     return {
       reason: "deterministic_redundancy_recap",
-      answer: `If you leave ${current}, check the current workplace pensions first: Aviva (${aviva}) and Nest (${nest}) with ${current}. Standard Life (${sl}) is already deferred from Harbour Logistics. OneLife is a personal pension, not a Northbridge workplace scheme. Practical checks are contributions stopping, charges, statements and scam warnings. I cannot invent a statutory redundancy-pension outcome.${cite(account)}`,
+      answer: `Recorded employer: ${current || "not recorded"}. Accounts: ${accountSummary}. Practical checks are contributions stopping, charges, statements and scam warnings. I cannot invent a statutory redundancy-pension outcome.${cite(account)}`,
       citationIds: [account?.sourceId].filter(Boolean),
       sources: [account].filter(Boolean)
     };
   }
 
   if (/\bdefined benefit\b/i.test(text) && /\b(?:dashboard|do i have)\b/i.test(text)) {
-    return {
-      reason: "deterministic_no_db_scheme",
-      answer: `No defined benefit scheme is recorded. The dashboard lists four defined contribution pots: Aviva, Nest and Standard Life workplace pensions, and OneLife personal pension.${cite(account)}`,
-      citationIds: [account?.sourceId].filter(Boolean),
-      sources: [account].filter(Boolean)
-    };
+    return null; // Scheme type must be established from actual records.
   }
 
   return null;

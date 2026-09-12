@@ -1,52 +1,73 @@
-# Secrets and local configuration
+# Local secrets
 .env
 .env.*
 !.env.example
 
-# Dependencies and local runtimes
+# Installed dependencies
 node_modules/
 .training-venv/
-.retrieval-venv/
-.venv/
+
+# Local persisted user/demo data
+data/
+*.sqlite
+*.sqlite-*
+*.db
+*.db-*
+
+# Local uploads and generated files
+uploads/
+models/*.gguf
+models/*.partial
+models/mlx/
 runtime/bin/
 runtime/downloads/
 runtime/runtime-lock.json
 runtime/qualification-allowed-contexts/
-
-# Base models, adapters and raw approved corpus
-models/*
-!models/model-manifest.json
 adapters/
-approved-materials/index/
-approved-materials/originals/
-approved-materials/structured-facts/
-
-# Evaluation/training inputs and local evidence
-training/
-evaluation/
-!evaluation/
-evaluation/*
-!evaluation/qualification-review-calibration-v2.json
 training-data/private/
-Log/
-Logging/
-data/
-uploads/
 tmp/
 temp/
 *.log
-*.sqlite*
-*.db*
+npm-debug.log*
+Logging/*/
+!Logging/.gitkeep
+Log/qualification-worker/controller-integrity-private.pem
+Log/qualification-worker/runs/*/runtime-qualification-context.key
 
-# Qualification secrets and holdouts
-**/controller-integrity-private.pem
-**/runtime-qualification-context.key
-**/runtime-response-signing-private.pem
-**/gold-answers.sealed.json
+# Protected evaluation holdouts — never publish or include in training
+training/evaluation-cycle-v1/04-unseen/
 **/unseen-question-set.json
 **/unseen/
+**/gold-answers.sealed.json
 
-# Caches
+# Generated external-review bundles (deliver separately, do not publish with app source)
+wave4-*-review-*/
+wave4-*-review-*.zip
+
+# Generated interpreter caches
 __pycache__/
 *.py[cod]
+
+# Generated visual reports
+visual-regression/latest/
+FINAL_*_REPORT.json
+VERIFICATION_REPORT.md
+
+# Re-downloadable raw source captures; publish the normalised approved index only
+approved-materials/originals/*/
+!approved-materials/originals/.gitkeep
+
+# macOS
 .DS_Store
+
+# Private/protected workspace material: never publish with public code
+/training/
+/training 2/
+/Log/
+/Logging/
+/01-question-set-review-revision-v2/
+/Pensiondashboard-model-failclosed-20260902/
+/test/formal/
+/answering/training-scenarios-draft.jsonl
+/approved-materials/
+/docs/live-repair/LEGAL-TRACE-SUMMARY.json

@@ -1,0 +1,34 @@
+import {readFileSync,writeFileSync,createWriteStream,existsSync} from 'node:fs';
+import {resolve} from 'node:path';
+import {spawn,spawnSync} from 'node:child_process';
+import {boundedFileDigest as hash} from './lib/boundedFileDigest.mjs';
+import {resourceLimitViolation} from './lib/adaptabilityResourceLimits.mjs';
+const root=resolve(process.argv[2]||'');if(!process.argv[2])throw Error('Recovery root required');
+const plan=JSON.parse(readFileSync(resolve(root,'training-plan.json')));
+for(const x of plan.bound_inputs)if(hash(x.path)!==x.sha256)throw Error('Recovery binding changed: '+x.path);
+if(existsSync(resolve(root,'recovery-output.log')))throw Error('Recovery already attempted; never automatically restart');
+const host=()=>({swap_used_mb:Number(spawnSync('/usr/sbin/sysctl',['vm.swapusage'],{encoding:'utf8',timeout:3000}).stdout?.match(/used = ([\d.]+)M/)?.[1]??NaN),system_free_percent:Number(spawnSync('/usr/bin/memory_pressure',['-Q'],{encoding:'utf8',timeout:3000}).stdout?.match(/free percentage:\s*(\d+)/)?.[1]??NaN)});
+const initial=host();const prestart=resourceLimitViolation(plan.resource_limits,initial,{prestart:true});if(prestart)throw Error('No recovery child: '+prestart);
+const log=createWriteStream(resolve(root,'recovery-output.log'),{flags:'wx',mode:0o600});
+const metrics=createWriteStream(resolve(root,'recovery-resource-metrics.jsonl'),{flags:'wx',mode:0o600});
+const child=spawn('/usr/bin/sandbox-exec',['-f',resolve(root,'training.sb'),resolve('.training-venv/bin/python'),'-I','-B',resolve('ml/recover_adaptability.py'),root,'train'],{env:{PATH:process.env.PATH,HOME:process.env.HOME,TMPDIR:process.env.TMPDIR,HF_HUB_OFFLINE:'1',TOKENIZERS_PARALLELISM:'false',PYTHONUNBUFFERED:'1'},detached:true,stdio:['ignore','pipe','pipe']});
+const started=new Date().toISOString();let aborted=null,output='';
+writeFileSync(resolve(root,'recovery-process-ownership.json'),JSON.stringify({pid:child.pid,supervisor_pid:process.pid,started}),{flag:'wx',mode:0o600});
+const stop=reason=>{if(aborted)return;aborted=reason;try{process.kill(-child.pid,'SIGTERM')}catch{};setTimeout(()=>{try{process.kill(-child.pid,'SIGKILL')}catch{}},5000).unref();};
+const interrupt=()=>stop('OWNER_OR_SUPERVISOR_INTERRUPT');process.once('SIGINT',interrupt);process.once('SIGTERM',interrupt);
+const timer=setInterval(()=>{
+  const sample=host();sample.swap_delta_mb=sample.swap_used_mb-initial.swap_used_mb;
+  const probe=spawnSync(plan.recovery.native_probe,[String(child.pid)],{encoding:'utf8',timeout:3000});
+  sample.physical_footprint_gib=NaN;
+  try{const value=JSON.parse(probe.stdout);if(probe.status===0&&value.pid===child.pid)sample.physical_footprint_gib=value.physical_footprint_gib;}catch{}
+  sample.footprint_probe={status:probe.status,signal:probe.signal,error:probe.error?.code||null,stderr:probe.stderr||''};
+  metrics.write(JSON.stringify({at:new Date().toISOString(),...sample})+'\n');
+  const violation=resourceLimitViolation(plan.resource_limits,sample);if(violation)stop(violation);
+},5000);
+const timeout=setTimeout(()=>stop('BOUNDED_RECOVERY_TIMEOUT'),7200000);
+for(const stream of [child.stdout,child.stderr])stream.on('data',bytes=>{const text=bytes.toString();output+=text;log.write(text);process.stdout.write(text);});
+const exit=await new Promise((accept,reject)=>{child.once('error',reject);child.once('close',(exit_code,signal)=>accept({exit_code,signal}));});
+clearInterval(timer);clearTimeout(timeout);process.off('SIGINT',interrupt);process.off('SIGTERM',interrupt);
+await Promise.all([new Promise(r=>log.end(r)),new Promise(r=>metrics.end(r))]);
+writeFileSync(resolve(root,'recovery-exit.json'),JSON.stringify({...exit,aborted,started,completed_at:new Date().toISOString(),formal_credit:false}),{flag:'wx',mode:0o600});
+if(exit.exit_code!==0||exit.signal||aborted||!output.includes('recovery_training_finished'))throw Error('Recovery failed; no automatic restart');

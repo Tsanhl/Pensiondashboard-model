@@ -43,9 +43,9 @@ const DEFAULT_PORTFOLIO = {
   },
   pensionPotValue: "£123,450",
   potBreakdown: { workplacePensions: "£115,800", personalPensions: "£7,650" },
-  largestAccount: { name: "Aviva Workplace Pension", provider: "Aviva", pot: "£68,450", charges: "0.45%", source: "Provider-linked", lastUpdated: "12 May 2026", employerName: "Northbridge Retail Ltd", schemeName: "Northbridge Retail Workplace Pension" },
+  largestAccount: { name: "Aviva Workplace Pension", provider: "Aviva", pot: "Not recorded", charges: "Not recorded", source: "Provider-linked", lastUpdated: "12 May 2026", employerName: "Northbridge Retail Ltd", schemeName: "Northbridge Retail Workplace Pension" },
   pensionAccounts: [
-    { name: "Aviva Workplace Pension", provider: "Aviva", type: "Workplace pension", policy: "AW12345678", pot: "£68,450", source: "Provider-linked", charges: "0.45%", lastUpdated: "12 May 2026", employerName: "Northbridge Retail Ltd", schemeName: "Northbridge Retail Workplace Pension", schemeType: "Group personal pension", schemeStatus: "Active", employee: "5%", employer: "7%", employeeYearly: "£2,250 /yr", employerYearly: "£3,150 /yr", style: "Balanced" },
+    { name: "Aviva Workplace Pension", provider: "Aviva", type: "Workplace pension", policy: "AW12345678", pot: "Not recorded", source: "Provider-linked", charges: "Not recorded", lastUpdated: "12 May 2026", employerName: "Northbridge Retail Ltd", schemeName: "Northbridge Retail Workplace Pension", schemeType: "Group personal pension", schemeStatus: "Active", employee: "5%", employer: "7%", employeeYearly: "£2,250 /yr", employerYearly: "£3,150 /yr", style: "Balanced" },
     { name: "Standard Life Pension", provider: "Standard Life", type: "Workplace pension", policy: "SL87654321", pot: "£32,150", source: "Provider-linked", charges: "0.55%", lastUpdated: "12 May 2026", employerName: "Harbour Logistics", schemeName: "Harbour Logistics Workplace Pension", schemeType: "Group personal pension", schemeStatus: "Deferred", employee: "0%", employer: "0%", employeeYearly: "—", employerYearly: "—", style: "Balanced" },
     { name: "Nest Workplace Pension", provider: "Nest", type: "Workplace pension", policy: "NE11223344", pot: "£15,200", source: "Provider-linked", charges: "0.30%", lastUpdated: "08 May 2026", employerName: "Northbridge Retail Ltd", schemeName: "Northbridge Nest Workplace Pension", schemeType: "Master trust", schemeStatus: "Active", employee: "4%", employer: "5%", employeeYearly: "£1,800 /yr", employerYearly: "£2,250 /yr", style: "Balanced" },
     { name: "OneLife Personal Plan", provider: "OneLife", type: "Personal pension", policy: "OL99887766", pot: "£7,650", source: "Manual entry", charges: "0.80%", lastUpdated: "18 Apr 2026", employerName: "", schemeName: "OneLife Personal Plan", schemeType: "Personal pension", schemeStatus: "Active", employee: "Personal", employer: "—", employeeYearly: "£960 /yr", employerYearly: "—", style: "Cautious" }
@@ -136,26 +136,36 @@ function applyUserDisplaySettings() {
   document.documentElement.classList.add("reduced-numbers");
 }
 
+function chatError(code, message, status = null) {
+  return Object.assign(new Error(message), { code, status });
+}
+
 async function fetchJson(url, options = {}) {
-  if (location.protocol === "file:") {
-    throw new Error("This page is open as a local file. Open http://localhost:3000 instead so the backend API, agent, assistant and saved settings can work.");
+  const { timeoutMs = 30000, signal, ...init } = options;
+  const controller = new AbortController();
+  const abort = () => controller.abort(signal?.reason);
+  if (signal?.aborted) abort();
+  else signal?.addEventListener("abort", abort, { once:true });
+  const timer = setTimeout(() => controller.abort(chatError("TIMEOUT", "The request reached its time limit.")), timeoutMs);
+  let response;
+  try {
+    response = await fetch(url, { ...init, signal:controller.signal, headers:{ "X-Demo-User-Id":app.currentUser, ...init.headers } });
+    const text = await response.text();
+    if (!response.ok) throw chatError(`HTTP_${response.status}`, `The service returned HTTP ${response.status}.`, response.status);
+    if (response.status === 204) return {};
+    if (!/application\/json/i.test(response.headers.get("content-type") || "")) throw chatError("INVALID_PAYLOAD", "The service returned an invalid response.", response.status);
+    let data;
+    try { data = JSON.parse(text); } catch { throw chatError("INVALID_PAYLOAD", "The service returned invalid JSON.", response.status); }
+    if (!data || typeof data !== "object" || Array.isArray(data)) throw chatError("INVALID_PAYLOAD", "The service returned an invalid response.", response.status);
+    return data;
+  } catch (error) {
+    if (controller.signal.aborted) throw controller.signal.reason?.code ? controller.signal.reason : chatError("CANCELLED", "Request cancelled.");
+    if (error.code) throw error;
+    throw chatError("NETWORK", "The service could not be reached.");
+  } finally {
+    clearTimeout(timer);
+    signal?.removeEventListener("abort", abort);
   }
-  const headers = {
-    "X-Demo-User-Id": app.currentUser || "alex-morgan",
-    ...(options.headers || {})
-  };
-  const response = await fetch(url, { ...options, headers });
-  const contentType = response.headers.get("content-type") || "";
-  const text = await response.text();
-  let data = {};
-  if (text && contentType.includes("application/json")) {
-    try { data = JSON.parse(text); } catch { data = {}; }
-  } else if (text) {
-    const plain = text.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
-    data = { error: plain ? `Backend returned non-JSON content: ${plain.slice(0, 160)}` : "Backend did not return JSON. Start the app with npm start and use the Node server URL." };
-  }
-  if (!response.ok) throw new Error(data.error || data.message || `Request failed (${response.status})`);
-  return data;
 }
 
 function $(selector, root = document) { return root.querySelector(selector); }
@@ -168,25 +178,10 @@ function inputNumber(value) { return Number(String(value ?? "").replace(/[^0-9.-
 function providerClass(provider = "") { return provider.toLowerCase().replace(/[^a-z0-9]+/g, "").slice(0, 12) || "provider"; }
 
 function projectionModel() {
-  const p = app.portfolio;
-  const currentAge = Number(p.assumptions?.currentAge || 45);
-  const retirementAge = Number(p.assumptions?.retirementAge || 67);
-  const currentPot = parseMoney(p.pensionPotValue);
-  const monthlyContribution = parseMoney(p.assumptions?.monthlyContribution || 300);
-  const growthPct = percentNumber(p.assumptions?.growthPct || 4.5);
-  const inflationPct = percentNumber(p.assumptions?.inflationPct || 2.5);
-  const chargePct = percentNumber(p.assumptions?.chargePct || 0.65);
-  const realAnnualGrowth = Math.max(-0.95, (growthPct - inflationPct - chargePct) / 100);
-  const monthlyGrowth = Math.pow(1 + realAnnualGrowth, 1 / 12) - 1;
-  const points = [];
-  let pot = currentPot;
-  points.push({ age: currentAge, pot });
-  for (let age = currentAge + 1; age <= retirementAge; age += 1) {
-    for (let m = 0; m < 12; m += 1) pot = (pot + monthlyContribution) * (1 + monthlyGrowth);
-    points.push({ age, pot });
-  }
-  const finalPot = points.at(-1)?.pot || currentPot;
-  return { currentAge, retirementAge, currentPot, monthlyContribution, points, finalPot };
+  // The backend calculation is the single source for chart and answer numbers.
+  const p = app.portfolio.projection;
+  if (p?.status === "ready") return p;
+  return {currentAge:null,retirementAge:null,currentPot:0,monthlyContribution:0,points:[],finalPot:0,status:"missing_inputs"};
 }
 
 function applyBindings() {
@@ -198,8 +193,8 @@ function applyBindings() {
     annualGap: app.portfolio.annualGap,
     coverage: app.portfolio.coverage,
     pensionPotValue: app.portfolio.pensionPotValue,
-    monthlyContribution: money(projection.monthlyContribution),
-    finalPot: money(projection.finalPot)
+    monthlyContribution: projection.status === "ready" ? money(projection.monthlyContribution) : "Not recorded",
+    finalPot: projection.status === "ready" ? money(projection.finalPot) : "Not recorded"
   };
   $all("[data-bind]").forEach((node) => {
     const key = node.getAttribute("data-bind");
@@ -351,7 +346,7 @@ function initialsForName(name = "") {
 }
 
 function activeAccountMeta(userId = app.currentUser) {
-  const fallback = DEMO_ACCOUNTS[userId] || DEMO_ACCOUNTS["alex-morgan"];
+  const fallback = DEMO_ACCOUNTS[userId] || { name:"Your profile", email:"" };
   const profileName = app.portfolio?.profile?.name;
   const profileEmail = app.portfolio?.profile?.email;
   return { ...fallback, name: profileName || fallback.name, email: profileEmail || fallback.email };
@@ -378,6 +373,7 @@ function renderAccountSwitcher() {
 
 async function switchDemoUser(userId) {
   if (!DEMO_ACCOUNTS[userId]) return;
+  resetConversation();
   app.currentUser = userId;
   localStorage.setItem(ACTIVE_USER_STORAGE_KEY, userId);
   app.chatMessages = [];
@@ -385,7 +381,7 @@ async function switchDemoUser(userId) {
   app.sessionId = null;
   closeChatSocket();
   $("#account-popover")?.classList.add("hidden");
-  await loadPortfolio();
+  try { await loadPortfolio(); } catch { document.querySelector("main").textContent = "Dashboard records could not be loaded. Reload when the service is available."; return; }
   renderAll();
   setView(app.view);
 }
@@ -525,7 +521,7 @@ function renderTarget() {
   $("#plan-summary-list").innerHTML = splitRows([
     ["", "Monthly contribution", money(projection.monthlyContribution), "blue"],
     ["", "Retirement age", `${projection.retirementAge} years`, "blue"],
-    ["", "State Pension", p.statePension?.monthlyIncome || "£550", "blue"],
+    ["", "State Pension", p.statePension?.monthlyIncome ?? "Not recorded", "blue"],
     ["", "Target coverage", p.coverage || "68%", "blue"]
   ]);
   const timeline = $("#update-timeline");
@@ -570,13 +566,14 @@ function renderChart(tab = "pot") {
   if (!chart || !title) return;
   const projection = projectionModel();
   const p = app.portfolio;
+  if (!projection.points.length) { title.textContent = "Projection needs your inputs"; chart.innerHTML = '<p class="subtle">Add and confirm pension values, ages and projection assumptions to see an estimate.</p>'; return; }
   const points = projection.points.map((point) => {
     let value = point.pot;
-    if (tab === "income") value = (point.pot * 0.051) / 12 + parseMoney(p.statePension?.monthlyIncome) + 50;
-    if (tab === "gap") value = Math.max(0, parseMoney(p.monthlyTarget) - ((point.pot * 0.051) / 12 + parseMoney(p.statePension?.monthlyIncome) + 50));
+    if (tab === "income") value = point.monthlyIncome;
+    if (tab === "gap") value = point.monthlyGap;
     return { age: point.age, value };
   });
-  title.textContent = tab === "income" ? "Estimated retirement income over time" : tab === "gap" ? "Monthly gap over time" : "Projected pension pot over time";
+  title.textContent = tab === "income" ? "Estimated retirement income over time" : tab === "gap" ? "Monthly gap over time" : "Projected pension pot in today’s money";
   const width = Math.max(1160, points.length * 64);
   const height = 282;
   const pad = { l: 62, r: 48, t: 34, b: 48 };
@@ -661,25 +658,39 @@ function renderDocuments() {
 
 function renderFacts(extracted = {}) {
   const rows = [
-    ["provider", "Provider", extracted.provider || "Aviva"],
-    ["policy", "Policy number", extracted.policy || extracted.policyNumber || "AW12345678"],
-    ["potValue", "Current pot value", extracted.potValue != null ? money(extracted.potValue) : "£68,450"],
-    ["contributionEmployer", "Employer contribution", extracted.contributionEmployer != null ? money(extracted.contributionEmployer) : (extracted.employerContribution || "7%")],
-    ["contributionEmployee", "Employee contribution", extracted.contributionEmployee != null ? money(extracted.contributionEmployee) : (extracted.employeeContribution || "5%")],
-    ["chargePct", "Annual charge", extracted.chargePct != null ? `${extracted.chargePct}%` : "0.45%"],
-    ["statementDate", "Statement date", extracted.statementDate || "12 May 2026"]
+    ["provider", "Provider", extracted.provider || "Not recorded"],
+    ["policy", "Policy number", extracted.policy || extracted.policyNumber || "Not recorded"],
+    ["potValue", "Current pot value", extracted.potValue != null ? money(extracted.potValue) : "Not recorded"],
+    ["contributionEmployer", "Employer contribution", extracted.contributionEmployer != null ? money(extracted.contributionEmployer) : (extracted.employerContribution || "Not recorded")],
+    ["contributionEmployee", "Employee contribution", extracted.contributionEmployee != null ? money(extracted.contributionEmployee) : (extracted.employeeContribution || "Not recorded")],
+    ["chargePct", "Annual charge", extracted.chargePct != null ? `${extracted.chargePct}%` : "Not recorded"],
+    ["statementDate", "Statement date", extracted.statementDate || "Not recorded"]
   ];
   $("#facts-table").innerHTML = rows.map(([, label, value]) => `<div class="fact-row"><span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong></div>`).join("");
 }
 
 function renderAssistant() {
+  const profileContext = $("#assistant-profile-context");
+  if (profileContext) profileContext.textContent = app.currentUser === "alex-morgan" ? "Sample profile: Alex Morgan. These are demonstration records." : "This profile uses only its own recorded data. Missing information will be identified.";
+  const demoScript = $(".demo-script-card");
+  if (demoScript) demoScript.hidden = app.currentUser !== "alex-morgan";
+  const form = $("#assistant-form");
+  if (form) {
+    const send = form.querySelector('button[type="submit"]');
+    if (send) send.disabled = Boolean(app.activeChat);
+    let controls = $("#chat-request-controls");
+    if (!controls) { controls = document.createElement("div"); controls.id = "chat-request-controls"; form.after(controls); }
+    controls.innerHTML = app.activeChat ? '<button type="button" id="cancel-chat">Cancel</button>' : app.lastChatFailure ? '<button type="button" id="retry-chat">Retry previous question</button>' : '';
+    $("#cancel-chat")?.addEventListener("click", cancelChat);
+    $("#retry-chat")?.addEventListener("click", retryPreviousQuestion);
+  }
   renderChatLog();
   renderChatSources();
   renderLocalModelStatus();
 }
 
 function initialAssistantText() {
-  return "Ask about your pension, uploaded materials, current allocation, charges, contributions or projection. Answers must be grounded in verified evidence.";
+  return "Ask about your pension, uploaded materials, current allocation, charges, contributions or projection. Answers must be grounded in supplied evidence and distinguish confirmed from unconfirmed facts.";
 }
 
 function renderChatLog() {
@@ -688,7 +699,7 @@ function renderChatLog() {
   const messages = [{ role: "assistant", text: initialAssistantText() }, ...app.chatMessages];
   log.innerHTML = messages.map((message) => {
     const content = message.role === "assistant" ? formatAssistantAnswer(message.text) : escapeHtml(message.text);
-    return `<div class="chat-bubble ${message.role === "user" ? "user" : "assistant"}">${message.role === "assistant" ? `<span class="bubble-icon">✦</span>` : ""}<div class="bubble-content">${content}</div></div>`;
+    return `<div data-request-id="${escapeHtml(message.requestId || "")}" data-state="${message.pending ? "pending" : message.state || "completed"}" class="chat-bubble ${message.role === "user" ? "user" : "assistant"}">${message.role === "assistant" ? `<span class="bubble-icon">✦</span>` : ""}<div class="bubble-content">${content}</div></div>`;
   }).join("");
   log.scrollTop = log.scrollHeight;
 }
@@ -702,7 +713,7 @@ function formatChatSourceSnippet(source = {}) {
   const raw = String(source.snippet || "").trim();
   if (!raw) return "";
   if (isStructuredSourceSnippet(raw) || /authenticated info db/i.test(String(source.section || ""))) {
-    return "Verified dashboard record used for this answer.";
+    return "Saved dashboard record used for this answer; confirmation status depends on the individual record.";
   }
   return raw;
 }
@@ -719,10 +730,10 @@ function renderChatSources() {
     const oscola = String(source.oscola || "").trim();
     const section = String(source.section || "").trim();
     const citation = oscola && oscola !== title ? oscola : section;
-    const date = source.effective_date ? `Effective ${String(source.effective_date).slice(0, 10)}` : "";
+    const date = /^\d{4}-\d{2}-\d{2}/.test(String(source.effective_date || "")) ? `Effective ${String(source.effective_date).replace(/T.*$/, "")}` : "";
     const meta = [citation, date].filter(Boolean).join(" · ");
     const snippet = formatChatSourceSnippet(source);
-    return `<article class="assistant-source"><strong>${escapeHtml(title)}</strong>${meta ? `<span>${escapeHtml(meta)}</span>` : ""}${snippet ? `<p>${escapeHtml(snippet)}</p>` : ""}</article>`;
+    return `<article class="assistant-source"><strong>${escapeHtml(title)}</strong>${meta ? `<span>${escapeHtml(meta)}</span>` : ""}${snippet ? `<p>${escapeHtml(snippet)}</p>` : ""}${/^https:\/\//i.test(source.canonical_url || "") ? `<a href="${escapeHtml(source.canonical_url)}" target="_blank" rel="noopener noreferrer">Open official source ↗</a>` : ""}<details><summary>View recorded evidence</summary><p>${escapeHtml(source.snippet || "No excerpt recorded.")}</p><small>${escapeHtml(source.source_id || "")}</small></details></article>`;
   }).join("")}`;
 }
 
@@ -734,7 +745,7 @@ function renderLocalModelStatus() {
     panel.textContent = "Checking local model…";
     return;
   }
-  panel.innerHTML = `<span class="status-dot ${status.available ? "ready" : "offline"}"></span><strong>${escapeHtml(status.model || "Qwen3-8B")}</strong><small>${status.available ? "Ready on the private local endpoint" : "Offline — run npm run model:serve"}</small>`;
+  panel.innerHTML = `<span class="status-dot ${status.available ? "ready" : "offline"}"></span><strong>${escapeHtml(status.model || "Qwen3-8B")}</strong><small>${status.available ? "Last status check: endpoint available; generation is checked per request" : "Model unavailable — use the pinned development runbook"}</small>`;
 }
 
 function formatAssistantAnswer(text = "") {
@@ -847,16 +858,35 @@ function toggleRows(rows) {
 }
 
 
+// Matches the existing 320-second live-chat budget; generation keeps its own policy.
+const CHAT_COMPLETION_MS = 320000;
+let chatEpoch = 0;
+
+function cancelChat() {
+  const active = app.activeChat;
+  if (!active) return;
+  active.controller.abort(chatError("CANCELLED", "Request cancelled. No automatic retry was sent."));
+  if (active.socket?.readyState === WebSocket.OPEN) {
+    try { active.socket.send(JSON.stringify({ event:"chat.cancel",request_id:active.requestId })); } catch {}
+  }
+}
+
 function closeChatSocket() {
-  if (app.chatSocket) app.chatSocket.close();
+  cancelChat();
+  const socket = app.chatSocket;
   app.chatSocket = null;
+  if (socket) socket.close();
 }
 
 function resetConversation() {
+  chatEpoch++;
+  closeChatSocket();
+  app.activeChat = null;
+  sessionStorage.removeItem(`pension-chat-session:${app.currentUser}`);
   app.sessionId = null;
+  app.lastChatFailure = null;
   app.chatMessages = [];
   app.chatSources = [];
-  closeChatSocket();
   renderAssistant();
 }
 
@@ -864,113 +894,176 @@ function socketUrl() {
   return `${location.protocol === "https:" ? "wss:" : "ws:"}//${location.host}/ws/chat`;
 }
 
-function connectChatSocket(attempt = 0) {
+function validateChatResponse(data) {
+  if (!data || typeof data.response !== "string" || !data.response.trim() || typeof data.session_id !== "string" || typeof data.message_id !== "string" || !Array.isArray(data.sources) || typeof data.confidence !== "string") {
+    throw chatError("INVALID_PAYLOAD", "The assistant returned an incomplete response.");
+  }
+  return data;
+}
+
+function connectChatSocket(signal) {
   if (app.chatSocket?.readyState === WebSocket.OPEN) return Promise.resolve(app.chatSocket);
   return new Promise((resolve, reject) => {
     const socket = new WebSocket(socketUrl());
-    const timer = setTimeout(() => reject(new Error("WebSocket connection timed out.")), 3000);
+    let finished = false;
+    const cleanup = () => { clearTimeout(timer); signal?.removeEventListener("abort", cancelled); };
+    const fail = (error) => { if (finished) return; finished = true; cleanup(); socket.close(); reject(error); };
+    const cancelled = () => fail(chatError("CANCELLED", "Request cancelled."));
+    const timer = setTimeout(() => fail(chatError("CONNECTION_TIMEOUT", "The chat connection timed out.")), 3000);
+    signal?.addEventListener("abort", cancelled, { once:true });
+    if (signal?.aborted) cancelled();
     socket.addEventListener("open", () => {
-      clearTimeout(timer);
-      app.chatSocket = socket;
-      resolve(socket);
-    }, { once: true });
-    socket.addEventListener("error", () => {
-      clearTimeout(timer);
-      socket.close();
-      reject(new Error("WebSocket connection failed."));
-    }, { once: true });
-    socket.addEventListener("close", () => {
+      if (finished) return socket.close();
+      finished = true; cleanup(); app.chatSocket = socket; resolve(socket);
+    }, { once:true });
+    const disconnected = () => {
+      fail(chatError("NETWORK", "The chat connection closed."));
       if (app.chatSocket === socket) app.chatSocket = null;
-    });
+      for (const pending of app.pendingChat.values()) if (pending.socket === socket) pending.reject(chatError("DISCONNECTED", "The chat connection was lost. Check history before deliberately retrying."));
+    };
+    socket.addEventListener("error", disconnected);
+    socket.addEventListener("close", disconnected);
     socket.addEventListener("message", (event) => {
       let data;
-      try { data = JSON.parse(event.data); } catch { return; }
-      const pending = app.pendingChat?.get(data.request_id);
-      if (data.event === "chat.accepted" && data.session_id) app.sessionId = data.session_id;
-      if (data.event === "chat.status" && pending) {
-        const last = app.chatMessages.at(-1);
-        if (last?.pending) last.text = data.status === "retrieving" ? "Searching verified sources…" : data.status === "validating" ? "Checking citations and figures…" : "The local model is working…";
-        renderChatLog();
+      try {
+        data = JSON.parse(event.data);
+        if (!data || typeof data.event !== "string" || typeof data.request_id !== "string") throw new Error();
+      } catch {
+        for (const pending of app.pendingChat.values()) if (pending.socket === socket) pending.reject(chatError("INVALID_PAYLOAD", "The chat service sent an invalid event."));
+        socket.close(); return;
       }
-      if (data.event === "chat.completed" && pending) {
-        app.pendingChat.delete(data.request_id);
-        pending.resolve(data);
+      const pending = app.pendingChat.get(data.request_id);
+      if (!pending || pending.socket !== socket || pending.epoch !== chatEpoch || pending.user !== app.currentUser) return;
+      if (data.session_id && pending.sessionId && data.session_id !== pending.sessionId) return pending.reject(chatError("INVALID_PAYLOAD", "The response session did not match."));
+      if (data.event === "chat.accepted") {
+        if (typeof data.session_id !== "string") return pending.reject(chatError("INVALID_PAYLOAD", "Missing chat session."));
+        pending.sessionId = data.session_id;
+        app.sessionId = data.session_id;
+        sessionStorage.setItem(`pension-chat-session:${app.currentUser}`, data.session_id);
       }
-      if (data.event === "chat.error" && pending) {
-        app.pendingChat.delete(data.request_id);
-        pending.reject(new Error(data.error || "Chat failed."));
+      if (data.event === "chat.status") {
+        const labels = { processing_query:"Checking your question…", retrieving:"Searching verified sources…", generating:"Generating an answer…", validating:"Checking citations and figures…" };
+        if (data.status === "cancelled") return pending.reject(chatError("CANCELLED", "Request cancelled."));
+        if (!labels[data.status]) return pending.reject(chatError("INVALID_PAYLOAD", "The service sent an unknown request stage."));
+        pending.message.text = labels[data.status]; renderChatLog();
       }
+      if (data.event === "chat.completed") {
+        try { pending.resolve(validateChatResponse(data)); } catch (error) { pending.reject(error); }
+      }
+      if (data.event === "chat.error") pending.reject(chatError(data.code || "SERVICE_ERROR", "The assistant could not complete this request.", data.status));
     });
-  }).catch(async (error) => {
-    if (attempt >= 3) throw error;
-    await new Promise((resolve) => setTimeout(resolve, 500 * (2 ** attempt)));
-    return connectChatSocket(attempt + 1);
   });
 }
 
-async function sendChat(message, requestId) {
-  if (app.currentUser === "alex-morgan") {
-    try {
-      const socket = await connectChatSocket();
-      return await new Promise((resolve, reject) => {
-        app.pendingChat.set(requestId, { resolve, reject });
-        socket.send(JSON.stringify({
-          event: "chat.start",
-          session_id: app.sessionId || undefined,
-          client_request_id: requestId,
-          message
-        }));
-      });
-    } catch {
-      closeChatSocket();
-    }
+async function sendChat(message, requestId, active) {
+  let socket;
+  if (active.user === "alex-morgan") {
+    try { socket = await connectChatSocket(active.controller.signal); }
+    catch (error) { if (active.controller.signal.aborted) throw error; /* Only connection failure BEFORE send permits HTTP. */ }
   }
-  const pending = app.chatMessages.at(-1);
-  if (pending?.pending) {
-    pending.text = "The local model is working…";
-    renderChatLog();
+  if (active.controller.signal.aborted) throw chatError("CANCELLED", "Request cancelled.");
+  if (socket) {
+    active.socket = socket;
+    return new Promise((resolve, reject) => {
+      const finish = (fn, value) => { clearTimeout(timer); active.controller.signal.removeEventListener("abort", abort); app.pendingChat.delete(requestId); fn(value); };
+      const abort = () => finish(reject, active.controller.signal.reason || chatError("CANCELLED", "Request cancelled."));
+      const timer = setTimeout(() => { finish(reject, chatError("TIMEOUT", "No completed response arrived within the request budget. Check history before retrying.")); cancelChat(); }, CHAT_COMPLETION_MS);
+      app.pendingChat.set(requestId, { socket, epoch:active.epoch,user:active.user,sessionId:app.sessionId,message:active.message,resolve:value => finish(resolve,value),reject:error => finish(reject,error) });
+      active.controller.signal.addEventListener("abort", abort, { once:true });
+      try { socket.send(JSON.stringify({ event:"chat.start",session_id:app.sessionId || undefined,client_request_id:requestId,message })); }
+      catch { finish(reject, chatError("NETWORK", "The chat request could not be sent.")); }
+    });
   }
-  return fetchJson("/chat", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ session_id: app.sessionId || undefined, client_request_id: requestId, message })
-  });
-}
-
-async function loadConversation(sessionId) {
-  if (!sessionId) return;
-  const data = await fetchJson(`/api/conversations/${encodeURIComponent(sessionId)}`);
-  app.sessionId = data.conversation.id;
-  app.chatMessages = (data.conversation.messages || []).filter((message) => ["user", "assistant"].includes(message.role)).map((message) => ({
-    role: message.role,
-    text: message.content,
-    sources: message.sources || []
+  return validateChatResponse(await fetchJson("/chat", {
+    method:"POST",timeoutMs:CHAT_COMPLETION_MS,signal:active.controller.signal,
+    headers:{ "Content-Type":"application/json" },
+    body:JSON.stringify({ session_id:app.sessionId || undefined,client_request_id:requestId,message })
   }));
 }
 
-async function handleAssistantSubmit(event) {
+async function loadConversation(sessionId, expectedMessageId = null) {
+  if (!sessionId) return;
+  const epoch = chatEpoch, user = app.currentUser, revision = app.chatRevision;
+  const data = await fetchJson(`/api/conversations/${encodeURIComponent(sessionId)}`);
+  if (epoch !== chatEpoch || user !== app.currentUser || revision !== app.chatRevision || app.activeChat) return;
+  if (data.conversation?.id !== sessionId || !Array.isArray(data.conversation.messages)) throw chatError("INVALID_PAYLOAD", "Conversation history is unavailable.");
+  if (expectedMessageId && !data.conversation.messages.some(message => message.id === expectedMessageId)) throw chatError("HISTORY_SYNC", "The completed answer is not yet present in history.");
+  app.sessionId = sessionId;
+  app.chatSources = data.conversation.messages.findLast(message => message.role === "assistant")?.sources || [];
+  app.chatMessages = data.conversation.messages.filter(message => ["user", "assistant"].includes(message.role)).map(message => ({ id:message.id,requestId:message.metadata?.requestId || message.clientRequestId || "",role:message.role,text:message.content,sources:message.sources || [],confidence:message.metadata?.confidence,answerOutcome:message.metadata?.answerOutcome,state:message.metadata?.terminalState || "completed" }));
+}
+
+async function retryPreviousQuestion() {
+  const failure = app.lastChatFailure;
+  if (!failure || app.activeChat) return;
+  const epoch = chatEpoch, user = app.currentUser;
+  if (app.sessionId) {
+    try { await loadConversation(app.sessionId); }
+    catch {
+      if (epoch === chatEpoch && user === app.currentUser) { app.chatMessages.push({role:"assistant",text:"History could not be checked. No retry was sent; your original question is preserved."}); renderAssistant(); }
+      return;
+    } // An uncertain history state is not permission to replay.
+    if (epoch !== chatEpoch || user !== app.currentUser) return;
+    const completed = app.chatMessages.find(message => message.role === "assistant" && message.requestId === failure.requestId);
+    if (completed && completed.confidence !== "cancelled") { app.chatSources = completed.sources; app.lastChatFailure = null; renderAssistant(); return; }
+    if (completed?.confidence === "cancelled") { $("#assistant-input").value = failure.question; return handleAssistantSubmit(new Event("submit")); }
+  }
+  $("#assistant-input").value = failure.question;
+  return handleAssistantSubmit(new Event("submit"), { retryRequestId:failure.requestId });
+}
+
+async function handleAssistantSubmit(event, { retryRequestId = null } = {}) {
   event.preventDefault();
   const input = $("#assistant-input");
   const message = input.value.trim();
-  if (!message) return;
+  if (!message || app.activeChat) return;
   input.value = "";
-  const requestId = crypto.randomUUID();
-  app.chatMessages.push({ role: "user", text: message }, { role: "assistant", text: "Working on your question…", pending: true });
+  if (/^(?:\?\?|why fail)[?.! ]*$/i.test(message)) {
+    const previous = app.chatMessages.findLast(item=>item.role === "assistant" && item.requestId);
+    const explanation = app.lastChatFailure ? `The previous request ended with ${app.lastChatFailure.code}. Your question is preserved. Use Retry to try it deliberately.`
+      : previous?.answerOutcome?.status === "answer_not_verified" ? `The draft for request ${previous.requestId} did not pass source verification, although records or sources were found. You do not need to re-enter saved dashboard information. Retry the original question deliberately or ask for human review.`
+      : previous?.confidence === "insufficient_verified_evidence" ? `The answer to request ${previous.requestId} could not be supported safely by the available evidence. No pension change was made.`
+      : previous?.confidence === "model_unavailable" ? `The local model could not complete request ${previous.requestId}. No pension change was made.`
+      : /^why fail/i.test(message) ? "I do not have a failed request recorded in this conversation. Which answer or error do you mean?" : "Which part of the previous answer would you like me to clarify?";
+    app.chatRevision = (app.chatRevision || 0) + 1;
+    app.chatMessages.push({role:"user",text:message},{role:"assistant",text:explanation});
+    renderAssistant(); return;
+  }
+  const requestId = retryRequestId || crypto.randomUUID();
+  const pending = { role:"assistant",text:"Submitting your question…",pending:true,requestId };
+  const active = {requestId,epoch:chatEpoch,user:app.currentUser,controller:new AbortController(),message:pending};
+  app.chatRevision = (app.chatRevision || 0) + 1;
+  app.activeChat = active;
+  if (retryRequestId) app.chatMessages = app.chatMessages.filter(item=>!(item.role === "assistant" && item.requestId === retryRequestId));
+  if (!app.chatMessages.some(item=>item.role === "user" && item.requestId === requestId)) app.chatMessages.push({ role:"user",text:message,requestId });
+  app.chatMessages.push(pending);
   app.chatSources = [];
   renderAssistant();
   try {
-    const result = await sendChat(message, requestId);
+    const result = await sendChat(message, requestId, active);
+    if (active.epoch !== chatEpoch || active.user !== app.currentUser) return;
     app.sessionId = result.session_id;
-    app.chatSources = result.sources || [];
-    await loadConversation(result.session_id);
+    sessionStorage.setItem(`pension-chat-session:${app.currentUser}`, result.session_id);
+    app.chatSources = result.sources;
+    active.completedId = result.message_id;
+    Object.assign(pending, {pending:false,text:result.response,sources:result.sources,id:result.message_id,state:"completed",confidence:result.confidence,answerOutcome:result.answer_outcome});
+    app.lastChatFailure = null;
+    // Display the completed validated answer before any independent history request.
+    renderAssistant();
   } catch (error) {
-    const pending = app.chatMessages.findLast((item) => item.pending);
-    if (pending) {
-      pending.pending = false;
-      pending.text = `The assistant request failed safely: ${error.message}`;
+    if (active.epoch !== chatEpoch || active.user !== app.currentUser) return;
+    Object.assign(pending, {pending:false,state:error.code === "CANCELLED" ? "cancelled" : "failed",text:`${error.message} (${error.code || "SERVICE_ERROR"}; request ${requestId})`});
+    app.lastChatFailure = {question:message,code:error.code || "SERVICE_ERROR",requestId};
+  } finally {
+    if (app.activeChat === active) {
+      app.activeChat = null; renderAssistant();
+      if (active.completedId) {
+        loadConversation(app.sessionId,active.completedId).then(() => { if (active.epoch === chatEpoch && active.user === app.currentUser) renderAssistant(); }).catch(() => {
+          if (active.epoch === chatEpoch && active.user === app.currentUser) { pending.text += "\nHistory sync is unavailable; the completed answer remains displayed."; renderAssistant(); }
+        });
+      }
     }
   }
-  renderAssistant();
 }
 
 async function refreshLocalModelStatus() {
@@ -1410,13 +1503,11 @@ async function loadPortfolio() {
       fetchJson("/api/risk-profile"),
       fetchJson("/api/timeline?limit=8")
     ]);
-    const defaults = structuredClone(DEFAULT_PORTFOLIO);
     app.portfolio = {
-      ...defaults,
       ...data,
-      investmentProfile: { ...defaults.investmentProfile, ...(data.investmentProfile || {}) },
-      documents: data.documents || DEFAULT_PORTFOLIO.documents,
-      pensionAccounts: mergeAccounts(data.pensionAccounts || DEFAULT_PORTFOLIO.pensionAccounts)
+      investmentProfile: data.investmentProfile || {},
+      documents: data.documents || [],
+      pensionAccounts: mergeAccounts(data.pensionAccounts || [])
     };
     app.agent = data.agent || null;
     app.actions = Array.isArray(data.actions) ? data.actions : [];
@@ -1424,28 +1515,26 @@ async function loadPortfolio() {
     app.timeline = Array.isArray(timelineData.timeline) ? timelineData.timeline : [];
     app.riskProfile = riskData.riskProfile || null;
   } catch {
-    app.portfolio = structuredClone(DEFAULT_PORTFOLIO);
+    document.body.dataset.portfolioUnavailable = "true";
     app.agent = null;
     app.actions = [];
     app.notifications = [];
     app.timeline = [];
     app.riskProfile = null;
+    throw chatError("PORTFOLIO_UNAVAILABLE", "Dashboard records could not be loaded. Reload when the service is available.");
   }
 }
 
 function mergeAccounts(accounts) {
-  const defaults = DEFAULT_PORTFOLIO.pensionAccounts;
-  return accounts.map((account, index) => {
-    const provider = String(account.provider || "").toLowerCase();
-    const providerDefault = defaults.find((item) => String(item.provider || "").toLowerCase() === provider) || {};
-    return { ...providerDefault, ...account, policy: account.policy || providerDefault.policy || "" };
-  });
+  return accounts.map(account => ({ ...account,policy:account.policy || "" }));
 }
 
 async function init() {
   wireEvents();
   await loadPortfolio();
   await refreshLocalModelStatus();
+  const savedSession = sessionStorage.getItem(`pension-chat-session:${app.currentUser}`);
+  if (savedSession) { try { await loadConversation(savedSession); } catch { /* Never replay a question on reload. */ } }
   renderAll();
   const hash = location.hash.replace("#", "");
   setView(hash || app.view || "overview");
@@ -1453,5 +1542,6 @@ async function init() {
 
 init().catch((error) => {
   document.body.dataset.appError = error?.stack || error?.message || String(error);
+  document.querySelector("main").textContent = "Dashboard records could not be loaded. Reload when the service is available.";
   console.error("Dashboard initialisation failed", error);
 });

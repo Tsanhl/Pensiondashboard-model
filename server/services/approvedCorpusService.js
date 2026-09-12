@@ -90,13 +90,15 @@ function validateManifestShape(manifest, { minimumDocuments }) {
   const ids = new Set();
   for (const [index, document] of manifest.documents.entries()) {
     for (const field of REQUIRED_DOCUMENT_FIELDS) {
+      if (field === 'effective_date' && document.source_type === 'official_guidance' && document.date_basis === 'guidance_no_legal_effective_date' && document.effective_date === null) continue;
       if (document?.[field] === undefined || document?.[field] === null || String(document[field]).trim() === "") {
         throw configurationError(`Approved-corpus document ${index + 1} is missing ${field}.`);
       }
     }
     if (document.approval_status !== "approved") throw configurationError(`Approved-corpus document ${document.id} is not approved.`);
     if (!Number.isInteger(Number(document.version)) || Number(document.version) < 1) throw configurationError(`Approved-corpus document ${document.id} has an invalid version.`);
-    if (!Number.isFinite(Date.parse(document.effective_date))) throw configurationError(`Approved-corpus document ${document.id} has an invalid effective_date.`);
+    if (!(document.source_type === 'official_guidance' && document.date_basis === 'guidance_no_legal_effective_date' && document.effective_date === null)
+      && !Number.isFinite(Date.parse(document.effective_date))) throw configurationError(`Approved-corpus document ${document.id} has an invalid effective_date.`);
     if (document.expiry_date && !Number.isFinite(Date.parse(document.expiry_date))) throw configurationError(`Approved-corpus document ${document.id} has an invalid expiry_date.`);
     assertSha256(document.text_sha256, `Approved-corpus document ${document.id} text_sha256`);
     normalisedTextBytes(Buffer.alloc(0),document.text_normalization || null);
@@ -290,6 +292,13 @@ export async function bootstrapApprovedCorpus({
         approvedAt: document.approved_at || loaded.manifest.approved_at,
         sourceType: document.source_type,
         sourceRole: document.source_role || null,
+        retrievedAt:document.retrieved_at || null,
+        dateBasis:document.date_basis || document.effective_date_basis || null,
+        scopeNote:document.scope_note || null,
+        snapshotValidFrom:document.snapshot_valid_from || null,
+        sourceModifiedAt:document.source_modified_at || null,
+        unappliedEffects:document.unapplied_effects ?? null,
+        sourceReview:document.source_review || null,
         authorityRank: Number(document.authority_rank || 0.8),
         oscolaCitation: document.oscola_citation || document.title,
         bootstrapManifestSha256: loaded.manifestSha256

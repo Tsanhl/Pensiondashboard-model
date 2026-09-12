@@ -1,3 +1,4 @@
+import { loadProtectiveNotice } from "../../../server/services/protectiveNoticeService.js";
 import { createHash } from "node:crypto";
 import { spawnSync } from "node:child_process";
 import { resolve } from "node:path";
@@ -32,13 +33,22 @@ function catalogManifest(catalog) {
     .sort((left,right) => left.source_id.localeCompare(right.source_id));
 }
 
+export function protectiveNoticeEvidenceRecords() {
+  const notice = loadProtectiveNotice();
+  if (!notice.reviewed) throw new Error("Protective-notice review package is unavailable or expired.");
+  return notice.sources.map(source => record(source.source_id,source.snippet,{
+    scope:"CURATED_PUBLIC",title:source.title,provenance:"PINNED_RUNTIME_EVIDENCE",
+    package_sha256:notice.validation.package_sha256,source_review_scope:"DEVELOPMENT_SOURCE_ADMISSION_ONLY",
+  }));
+}
+
 export async function buildTrustedEvidenceCatalog({ manifestPath,manifestSha256,projectRoot,databasePath,expectedCanonicalFactsSha256,timeoutMs = 30_000,userId = "alex-morgan" }) {
   const loaded = await loadApprovedCorpusManifest({ environment:{
     APPROVED_CORPUS_MANIFEST_PATH:manifestPath,
     APPROVED_CORPUS_MANIFEST_SHA256:manifestSha256,
     APPROVED_CORPUS_MIN_DOCUMENTS:"1",
   } });
-  const records = [];
+  const records = protectiveNoticeEvidenceRecords();
   for (const document of loaded.documents) {
     for (const [index, chunk] of structuralChunk(document.text,{ documentType:document.document_type || document.source_type }).entries()) {
       records.push(record(`${document.id}_chunk_${index + 1}`,chunk.content,{

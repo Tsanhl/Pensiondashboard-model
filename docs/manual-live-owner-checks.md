@@ -2,9 +2,9 @@
 
 ## When to use this checklist
 
-The current candidate is `BLOCKED_NOT_QUALIFIED` because the formal runtime did not start. It is not ready for a qualified live check.
+The current candidate is `DEVELOPMENT_NOT_QUALIFIED`: Q1 and its development variants have not met substantive answer acceptance. The historical run failed before a gate completed; the fresh run remains NOT_RUN. See [current repair report](LIVE-ASSISTANT-REPAIR-REPORT.md).
 
-You may use the dashboard for exploratory development checks after the runtime-startup defect is repaired, but label those checks `DEVELOPMENT_ONLY`. They do not replace the controller gates and must not use sealed unseen questions.
+You may use the dashboard for exploratory development checks using the working owned local runtime, but label those checks `DEVELOPMENT_ONLY`. They do not replace the controller gates and must not use sealed unseen questions.
 
 The release-order manual smoke begins only after:
 
@@ -74,3 +74,11 @@ A failure after freezing invalidates the downstream frozen smoke result. Preserv
 Do not patch and continue against the same frozen result. A source, prompt, product, model or configuration change creates a new candidate and requires the affected and downstream gates again.
 
 Manual checks add real-user coverage. They do not create a universal accuracy guarantee and do not replace the formal qualification, sealed unseen or release approval records.
+
+## 8 September development repair addendum
+
+See `LIVE-ASSISTANT-REPAIR-REPORT.md` and `LIVE-ASSISTANT-RUNBOOK.md`. The source has development repairs but is still not qualified; the release-order prerequisites above remain mandatory. Use only DEVELOPMENT_ONLY questions and isolated data until those gates pass.
+
+For each of the six owner messages, verify the visible terminal answer/error, its request identity, profile and sources. In particular: Q1 must give supported general scheme-change information (currently failing); Q2 must show immediate protection with reviewed official provenance (current output is only a general notice); Q3 must retain baseline plus all three stored scenarios and disclose input assumptions; Q4 must distinguish extracted values from confirmation and identify missing locators. Check `??` and `why fail` after a real error, then deliberately Retry.
+
+Repeat Q2/Q3, change pages, reload and switch to the empty profile. Confirm no sample values migrate to another user, no duplicate generation occurs, completed answers survive history failure, Cancel terminates and the browser never represents a progress label as proof of generation. Expand the source evidence and compare each account rate with account evidence and each forecast with projection evidence. Record untested paths as NOT_RUN, not PASS.

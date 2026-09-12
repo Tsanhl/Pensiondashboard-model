@@ -4,6 +4,7 @@ import { spawn, spawnSync } from "node:child_process";
 import { existsSync, readFileSync, statSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import {localCheckpointDescriptor} from './lib/localCheckpointDescriptor.mjs';
 import { ANSWER_SYSTEM_POLICY } from "../server/prompts/answerPolicy.js";
 import { deriveQualificationStageCapabilityKey, mintQualificationRequestCapability } from "../server/services/qualificationContextService.js";
 import { safeHostEnvironment } from "./lib/qualification-worker/processEnvironment.mjs";
@@ -96,13 +97,13 @@ function verifySmallArtifact(path, expected, label) {
 
 function retrievalPython() {
   const pinned = String(process.env.PINNED_RETRIEVAL_PYTHON || "").trim();
-  if (qualificationRunId) {
+  if (qualificationRunId || pinned) {
     if (!pinned || !existsSync(pinned)) throw new Error("Qualification retrieval Python executable is not pinned or is missing.");
     return pinned;
   }
   const local = process.platform === "win32"
-    ? join(PROJECT_ROOT, ".venv", "Scripts", "python.exe")
-    : join(PROJECT_ROOT, ".venv", "bin", "python");
+    ? join(PROJECT_ROOT, ".retrieval-venv", "Scripts", "python.exe")
+    : join(PROJECT_ROOT, ".retrieval-venv", "bin", "python");
   if (existsSync(local)) return local;
   return process.platform === "win32" ? "python" : "python3";
 }
@@ -172,7 +173,8 @@ function loadReleaseManifest(path) {
 
 function loadCheckpoint(path) {
   const checkpointPath = resolve(path);
-  const checkpoint = readJson(checkpointPath, "Checkpoint selection");
+  const descriptor=localCheckpointDescriptor(readJson(checkpointPath, "Checkpoint selection"));
+  const checkpoint=descriptor.checkpoint;
   const trainingManifestPath = resolve(checkpointPath, "../training-run-manifest.json");
   const training = readJson(trainingManifestPath, "Training run manifest");
   const adapterPath = projectPath(checkpoint.selected_adapter_path, "selected_adapter_path");
@@ -209,7 +211,7 @@ function loadCheckpoint(path) {
     adapterSha,
     adapterConfigSha,
     baseSha,
-    modelId: `${checkpoint.model_version}-step${checkpoint.selected_iteration}`,
+    modelId: `${checkpoint.model_version}-${descriptor.modelIdSuffix}`,
   };
 }
 
@@ -345,7 +347,7 @@ const environment = {
   QUALIFICATION_RETRIEVAL_SNAPSHOT_CONTENTS_SHA256:process.env.QUALIFICATION_RETRIEVAL_SNAPSHOT_CONTENTS_SHA256 || "",
   QUALIFICATION_RETRIEVAL_SNAPSHOT_MANIFEST_PATH:process.env.QUALIFICATION_RETRIEVAL_SNAPSHOT_MANIFEST_PATH || "",
   PINNED_MODEL_PYTHON:process.env.PINNED_MODEL_PYTHON || "",
-  PINNED_RETRIEVAL_PYTHON:process.env.PINNED_RETRIEVAL_PYTHON || "",
+  PINNED_RETRIEVAL_PYTHON:retrievalPython(),
   PENSION_RETRIEVAL_DEVICE:process.env.PENSION_RETRIEVAL_DEVICE || "cpu",
   PENSION_RETRIEVAL_THREADS:process.env.PENSION_RETRIEVAL_THREADS || "2",
   TZ:process.env.TZ || "Asia/Hong_Kong",

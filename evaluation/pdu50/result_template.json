@@ -1,0 +1,56 @@
+{
+  "suite_id": "PDU50-v1",
+  "case_id": null,
+  "candidate_id": null,
+  "case_fixture_hash": null,
+  "case_label_hash": null,
+  "mode": "PINNED_DEVELOPMENT_COMPARISON",
+  "status": "NOT_RUN",
+  "request_ids": [],
+  "turn_results": [],
+  "data_trace": {
+    "authenticated_user": null,
+    "db_role_mapping_ref": null,
+    "read_set_versions": [],
+    "queried_record_refs": []
+  },
+  "retrieval_trace": {
+    "requirements": [],
+    "selected_span_refs": [],
+    "corpus_index_hash": null,
+    "normal_retrieval_used": null,
+    "context_sent_hash": null
+  },
+  "generation_trace": {
+    "model_adapter_hash": null,
+    "prompt_hash": null,
+    "raw_output_ref": null,
+    "stop_reason": null,
+    "completed_generation_attempts": null
+  },
+  "verification_trace": {
+    "deterministic_receipt": null,
+    "runtime_review_A": null,
+    "runtime_review_B": null,
+    "final_text_hash": null
+  },
+  "delivery_trace": {
+    "transport": null,
+    "persisted_response_ref": null,
+    "browser_trace_ref": null,
+    "source_drawer_refs": []
+  },
+  "evaluation": {
+    "gate_results": {},
+    "overall": null,
+    "first_failed_boundary": null,
+    "severity": null,
+    "avoidably_withheld": null,
+    "label_readiness": null
+  },
+  "training_exposure": {
+    "used_for_gradient_training": false,
+    "used_for_checkpoint_selection": false,
+    "used_for_iterative_repair": false
+  }
+}

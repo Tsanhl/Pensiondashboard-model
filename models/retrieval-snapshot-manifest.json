@@ -1,0 +1,162 @@
+{
+  "version": "retrieval-snapshot-manifest-v1",
+  "snapshots": {
+    "embedding": {
+      "repository": "BAAI/bge-small-en-v1.5",
+      "revision": "5c38ec7c405ec4b44b94cc5a9bb96e735b38267a",
+      "root": "/Users/hltsang/.cache/huggingface/hub/models--BAAI--bge-small-en-v1.5/snapshots/5c38ec7c405ec4b44b94cc5a9bb96e735b38267a",
+      "records": [
+        {
+          "path": "1_Pooling",
+          "type": "directory"
+        },
+        {
+          "path": "1_Pooling/config.json",
+          "type": "symlink",
+          "link_target": "../../../blobs/1da070f0993788c8851a652170ff013aa54dd519",
+          "target_realpath": "/Users/hltsang/.cache/huggingface/hub/models--BAAI--bge-small-en-v1.5/blobs/1da070f0993788c8851a652170ff013aa54dd519",
+          "bytes": 190,
+          "sha256": "d1caf60c96f5fba2157c0c26b76d80818fad6cf0b8eb5e73ec372ff9818eba5c"
+        },
+        {
+          "path": "README.md",
+          "type": "symlink",
+          "link_target": "../../blobs/8b8567d75ffa619486d9590cb0eb76d66ad46c49",
+          "target_realpath": "/Users/hltsang/.cache/huggingface/hub/models--BAAI--bge-small-en-v1.5/blobs/8b8567d75ffa619486d9590cb0eb76d66ad46c49",
+          "bytes": 94783,
+          "sha256": "ddb964361a55c6e5dfca6361615854b260c9c960205d04c7520151aaa1d75837"
+        },
+        {
+          "path": "config.json",
+          "type": "symlink",
+          "link_target": "../../blobs/3992bf890728a92476c700e6e657fd696eb94160",
+          "target_realpath": "/Users/hltsang/.cache/huggingface/hub/models--BAAI--bge-small-en-v1.5/blobs/3992bf890728a92476c700e6e657fd696eb94160",
+          "bytes": 743,
+          "sha256": "094f8e891b932f2000c92cfc663bac4c62069f5d8af5b5278c4306aef3084750"
+        },
+        {
+          "path": "config_sentence_transformers.json",
+          "type": "symlink",
+          "link_target": "../../blobs/dcb0c0d97d09b930d13600b1a773ddb27e441aab",
+          "target_realpath": "/Users/hltsang/.cache/huggingface/hub/models--BAAI--bge-small-en-v1.5/blobs/dcb0c0d97d09b930d13600b1a773ddb27e441aab",
+          "bytes": 124,
+          "sha256": "940d5f50db195fa6e5e6a4f122c095f77880de259d74b14a65779ed48bdd7c56"
+        },
+        {
+          "path": "model.safetensors",
+          "type": "symlink",
+          "link_target": "../../blobs/3c9f31665447c8911517620762200d2245a2518d6e7208acc78cd9db317e21ad",
+          "target_realpath": "/Users/hltsang/.cache/huggingface/hub/models--BAAI--bge-small-en-v1.5/blobs/3c9f31665447c8911517620762200d2245a2518d6e7208acc78cd9db317e21ad",
+          "bytes": 133466304,
+          "sha256": "3c9f31665447c8911517620762200d2245a2518d6e7208acc78cd9db317e21ad"
+        },
+        {
+          "path": "modules.json",
+          "type": "symlink",
+          "link_target": "../../blobs/952a9b81c0bfd99800fabf352f69c7ccd46c5e43",
+          "target_realpath": "/Users/hltsang/.cache/huggingface/hub/models--BAAI--bge-small-en-v1.5/blobs/952a9b81c0bfd99800fabf352f69c7ccd46c5e43",
+          "bytes": 349,
+          "sha256": "84e40c8e006c9b1d6c122e02cba9b02458120b5fb0c87b746c41e0207cf642cf"
+        },
+        {
+          "path": "sentence_bert_config.json",
+          "type": "symlink",
+          "link_target": "../../blobs/ea85692bff64b0d1917833c31ddbca8ab10f5455",
+          "target_realpath": "/Users/hltsang/.cache/huggingface/hub/models--BAAI--bge-small-en-v1.5/blobs/ea85692bff64b0d1917833c31ddbca8ab10f5455",
+          "bytes": 52,
+          "sha256": "84e39fda68ccbff05bfa723ae9c0e70e23e2ec373b76e0f8c6e71af72a693cbf"
+        },
+        {
+          "path": "special_tokens_map.json",
+          "type": "symlink",
+          "link_target": "../../blobs/a8b3208c2884c4efb86e49300fdd3dc877220cdf",
+          "target_realpath": "/Users/hltsang/.cache/huggingface/hub/models--BAAI--bge-small-en-v1.5/blobs/a8b3208c2884c4efb86e49300fdd3dc877220cdf",
+          "bytes": 125,
+          "sha256": "b6d346be366a7d1d48332dbc9fdf3bf8960b5d879522b7799ddba59e76237ee3"
+        },
+        {
+          "path": "tokenizer.json",
+          "type": "symlink",
+          "link_target": "../../blobs/688882a79f44442ddc1f60d70334a7ff5df0fb47",
+          "target_realpath": "/Users/hltsang/.cache/huggingface/hub/models--BAAI--bge-small-en-v1.5/blobs/688882a79f44442ddc1f60d70334a7ff5df0fb47",
+          "bytes": 711396,
+          "sha256": "d241a60d5e8f04cc1b2b3e9ef7a4921b27bf526d9f6050ab90f9267a1f9e5c66"
+        },
+        {
+          "path": "tokenizer_config.json",
+          "type": "symlink",
+          "link_target": "../../blobs/37fca74771bc76a8e01178ce3a6055a0995f8093",
+          "target_realpath": "/Users/hltsang/.cache/huggingface/hub/models--BAAI--bge-small-en-v1.5/blobs/37fca74771bc76a8e01178ce3a6055a0995f8093",
+          "bytes": 366,
+          "sha256": "9261e7d79b44c8195c1cada2b453e55b00aeb81e907a6664974b4d7776172ab3"
+        },
+        {
+          "path": "vocab.txt",
+          "type": "symlink",
+          "link_target": "../../blobs/fb140275c155a9c7c5a3b3e0e77a9e839594a938",
+          "target_realpath": "/Users/hltsang/.cache/huggingface/hub/models--BAAI--bge-small-en-v1.5/blobs/fb140275c155a9c7c5a3b3e0e77a9e839594a938",
+          "bytes": 231508,
+          "sha256": "07eced375cec144d27c900241f3e339478dec958f92fddbc551f295c992038a3"
+        }
+      ],
+      "records_sha256": "65ba2ab5b7ea9c7a2b7ec547dd38b5c264647fa03e50509ea851c92e0a88dae7"
+    },
+    "reranker": {
+      "repository": "BAAI/bge-reranker-base",
+      "revision": "2cfc18c9415c912f9d8155881c133215df768a70",
+      "root": "/Users/hltsang/.cache/huggingface/hub/models--BAAI--bge-reranker-base/snapshots/2cfc18c9415c912f9d8155881c133215df768a70",
+      "records": [
+        {
+          "path": "config.json",
+          "type": "symlink",
+          "link_target": "../../blobs/ff248a5f7d76e27b10778b3c593c9fba1df4c448",
+          "target_realpath": "/Users/hltsang/.cache/huggingface/hub/models--BAAI--bge-reranker-base/blobs/ff248a5f7d76e27b10778b3c593c9fba1df4c448",
+          "bytes": 799,
+          "sha256": "289adf7ada1eb6b4afa7589a48a032d45a076cf2e46dcdb3b4cabc33be14f708"
+        },
+        {
+          "path": "model.safetensors",
+          "type": "symlink",
+          "link_target": "../../blobs/ced967c45fd1902eb92716c9ceeca7c95a936770ea9db611f5a841b926e33fbd",
+          "target_realpath": "/Users/hltsang/.cache/huggingface/hub/models--BAAI--bge-reranker-base/blobs/ced967c45fd1902eb92716c9ceeca7c95a936770ea9db611f5a841b926e33fbd",
+          "bytes": 1112206140,
+          "sha256": "ced967c45fd1902eb92716c9ceeca7c95a936770ea9db611f5a841b926e33fbd"
+        },
+        {
+          "path": "sentencepiece.bpe.model",
+          "type": "symlink",
+          "link_target": "../../blobs/cfc8146abe2a0488e9e2a0c56de7952f7c11ab059eca145a0a727afce0db2865",
+          "target_realpath": "/Users/hltsang/.cache/huggingface/hub/models--BAAI--bge-reranker-base/blobs/cfc8146abe2a0488e9e2a0c56de7952f7c11ab059eca145a0a727afce0db2865",
+          "bytes": 5069051,
+          "sha256": "cfc8146abe2a0488e9e2a0c56de7952f7c11ab059eca145a0a727afce0db2865"
+        },
+        {
+          "path": "special_tokens_map.json",
+          "type": "symlink",
+          "link_target": "../../blobs/68171d1ff68b731a33d119708476692c094a466b",
+          "target_realpath": "/Users/hltsang/.cache/huggingface/hub/models--BAAI--bge-reranker-base/blobs/68171d1ff68b731a33d119708476692c094a466b",
+          "bytes": 279,
+          "sha256": "d5469a60db23249c7f8945013d78df30b44b6bf686c6bb4740f4223f77b1b535"
+        },
+        {
+          "path": "tokenizer.json",
+          "type": "symlink",
+          "link_target": "../../blobs/9eb652ac4e40cc093272bbbe0f55d521cf67570060227109b5cdc20945a4489e",
+          "target_realpath": "/Users/hltsang/.cache/huggingface/hub/models--BAAI--bge-reranker-base/blobs/9eb652ac4e40cc093272bbbe0f55d521cf67570060227109b5cdc20945a4489e",
+          "bytes": 17098107,
+          "sha256": "9eb652ac4e40cc093272bbbe0f55d521cf67570060227109b5cdc20945a4489e"
+        },
+        {
+          "path": "tokenizer_config.json",
+          "type": "symlink",
+          "link_target": "../../blobs/059214673d9d6d2ee319411e2ffec8c024b816d5",
+          "target_realpath": "/Users/hltsang/.cache/huggingface/hub/models--BAAI--bge-reranker-base/blobs/059214673d9d6d2ee319411e2ffec8c024b816d5",
+          "bytes": 443,
+          "sha256": "a1d6bc8734a6f635dc158508bef000f8e2e5a759c7d92f984b2c86e5ff53425b"
+        }
+      ],
+      "records_sha256": "2a467bc7ec5c7cddc086ae1ed6b332f38f80477191c609bb5ddc3e2af837fc8b"
+    }
+  },
+  "snapshot_contents_sha256": "4ab15a99750f773cf77de783f120a25832e505f13b7b38f2798a3977387a8f5a"
+}

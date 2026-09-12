@@ -152,10 +152,15 @@ function manualAccountFromInput(input = {}) {
     provider,
     policy: String(input.policy || "").trim() || "Manual entry",
     type: String(input.type || "Personal pension").trim(),
-    pot: Math.max(0, numberFromInput(input.pot)),
+    pot: input.pot == null || input.pot === "" ? null : Math.max(0, numberFromInput(input.pot)),
     source: "Manual entry",
     lastUpdated: String(input.lastUpdated || "").trim() || todayLabel(),
-    charges: Math.max(0, numberFromInput(input.charges))
+    charges: input.charges == null || input.charges === "" ? null : Math.max(0, numberFromInput(input.charges)),
+    employerName: String(input.employerName || "").trim(),
+    schemeName: String(input.schemeName || "").trim(),
+    schemeType: String(input.schemeType || "").trim(),
+    employeeContributionPct: input.employeeContributionPct == null || input.employeeContributionPct === "" ? null : boundedNumberFromInput(input.employeeContributionPct,"employeeContributionPct",{min:0,max:100}),
+    employerContributionPct: input.employerContributionPct == null || input.employerContributionPct === "" ? null : boundedNumberFromInput(input.employerContributionPct,"employerContributionPct",{min:0,max:100})
   };
 }
 
@@ -179,7 +184,7 @@ function portfolioWithPlanningData(portfolio = {}, input = {}) {
       ...(portfolio.profile || {}),
       name: profileName || portfolio.profile?.name || "New user",
       email: profileEmail || portfolio.profile?.email || "",
-      source: portfolio.profile?.source || "User-entered profile"
+      source: "User-entered profile"
     },
     assumptions,
     statePension: {

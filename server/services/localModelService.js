@@ -52,7 +52,10 @@ export function recoverTruncatedJsonAnswer(content = "") {
   answer = collapseRepeatedCiteTokens(answer).trim();
   const lastStop = Math.max(answer.lastIndexOf("."), answer.lastIndexOf("!"), answer.lastIndexOf("?"));
   if (lastStop < 40) return null;
-  answer = answer.slice(0, lastStop + 1).trim();
+  // A citation follows the sentence terminator. Preserve only complete markers
+  // already generated directly after that sentence, not an unfinished clause.
+  const trailingCitations = answer.slice(lastStop + 1).match(/^(?:\s*\{\{cite:[^{}]+\}\})*/)?.[0] || "";
+  answer = (answer.slice(0, lastStop + 1) + trailingCitations).trim();
   if (answer.length < 40) return null;
   const citationIds = [...new Set([...answer.matchAll(/\{\{cite:([^}]+)\}\}/g)].map((match) => match[1]))];
   return { answer, citationIds };
@@ -161,6 +164,10 @@ function recoveredAnswer(error, citationAliases = {}) {
 export async function generateLocalAnswerWithRetry(args) {
   const maxAttempts = Math.max(1, Math.min(2, Number(args?.maxAttempts ?? process.env.LOCAL_LLM_MAX_ATTEMPTS ?? 2)));
   const attemptLedger = [];
+  const developmentAttemptOutputs = [];
+  const capture = (attempt, result) => {
+    if (process.env.PENSION_DEVELOPMENT_TRACE_ROOT && !QUALIFICATION_MODE && result?.rawContent != null) developmentAttemptOutputs.push({attempt,rawContent:String(result.rawContent).replace(/<think>[\s\S]*?<\/think>/gi,'[reasoning omitted]'),usage:result.usage,finishReason:result.finishReason});
+  };
   const record = (event) => {
     const entry = { ...event,recorded_at:new Date().toISOString() };
     attemptLedger.push(entry);
@@ -169,9 +176,11 @@ export async function generateLocalAnswerWithRetry(args) {
   record({ event:"ATTEMPT_STARTED",attempt:1 });
   try {
     const first = await generateLocalAnswer(args);
+    capture(1,first);
     record({ event:"ATTEMPT_SUCCEEDED",attempt:1,runtime_identity:first.runtimeIdentity || null });
-    return { ...first, retry_used:false,retry_reason:null,generation_attempts:1,generation_attempt_ledger:attemptLedger };
+    return { ...first, retry_used:false,retry_reason:null,generation_attempts:1,generation_attempt_ledger:attemptLedger,developmentAttemptOutputs };
   } catch (error) {
+    capture(1,error.modelResponse);error.developmentAttemptOutputs=developmentAttemptOutputs;
     if (args?.signal?.aborted) throw error;
     const code = typeof error.code === "string" ? error.code : "";
     record({ event:"ATTEMPT_FAILED",attempt:1,reason:code || error.name || "MODEL_ERROR",runtime_identity:error.modelResponse?.runtimeIdentity || null });
@@ -186,13 +195,15 @@ export async function generateLocalAnswerWithRetry(args) {
       if (code === "MODEL_UNAVAILABLE") await waitForModelReady(args?.signal);
       record({ event:"ATTEMPT_STARTED",attempt:2,retry_reason:code });
       const second = await generateLocalAnswer(args);
+      capture(2,second);
       record({ event:"ATTEMPT_SUCCEEDED",attempt:2,runtime_identity:second.runtimeIdentity || null });
-      return { ...second,retry_used:true,retry_reason:code,generation_attempts:2,generation_attempt_ledger:attemptLedger };
+      return { ...second,retry_used:true,retry_reason:code,generation_attempts:2,generation_attempt_ledger:attemptLedger,developmentAttemptOutputs };
     } catch (retryError) {
+      capture(2,retryError.modelResponse);retryError.developmentAttemptOutputs=developmentAttemptOutputs;
       record({ event:"ATTEMPT_FAILED",attempt:2,reason:retryError?.code || retryError?.name || "MODEL_ERROR",runtime_identity:retryError?.modelResponse?.runtimeIdentity || null });
       if (retryError?.code === "MODEL_INVALID_OUTPUT" && String(process.env.LOCAL_LLM_ALLOW_TRUNCATION_RECOVERY || "true").toLowerCase() !== "false") {
         const recovered = recoveredAnswer(retryError, args?.citationAliases);
-        if (recovered) return { ...recovered,retry_used:true,retry_reason:code,generation_attempts:2,generation_attempt_ledger:attemptLedger };
+        if (recovered) return { ...recovered,retry_used:true,retry_reason:code,generation_attempts:2,generation_attempt_ledger:attemptLedger,developmentAttemptOutputs };
       }
       retryError.attempts = 2;
       retryError.retry_reason = code;

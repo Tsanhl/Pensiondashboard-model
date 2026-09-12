@@ -1,12 +1,14 @@
 import { getVerifiedDashboardContext } from "../portfolioStore.js";
 
 function parseMoney(value) {
-  const number = Number(String(value ?? "").replace(/[^0-9.-]/g, ""));
+  if (value == null || !/[0-9]/.test(String(value))) return null;
+  const number = Number(String(value).replace(/[^0-9.-]/g, ""));
   return Number.isFinite(number) ? number : null;
 }
 
 function parsePercent(value) {
-  const number = Number(String(value ?? "").replace(/[^0-9.-]/g, ""));
+  if (value == null || !/[0-9]/.test(String(value))) return null;
+  const number = Number(String(value).replace(/[^0-9.-]/g, ""));
   return Number.isFinite(number) ? number : null;
 }
 
@@ -39,8 +41,9 @@ function accountKey(account) {
   return provider;
 }
 
-export function buildCanonicalFacts(userId = "alex-morgan") {
-  const dashboard = getVerifiedDashboardContext({ userId });
+export function buildCanonicalFacts(userId = "alex-morgan", snapshot = null) {
+  const dashboard = snapshot || getVerifiedDashboardContext({ userId });
+  if (dashboard.userId !== userId) throw new Error("Canonical snapshot user mismatch");
   const verifiedAt = dashboard.snapshotDate || dashboard.systemUpdate?.date || null;
   const jurisdiction = dashboard.profile?.jurisdiction || null;
   const facts = {};
@@ -53,7 +56,9 @@ export function buildCanonicalFacts(userId = "alex-morgan") {
 
   for (const account of dashboard.pensionAccounts || []) {
     const key = accountKey(account);
-    const prefix = `accounts.${key}`;
+    const prefixes = [`accountsById.${account.id}`];
+    if (dashboard.pensionAccounts.filter(a=>accountKey(a) === key).length === 1) prefixes.push(`accounts.${key}`);
+    for (const prefix of prefixes) {
     put(fact({ factId:`${prefix}.name`, value:account.name, sourceRecordId:account.id, verifiedAt }));
     put(fact({ factId:`${prefix}.provider`, value:account.provider, sourceRecordId:account.id, verifiedAt }));
     put(fact({ factId:`${prefix}.type`, value:account.type, sourceRecordId:account.id, verifiedAt }));
@@ -67,6 +72,8 @@ export function buildCanonicalFacts(userId = "alex-morgan") {
     put(fact({ factId:`${prefix}.lastUpdated`, value:account.lastUpdated, sourceRecordId:account.id, verifiedAt }));
     put(fact({ factId:`${prefix}.style`, value:account.style, sourceRecordId:account.id, verifiedAt }));
     put(fact({ factId:`${prefix}.source`, value:account.source, sourceRecordId:account.id, verifiedAt }));
+    for (const [id,entry] of Object.entries(facts)) if (id.startsWith(prefix + ".")) { entry.verification_status = account.provenance?.status || "unknown"; entry.source_provenance = account.provenance || null; }
+    }
   }
 
   for (const document of dashboard.documents || []) {

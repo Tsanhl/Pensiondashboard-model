@@ -1,0 +1,14 @@
+{
+  "classification":"VALIDATION_AGGREGATION_COMPATIBILITY_AMENDMENT",
+  "authority":"Current user authorizes amendments necessary to execute training automatically",
+  "previous_start":"/Users/hltsang/.codex/private/pension-adaptability/20260912/main-four-layer",
+  "previous_main_updates":0,
+  "reason":"Pinned validation accumulator observed batch durations35.83,73.5,117 seconds, unlike the stable per-example host-detached loss validation already exercised by the passed full-model proof. Stop before first update and use per-example scalar accumulation.",
+  "change":"Wrapper replaces trainer.evaluate only. Unchanged train_adaptability.py, gradient/loss implementation, optimizer, seed, dataset, four trainable layers and full parent adapter. All eight examples retain supervised-token weighting.",
+  "synthetic_test":{"command":"isolated ml/test_adaptability_validation.py","exit_code":0,"examples":3,"supervised_tokens":21,"reference":1.1666666269302368,"host_scalar":1.1666666666666667,"absolute_error":3.9736429924275285e-8,"passed":true},
+  "proof_reuse_basis":"Completed four-layer proof already ran all eight validation examples independently with loss.item(), finite checks and cache clearing before and after a clean interpreter reload. Gradient execution and model shapes are unchanged; host scalar weighted reduction is numerically checked, not a new objective.",
+  "maximum_replacement_starts":1,
+  "maximum_gradient_trajectories":1,
+  "main_update_cap":48,
+  "do_not_claim":"The interrupted zero-update startup was a completed training run, or the aggregate loss proves answer quality."
+}

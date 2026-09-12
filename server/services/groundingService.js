@@ -1,3 +1,4 @@
+import { legalSchemeChangeQuestion as isLegalSchemeChangeQuestion } from "./queryProcessorService.js";
 const supportContact = String(process.env.HUMAN_SUPPORT_EMAIL || "").trim();
 
 export const SAFE_TEMPLATES = Object.freeze({
@@ -16,12 +17,6 @@ function numericTokens(text = "") {
   }).filter(Boolean);
 }
 
-function isLegalSchemeChangeQuestion(text) {
-  const value = String(text || "");
-  if (/\b(?:legal route|official legal process|legal process)\b/i.test(value) && /\b(?:chang(?:e|ing|ed)|scheme is changed)\b/i.test(value) && /\bscheme\b/i.test(value)) return true;
-  if (/\bworkplace pension scheme is changed\b/i.test(value)) return true;
-  return false;
-}
 
 function sourceBlob(source) {
   return `${source?.title || ""} ${source?.oscolaCitation || source?.oscola || ""} ${source?.section || ""} ${source?.snippet || ""} ${source?.evidence_excerpt || ""} ${source?.excerpt || ""} ${source?.text || ""} ${source?.content || ""}`;
@@ -101,7 +96,7 @@ function isInternalCitationToken(token, allowed) {
   return allowed.has(token) || /_/.test(token) || /^(?:source|law|doc|official|structured|fixture|chunk|cas|gold)-/i.test(token);
 }
 
-export function validateGroundedAnswer({ answer, citationIds = [], sources = [], intent,legalEvidenceRequired = null,userSuppliedText = "", claimLevel = false,claimCitations = null }) {
+export function validateGroundedAnswer({ answer, citationIds = [], sources = [], intent,legalEvidenceRequired = null,userSuppliedText = "", claimLevel = false,claimCitations = null, clarificationContext = null }) {
   const allowed = new Set(sources.map((source) => source.sourceId));
   const sourceMap = new Map(sources.map((source) => [String(source.sourceId),source]));
   const bracketed = [...String(answer).matchAll(/\[([a-zA-Z0-9_-]+)\]/g)].map((item) => item[1]).filter((token) => isInternalCitationToken(token, allowed));
@@ -115,6 +110,21 @@ export function validateGroundedAnswer({ answer, citationIds = [], sources = [],
     const claimValidation = validateClaimCitations(claimCitations,sourceMap,userSuppliedText);
     if (!claimValidation.valid) return claimValidation;
   }
+  // Lexical overlap is necessary but does not establish legal entailment.
+  // A conditional regime cannot support an unconditional consent requirement.
+  const consentClaims = claimCitations || [{ claim:answer, source_ids:[...referenced] }];
+  for (const entry of consentClaims) {
+    const claim = String(entry.claim || "");
+    const attached = (entry.source_ids || []).map(id => sourceMap.get(id)).filter(Boolean);
+    const legal = attached.some(source => source.scope === "CURATED_PUBLIC");
+    const rightsSource = attached.some(source => /Section 67\b/i.test(source.section || "") && /Pensions Act 1995/i.test(source.title || ""));
+    if (rightsSource && /consent|trustee approval|actuarial.equivalence/i.test(claim) && !/occupational|regulated modification|protected modification/i.test(claim)) return {valid:false,reason:"legal_source_scope_exceeded",claim,source_ids:entry.source_ids};
+    if (rightsSource && /(?:cannot|can't|may not|must not)[^.!?]{0,90}(?:change|reduce|alter)[^.!?]{0,90}(?:accrued|subsisting|existing|earned)/i.test(claim) && !/if|where|prohibited modification|protected modification/i.test(claim)) return {valid:false,reason:"unqualified_accrued_rights_prohibition",claim,source_ids:entry.source_ids};
+    const consentRequirement = /\b(?:cannot|can't|may not|must not)\b[\s\S]{0,160}\bwithout\b[\s\S]{0,100}\b(?:consent|approval)\b|\b(?:must|require[sd]?|need[sd]?)\b[\s\S]{0,100}\b(?:consent|approval)\b/i.test(claim);
+    const bounded = /\b(?:if|where|depending|depends|protected modification|regulated modification|actuarial equivalence|certain|some|may require)\b/i.test(claim);
+    const conditionalEvidence = attached.some(source => /\b(?:if|where|unless|either|exceptions?|excluded|does not apply)\b/i.test(source.snippet || ""));
+    if (legal && consentRequirement && conditionalEvidence && !bounded) return { valid:false,reason:"unqualified_legal_requirement",claim,source_ids:entry.source_ids };
+  }
   const evidence = sources.map(sourceBlob).join("\n");
   let answerWithoutCitationIds = String(answer);
   for (const source of sources) answerWithoutCitationIds = answerWithoutCitationIds.replaceAll(String(source.sourceId), "");
@@ -126,9 +136,23 @@ export function validateGroundedAnswer({ answer, citationIds = [], sources = [],
     const citedSources = sources.filter((source) => referenced.has(source.sourceId));
     const publicCited = citedSources.filter((source) => source.scope === "CURATED_PUBLIC");
     const hasSchemeChangeLaw = publicCited.some((source) => /Consultation by Employers and Miscellaneous Amendment\) Regulations 2006|Modification of Schemes\) Regulations 2006|SI 2006\/349|SI 2006\/759/i.test(sourceBlob(source))
-      && !/\bNorthern Ireland\b/i.test(sourceBlob(source)));
+      && !/Consultation by Employers\) Regulations \(Northern Ireland\)|SR 2006\/48/i.test(sourceBlob(source)));
     if (publicCited.some((source) => /\b(?:McCloud|public service pensions remedy)\b/i.test(sourceBlob(source))) || !hasSchemeChangeLaw) {
       return { valid:false, reason:"irrelevant_public_source" };
+    }
+    if (clarificationContext) {
+      const gapPatterns = {account_selection:/which.*(?:account|scheme|plan)|identify.*(?:account|scheme|plan)|multiple.*(?:accounts|schemes)|more than one/i,
+        scheme_type:/scheme type|type of.*(?:scheme|pension)|occupational|personal pension|master trust|defined.benefit|defined.contribution/i,
+        proposed_change:/what.*chang|propos|future.*(?:contribution|accrual)|past.*rights|existing.*rights/i,
+        applicable_jurisdiction:/jurisdiction|Great Britain|Northern Ireland|England|Scotland|Wales|governing law/i};
+      const unaddressed = clarificationContext.missingFacts.filter(gap=>!gapPatterns[gap]?.test(answer));
+      const bounded = /\?|\b(?:if|depending|depends|unknown|unconfirmed|missing|need|check|confirm|identify)\b/i.test(answer);
+      if (unaddressed.length || (clarificationContext.missingFacts.length && !bounded)
+        || (!clarificationContext.schemeDocumentsPresent && !/scheme rules|governing|trust deed|contract|amendment power/i.test(answer))) {
+        return {valid:false,reason:"scheme_change_missing_applicability_facts",missingFacts:unaddressed,governingDocumentsPresent:clarificationContext.schemeDocumentsPresent};
+      }
+    } else {
+    if (!/\?|(?:need to know|please (?:confirm|provide)|which scheme|what (?:change|type)|scheme rules.*(?:need|missing|check)|check.*scheme rules)/i.test(answer)) return {valid:false,reason:"scheme_change_missing_applicability_facts"};
     }
   }
   const applyLegalGate = legalEvidenceRequired == null ? intent === "PENSION_LAW" : Boolean(legalEvidenceRequired);
@@ -163,8 +187,12 @@ export function publicSources(sources = [], citationIds = []) {
     source_id: source.sourceId,
     title: source.title,
     section: source.section || null,
-    snippet: String(source.snippet || "").slice(0, 600),
+    snippet: String(source.snippet || ""),
     effective_date: source.effectiveDate || null,
+    canonical_url:/^https:\/\//i.test(String(source.canonicalLocation || '')) ? source.canonicalLocation : null,
+    retrieved_at:source.sourceMetadata?.retrievedAt || null,
+    source_version:source.version || null,
+    date_basis:source.sourceMetadata?.dateBasis || null,
     oscola:source.oscolaCitation || source.title
   }));
 }

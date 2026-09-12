@@ -1,0 +1,69 @@
+{
+  "study_id": "PDU_DURATION_V1_LOCAL_BINDING",
+  "status": "PREDECLARED_NOT_RUN",
+  "declared_at": "2026-09-12",
+  "baseline_parent": {
+    "checkpoint": 104,
+    "adapter_sha256": "b370306a3078abd79af14e14c4690a4f394800f1096592ca6528e213cf5a6337"
+  },
+  "why_48": "NOT_DOCUMENTED",
+  "current_configuration_amendment": {
+    "trainable_last_layers": 4,
+    "full_parent_adapter_layers": 16,
+    "trainable_parameters": 2424832,
+    "authority": "TRAINING-FOUR-LAYER-AMENDMENT-20260912.json",
+    "reason": "Prior sixteen-layer proof completed one disposable update, then longest-example backward reached swap-growth and host-free resource limits. Freeze earlier LoRA parameters; preserve complete saved adapters and unchanged 24/8 data.",
+    "main_runs_consumed": 0
+  },
+  "interpretation": {
+    "trainer": "mlx-lm",
+    "pinned_version": "0.31.3",
+    "cli_iters_meaning": "microbatch_iterations",
+    "batch_size": 1,
+    "gradient_accumulation_steps": 1,
+    "microbatches": 48,
+    "completed_optimizer_updates": 48,
+    "presented_examples": 48,
+    "eligible_training_examples": 24,
+    "example_exposure_equivalents": 2,
+    "trailing_unapplied_microbatches": 0
+  },
+  "trajectory": {
+    "maximum_fresh_trajectories": 1,
+    "additional_update_cap": 48,
+    "scheduled_checkpoint_updates": [0, 12, 24, 36, 48],
+    "meaning": "0 is the intact checkpoint104 parent; 12/24/36/48 are snapshots from one trajectory, not four jobs."
+  },
+  "selection": {
+    "data": "existing independently reviewed validation-eight only",
+    "validation_sha256": "ce702af64cd487a6189c595536d3255e8ce1957a2fa4390b217f8fb543bd6504",
+    "maximum_generated_validation_answers": 40,
+    "rule": "Complete assessment, identity and hard-failure gates first; reviewed semantic completeness/omissions/repeated questions before loss; within a 1% loss tie prefer fewer updates; retain baseline without observed semantic benefit.",
+    "pdu50_used_for_selection": false
+  },
+  "execution_authority": {
+    "training_authorized": true,
+    "resource_limit_approval": "CURRENT_USER_EXPLICIT_AMENDMENT_20260912",
+    "authority_receipt": "OWNER-TRAINING-AMENDMENT-20260912.json",
+    "compatible_two_update_proof": "NOT_AVAILABLE",
+    "main_updates_completed": 0,
+    "diagnostic_allowance_consumed_in_this_continuation": 3,
+    "attempt_details": "Two zero-update infrastructure failures (vmmap metric unavailable; NumPy bfloat16 buffer). Third freshly bound attempt repairs byte-view hashing and retains existing memory ceilings. No main trajectory started."
+  },
+  "code_bindings": {
+    "update_accounting_sha256": "f953ba2591388114914b1d42883ffa67f36103775cc630e3c68b0a91c83b600c",
+    "duration_selection_sha256": "29682fe735a5ba7a891a2990e94f27d9c218c777418e9f5e07c456b8c4059fa4",
+    "prepare_sha256": "a80b68809f3db576624e404b9b954ac543cf98ab8614755a38906bf534b9e1b3",
+    "trainer_sha256": "88ef4382388c53214b07eca35801ea7da2134c35c09c7fb96155a90f0805151b",
+    "finalizer_sha256": "fe2569fe357c66f62a4d09f6e7b27eb17d1c4e2f65b4041c3d6641359a5d99b8"
+  },
+  "checkpoint_verdicts": [
+    {"additional_updates": 0, "status": "NOT_RUN"},
+    {"additional_updates": 12, "status": "NOT_RUN"},
+    {"additional_updates": 24, "status": "NOT_RUN"},
+    {"additional_updates": 36, "status": "NOT_RUN"},
+    {"additional_updates": 48, "status": "NOT_RUN"}
+  ],
+  "formal_credit": false,
+  "sealed_unseen_accessed": false
+}

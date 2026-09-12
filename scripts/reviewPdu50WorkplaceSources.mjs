@@ -1,0 +1,11 @@
+import {readFileSync,mkdirSync,existsSync} from 'node:fs';
+import {resolve} from 'node:path';
+import {runDevelopmentSourceReview} from './lib/qualification-worker/aiReview.mjs';
+const root=resolve(process.argv[2]||'');if(!process.argv[2])throw Error('Source capture root required');
+const packet=JSON.parse(readFileSync(resolve(root,'review-packet.json')));
+if(!['pdu50-workplace-guidance-capture-v1','pdu50-workplace-guidance-scope-repair-v2'].includes(packet.version)||packet.items.length!==3)throw Error('Bound three-source batch required');
+const output=resolve(root,'review');if(existsSync(output))throw Error('Review already attempted; no automatic retry');
+const config=JSON.parse(readFileSync('config/qualification-worker.json'));config.__project_root=resolve('.');
+mkdirSync(output,{mode:0o700});
+const result=await runDevelopmentSourceReview({packet,config,outputDir:output});
+console.log(JSON.stringify({scope:result.scope,passed:result.passed,reviewer_calls:2,active_corpus_modified:false,formal_credit:false}));

@@ -30,6 +30,14 @@ function isSchemeChangeAuthority(source) {
     || /\bSI 2006\/759\b/i.test(blob);
 }
 
+function schemeIssuePriority(source) {
+  const blob = sourceText(source);
+  if (/Pension schemes under the employer duties/i.test(blob)) return 5;
+  if (/Consultation by Employers and Miscellaneous Amendment\) Regulations 2006/i.test(blob)) return /(?:^| > )Regulation (?:6|7)\s*[—–-]/i.test(source.section || "") ? 4 : 2;
+  if (/Pensions Act 1995/i.test(blob) && /Section 67\b/i.test(source.section || "")) return 3;
+  return 0;
+}
+
 export function filterSourcesForQuery(sources = [], query = {}) {
   const question = String(query.self_contained_query || query.retrieval_query || "");
   if (query.response_route === "SECURITY_FALLBACK") {
@@ -45,6 +53,7 @@ export function filterSourcesForQuery(sources = [], query = {}) {
     return sources.filter((source) => {
       if (source.scope !== "CURATED_PUBLIC") return true;
       if (isMcCloudOrAnnualAllowanceRemedy(source) || isNorthernIrelandConsultation(source)) return false;
+      if (/Regulation \d+ (?:prohibits|requires|specifies|provides|sets|amends)\b/i.test(source.section || "")) return false;
       return true;
     });
   }
@@ -93,13 +102,17 @@ export function evidenceContract(query = {}) {
 }
 
 function documentFamily(source) {
+  const canonical = String(source?.canonicalLocation || "").replace(/\/+(?:section|regulation|article|schedule)\/.*$/, '').replace(/\/+$/, '');
+  if (/^https:\/\/www\.legislation\.gov\.uk\//i.test(canonical)) return canonical.toLowerCase();
   return String(source?.documentId || source?.sourceId || "")
     .toLowerCase()
     .replace(/_chunk_\d+$/i, "");
 }
 
 export function selectMandatorySources(sources = [], query = {}, limit = 6) {
+  const schemeChange = legalSchemeChangeQuestion(String(query.self_contained_query || query.retrieval_query || ''));
   const filtered = filterSourcesForQuery(sources, query);
+  if (schemeChange) filtered.sort((a,b)=>schemeIssuePriority(b)-schemeIssuePriority(a));
   const count = Math.max(1, Number(limit) || 1);
   if (query.response_route === "SECURITY_FALLBACK") {
     const safetyRelevance = (source) => {

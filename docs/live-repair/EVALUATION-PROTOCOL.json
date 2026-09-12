@@ -1,0 +1,48 @@
+{
+  "version": "adaptability-evaluation-protocol-v1",
+  "classification": "DEVELOPMENT_ONLY",
+  "formal_credit": false,
+  "training_authorized_by_latest_owner_request": true,
+  "data_partitions": {
+    "new_training": {"count": 24, "purpose": "Behavior tuning after two isolated exact-packet reviews"},
+    "new_validation": {"count": 8, "purpose": "Exact saved-checkpoint loss comparison", "unseen_qualification": false},
+    "development_generation": {"count": 6, "purpose": "Baseline/candidate answer comparison on separate fictional constructs", "unseen_qualification": false},
+    "owner_browser_questions": {"count": 6, "purpose": "Actual product acceptance, including generated legal answers"}
+  },
+  "selection": {
+    "parent": "checkpoint104",
+    "forbidden_historical_iteration": 312,
+    "new_steps": [12, 24, 36, 48],
+    "rule": "Lowest finite validation loss measured by reloading exact saved bytes; ties prefer earlier",
+    "loss_alone_promotes_candidate": false
+  },
+  "development_acceptance": [
+    "Existing development and controller tests pass without protected-bank reads",
+    "Generated answers retain scope, conditions, relevant evidence and needed clarification",
+    "No material regression on the separate development generation cases",
+    "Q1 and distinct legal/browser variants deliver substantively adequate cited answers",
+    "Real HTTP/WS journeys, retries, cancellation, history and user separation pass"
+  ],
+  "formal_visible_sequence": [
+    "VERIFY_RUNTIME_AND_CALIBRATION", "T4_TARGETED_REGRESSION", "TOPIC161_ORIGINAL_DEVELOPMENT",
+    "LIVE50_FULL_REGRESSION", "RELIABILITY_GATE", "VISIBLE_CRITICAL4", "VISIBLE_FULL69",
+    "VISIBLE_TOPIC161_REPLACEMENT_V2", "VISIBLE_FROZEN13", "CANDIDATE_FREEZE",
+    "READY_FOR_SEALED_UNSEEN_OWNER_AUTHORISATION"
+  ],
+  "sealed_unseen": {
+    "existing_bank_accessed": false,
+    "bank_contents_needed_for_development": false,
+    "new_bank_created": false,
+    "owner_execution_authorized": false,
+    "status": "WAIT_FOR_VISIBLE_GATES_AND_EXACT_FREEZE",
+    "custodian_requirements": [
+      "Separate custodian holds questions and answers outside implementer and trainer access",
+      "Use novel facts, phrasing and source combinations across pension topics, missing evidence, private-record boundaries and safety negatives",
+      "Do not derive cases or answers from exposed failures or the new training/validation targets",
+      "Bind exact frozen model, corpus, application, configuration and reviewer identities",
+      "One authorized run; preserve failures and retire exposed cases from unseen status",
+      "Any substantive post-freeze change invalidates downstream evidence"
+    ]
+  },
+  "deployment_authorized": false
+}

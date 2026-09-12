@@ -1,0 +1,60 @@
+{
+  "study_id": "PDU_DURATION_V1_PROPOSED",
+  "status": "PLAN_NOT_EXECUTED_REQUIRES_LOCAL_BINDING",
+  "baseline_parent": "existing verified checkpoint104; exact hashes resolved locally",
+  "proposed_additional_update_cap": 48,
+  "proposed_checkpoint_updates": [
+    0,
+    12,
+    24,
+    36,
+    48
+  ],
+  "fresh_training_trajectories_max": 1,
+  "meaning": "One trajectory with intermediate snapshots, not four standalone jobs; 0 = no new updates relative to baseline104.",
+  "proof_required": "valid compatible full-model two-update save/reload proof under authorised current resource envelope",
+  "selection_data": "existing reviewed validation-eight, targets removed from generation context",
+  "selection_rule": "semantic hard-gate clean -> correct/complete outcomes -> omissions/repeated questions -> comparable validation loss -> earliest for predeclared 1% loss tie",
+  "pdu50_for_checkpoint_selection": false,
+  "pdu50_for_gradient_training": false,
+  "comparison_limit": "best among assessed candidates on this single parent/data/seed/schedule; no claim of global optimum",
+  "max_nominal_validation_generated_answers": 40,
+  "checkpoint_verdicts": [
+    {
+      "updates": 0,
+      "adapter_hash": null,
+      "status": "NOT_RUN"
+    },
+    {
+      "updates": 12,
+      "adapter_hash": null,
+      "status": "NOT_RUN"
+    },
+    {
+      "updates": 24,
+      "adapter_hash": null,
+      "status": "NOT_RUN"
+    },
+    {
+      "updates": 36,
+      "adapter_hash": null,
+      "status": "NOT_RUN"
+    },
+    {
+      "updates": 48,
+      "adapter_hash": null,
+      "status": "NOT_RUN"
+    }
+  ],
+  "hardware_caps": "unchanged valid local approval; no numeric cap increase granted by this pack",
+  "attempt_authority": "reconcile existing unconsumed exact authority; do not reset exhausted probes",
+  "required_before_launch": [
+    "actual optimiser-step mapping and effective batch",
+    "sample/token exposure instrumentation",
+    "fixed scheduler and save/eval cadence",
+    "dataset/formatter/loss/reviewer hashes",
+    "finite training+validation+review call/time budget",
+    "source/fixture label readiness for independent paired evaluation"
+  ],
+  "if_48_unassessed": "Report NOT_RUN, do not claim an earlier candidate beats 48."
+}

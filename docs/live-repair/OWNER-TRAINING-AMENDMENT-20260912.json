@@ -1,0 +1,28 @@
+{
+  "version": "owner-training-amendment-20260912",
+  "authority_source": "Current user message in this task, 12 September 2026",
+  "owner_quote": "no need owner authorise training do training automatically change the route ... and execute in full i need change ... i authorise to remove and amend everything neded to do training",
+  "owner_authorized_training": true,
+  "training_execution_authorized": true,
+  "scope": "Repair and automatically execute the existing reviewed 24/8 training workflow. Supersedes obsolete additional-owner-approval flags; does not fabricate runtime proof or approve model answers.",
+  "diagnostic_attempts": 2,
+  "infrastructure_repair_amendment": "First current attempt consumed and preserved: stopped before any update because vmmap footprint was unavailable. Under the user's explicit instruction to amend everything needed for training, permit one corrected attempt using non-suspending kernel proc_pid_rusage accounting, verified on a sandboxed no-model child. Same memory ceilings and dataset; this is not a repeat of the failed gradient probes.",
+  "main_trajectories": 1,
+  "main_update_cap": 48,
+  "disposable_updates": 2,
+  "resource_limits": {
+    "prestart_swap_max_mib": 6144,
+    "system_swap_absolute_max_mib": 8192,
+    "swap_growth_max_mib": 2048,
+    "system_free_min_percent": 15,
+    "process_physical_footprint_max_gib": 12,
+    "mlx_peak_max_decimal_gb": 14,
+    "total_seconds": 1800
+  },
+  "main_timeout_seconds": 7200,
+  "budget_rationale": "Keep the proposed memory ceilings. Increase diagnostic wall-clock allowance to cover two full eight-example validation passes, two compiled updates, save and a fresh interpreter reload/generation; previous 660 seconds did not budget this expanded proof. No repeated failed attempt or automatic ceiling increase.",
+  "selection": {"maximum_generations": 40, "max_tokens_per_generation": 192, "timeout_seconds": 7200, "loss_tie_tolerance": 0.01},
+  "preserve_checkpoint": 104,
+  "sealed_unseen_authorized": false,
+  "release_authorized": false
+}

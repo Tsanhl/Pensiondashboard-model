@@ -1,3 +1,5 @@
+import {recordProvenance, snapshotIdentity} from './services/portfolioEvidenceService.js';
+import { projectPension } from "./services/projectionMath.js";
 const formatter = new Intl.NumberFormat("en-GB", {
   style: "currency",
   currency: "GBP",
@@ -8,11 +10,11 @@ import { readPortfolio, readRiskProfile } from "./store/userDataStore.js";
 import { daysSince, slugify } from "./utils/values.js";
 
 function money(value) {
-  return formatter.format(Math.round(Number(value) || 0));
+  return value == null || value === "" || !Number.isFinite(Number(value)) ? "Not recorded" : formatter.format(Math.round(Number(value)));
 }
 
 function percent(value, decimals = 0) {
-  return `${Number(value || 0).toFixed(decimals).replace(/\.0$/, "")}%`;
+  return value == null || value === "" || !Number.isFinite(Number(value)) ? "Not recorded" : `${Number(value).toFixed(decimals).replace(/\.0$/, "")}%`;
 }
 
 const portfolio = {
@@ -281,22 +283,22 @@ const emptyPortfolio = {
     jurisdiction: ""
   },
   assumptions: {
-    currentAge: 45,
-    retirementAge: 67,
-    monthlyTarget: 0,
-    salary: 0,
-    totalContributionPct: 0,
+    currentAge: null,
+    retirementAge: null,
+    monthlyTarget: null,
+    salary: null,
+    totalContributionPct: null,
     extraMonthlyContribution: 0,
-    growthPct: 4.5,
-    inflationPct: 2.5,
-    chargePct: 0,
-    drawdownPct: 5,
-    dbMonthly: 0
+    growthPct: null,
+    inflationPct: null,
+    chargePct: null,
+    drawdownPct: null,
+    dbMonthly: null
   },
   accounts: [],
   statePension: {
     name: "State Pension Forecast",
-    monthlyIncome: 0,
+    monthlyIncome: null,
     source: "Not added",
     lastUpdated: "Not added"
   },
@@ -333,7 +335,7 @@ export function getPortfolioSeed() {
 }
 
 export function getPortfolioSeedForUser(userId = "alex-morgan") {
-  return slugify(userId || "alex-morgan") === "empty-demo" ? clone(emptyPortfolio) : getPortfolioSeed();
+  return slugify(userId || "") === "alex-morgan" ? getPortfolioSeed() : { ...clone(emptyPortfolio),userId };
 }
 
 function clone(value) {
@@ -350,42 +352,31 @@ function totalPotFor(state, type) {
     .reduce((sum, account) => sum + Number(account.pot || 0), 0);
 }
 
-function calculateProjection(state) {
-  const assumptions = state.assumptions;
-  const years = Math.max(0, assumptions.retirementAge - assumptions.currentAge);
-  const months = Math.round(years * 12);
-  const currentPot = totalPensionValue(state);
-  const baseMonthlyContribution = (assumptions.salary * (assumptions.totalContributionPct / 100)) / 12;
-  const monthlyContribution = baseMonthlyContribution + Number(assumptions.extraMonthlyContribution || 0);
-  const realAnnualGrowth = (Number(assumptions.growthPct) - Number(assumptions.inflationPct) - Number(assumptions.chargePct)) / 100;
-  const monthlyGrowth = Math.pow(Math.max(0.0001, 1 + realAnnualGrowth), 1 / 12) - 1;
-  let pot = currentPot;
+function projectableCurrentPot(state) {
+  const dcAccounts = (state.accounts || []).filter((account) =>
+    account.potStatus !== "NOT_APPLICABLE"
+    && !/defined benefit/i.test(`${account.type || ""} ${account.schemeType || ""}`)
+  );
+  if (!dcAccounts.length || dcAccounts.some((account) => account.pot == null || account.pot === "")) return null;
+  return dcAccounts.reduce((sum, account) => sum + Number(account.pot), 0);
+}
 
-  for (let month = 0; month < months; month += 1) {
-    pot = Math.max(0, (pot + monthlyContribution) * (1 + monthlyGrowth));
-  }
-
-  const dcMonthly = (pot * (assumptions.drawdownPct / 100)) / 12;
-  const monthlyIncome = dcMonthly + state.statePension.monthlyIncome + assumptions.dbMonthly;
-  const monthlyGap = Math.max(0, assumptions.monthlyTarget - monthlyIncome);
-  const coverage = assumptions.monthlyTarget > 0 ? (monthlyIncome / assumptions.monthlyTarget) * 100 : 0;
-
-  return {
-    years,
-    months,
-    currentPot,
-    finalPot: pot,
-    monthlyContribution,
-    dcMonthly,
-    monthlyIncome,
-    monthlyGap,
-    annualGap: monthlyGap * 12,
-    coverage
-  };
+export function calculateProjection(state) {
+  const a = state.assumptions || {};
+  const recordedMonthlyContribution = a.grossMonthlyContribution == null || a.grossMonthlyContribution === ""
+    ? null : Number(a.grossMonthlyContribution);
+  const baseMonthlyContribution = recordedMonthlyContribution ?? (a.salary == null || a.totalContributionPct == null ? null
+    : Number(a.salary) * Number(a.totalContributionPct) / 100 / 12);
+  const monthlyContribution = baseMonthlyContribution == null ? null
+    : baseMonthlyContribution + Number(a.extraMonthlyContribution ?? 0);
+  return projectPension({ ...a,currentPot:projectableCurrentPot(state),monthlyContribution,
+    stateMonthly:state.statePension.monthlyIncome,dbMonthly:a.dbMonthly,
+    stateStartAge:state.statePension.startAge,dbStartAge:a.dbIncomeStartAge });
 }
 
 function calculateContributionScenarios(state, increments = [50, 100, 200]) {
   const baseProjection = calculateProjection(state);
+  if (baseProjection.status !== "ready") return [];
   return increments.map((increment) => {
     const amount = Math.max(0, Number(increment) || 0);
     const scenarioState = clone(state);
@@ -450,7 +441,7 @@ function formatContributionRate(value) {
 function formatYearlyContribution(value) {
   if (value == null || value === "") return "";
   const amount = Number(value);
-  if (!Number.isFinite(amount) || amount <= 0) return "—";
+  if (!Number.isFinite(amount) || amount < 0) return "—";
   return `${money(amount)} /yr`;
 }
 
@@ -464,19 +455,19 @@ function accountConnectionStatus(account) {
 
 function normaliseState(rawState) {
   const state = {
-    ...clone(portfolio),
+    ...clone(emptyPortfolio),
     ...clone(rawState || {}),
-    profile: { ...portfolio.profile, ...(rawState?.profile || {}) },
-    assumptions: { ...portfolio.assumptions, ...(rawState?.assumptions || {}) },
-    statePension: { ...portfolio.statePension, ...(rawState?.statePension || {}) },
-    savings: { ...portfolio.savings, ...(rawState?.savings || {}) },
-    investmentProfile: { ...portfolio.investmentProfile, ...(rawState?.investmentProfile || {}) }
+    profile: { ...emptyPortfolio.profile, ...(rawState?.profile || {}) },
+    assumptions: { ...emptyPortfolio.assumptions, ...(rawState?.assumptions || {}) },
+    statePension: { ...emptyPortfolio.statePension, ...(rawState?.statePension || {}) },
+    savings: { ...emptyPortfolio.savings, ...(rawState?.savings || {}) },
+    investmentProfile: { ...emptyPortfolio.investmentProfile, ...(rawState?.investmentProfile || {}) }
   };
-  state.accounts = (rawState?.accounts || portfolio.accounts).map((account, index) => ({
+  state.accounts = (rawState?.accounts || emptyPortfolio.accounts).map((account, index) => ({
     id: account.id || `acct_${slugify(account.provider || account.name || "pension")}_${index + 1}`,
     ...account
   }));
-  state.documents = (rawState?.documents || portfolio.documents).map((documentItem, index) => ({
+  state.documents = (rawState?.documents || emptyPortfolio.documents).map((documentItem, index) => ({
     id: documentItem.id || `doc_${slugify(documentItem.provider || documentItem.name || "document")}_${index + 1}`,
     ...documentItem
   }));
@@ -498,7 +489,10 @@ export function getVerifiedDashboardContext({ userId = "alex-morgan" } = {}) {
   return {
     userId: state.userId,
     profile: state.profile,
-    dataSource: "Backend verified portfolio snapshot",
+    projection,
+    projectionMethod: "Amounts are in today's money with total gross contributions credited at the start of each month and kept constant after inflation, without additional tax relief or employer matching; recorded State Pension and DB income is included only from its recorded start age; if no start age is recorded, the legacy assumption is the selected retirement age, so confirm eligibility and payment dates.",
+    dataSource: "Authenticated portfolio snapshot; verification is record-specific",
+    snapshotId: snapshotIdentity(state),
     readOnly: true,
     snapshotDate: state.systemUpdate.date,
     monthlyTarget: money(state.assumptions.monthlyTarget),
@@ -516,6 +510,9 @@ export function getVerifiedDashboardContext({ userId = "alex-morgan" } = {}) {
       growthPct: percent(state.assumptions.growthPct, 1),
       inflationPct: percent(state.assumptions.inflationPct, 1),
       chargePct: percent(state.assumptions.chargePct, 2),
+      contributionBasis: "Illustrative aggregate salary percentage, not the sum of individual account rates",
+      moneyBasis: "today",
+      contributionTiming: "start_of_month",
       drawdownPct: percent(state.assumptions.drawdownPct, 1)
     },
     pensionPotValue: money(pensionPotValue),
@@ -554,6 +551,9 @@ export function getVerifiedDashboardContext({ userId = "alex-morgan" } = {}) {
       schemeName: account.schemeName || "",
       schemeType: account.schemeType || "",
       schemeStatus: account.schemeStatus || "",
+      provenance: recordProvenance(account),
+      facts: Object.fromEntries(["pot","charges","employeeContributionPct","employerContributionPct","employeeContributionAnnual","employerContributionAnnual"].map(key => [key, account[key] == null || account[key] === "" ? null : Number(account[key])])),
+      rawFacts: clone(account.recordFacts || {}),
       employee: formatContributionRate(account.employeeContributionPct) || (account.employeeContributionAnnual ? "Personal" : "—"),
       employer: formatContributionRate(account.employerContributionPct) || "—",
       employeeYearly: formatYearlyContribution(account.employeeContributionAnnual),
@@ -563,6 +563,7 @@ export function getVerifiedDashboardContext({ userId = "alex-morgan" } = {}) {
     })),
     statePension: {
       monthlyIncome: money(state.statePension.monthlyIncome),
+      startAge: state.statePension.startAge ?? null,
       source: state.statePension.source,
       lastUpdated: state.statePension.lastUpdated
     },
@@ -583,8 +584,12 @@ export function getVerifiedDashboardContext({ userId = "alex-morgan" } = {}) {
       date: documentItem.date,
       confidence: documentItem.confidence,
       source: documentItem.source || "",
+      confirmedAt: documentItem.confirmedAt || null,
+      fieldEvidence: documentItem.fieldEvidence || {},
+      reviewFields: documentItem.reviewFields || [],
       extracted: documentItem.extracted || {}
     })),
+    supplementalRecords: clone(state.supplementalRecords || {}),
     dataQuality: quality,
     contributionScenarios,
     systemUpdate: state.systemUpdate,
@@ -618,7 +623,8 @@ export function getDocumentScanContext({ userId = "alex-morgan" } = {}) {
   state.userId = userId || state.userId;
   return {
     userId: state.userId,
-    dataSource: "Backend verified portfolio snapshot",
+    dataSource: "Authenticated portfolio snapshot; verification is record-specific",
+    snapshotId: snapshotIdentity(state),
     accounts: state.accounts.map((account) => ({
       id: account.id,
       provider: account.provider,

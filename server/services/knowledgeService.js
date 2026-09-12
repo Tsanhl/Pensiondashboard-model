@@ -10,7 +10,7 @@ function corpusVersion(documents = []) {
 }
 
 function normalizedAuthorityTitle(value) {
-  return String(value || "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+  return String(value || "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim().replace(/^(?:the|tpr)\s+/, '').replace(/\s+paragraphs?\s+[0-9 ].*$/, '');
 }
 
 export function selectTitlePinnedCandidates(candidates = [], query = "", limit = 8) {
@@ -75,7 +75,7 @@ export function expandRetrievalQuery(query) {
   return [...new Set([original, ...expansions])].filter(Boolean).join(" ");
 }
 
-function matchesJurisdiction(source, jurisdictionScope) {
+export function matchesJurisdiction(source, jurisdictionScope) {
   if (!jurisdictionScope || jurisdictionScope === "UNSPECIFIED" || jurisdictionScope === "GB_AND_NI") return true;
   const jurisdiction = String(source.jurisdiction || "").toLowerCase();
   const title = String(source.title || "").toLowerCase();
@@ -148,15 +148,21 @@ export async function indexDocument(userId, input = {}) {
   return { document: active,chunkCount:chunks.length,quarantinedChunkCount:chunks.filter((chunk) => chunk.metadata.quarantined).length,embeddingModel:embedded.model,degradedEmbedding:embedded.degraded };
 }
 
-export async function retrieveKnowledge(userId, query, { limit = 8, scopes = [], jurisdictionScope = "UNSPECIFIED", retrievalConfig = "hybrid-v1" } = {}) {
+export async function retrieveKnowledge(userId, query, { limit = 8, scopes = [], jurisdictionScope = "UNSPECIFIED", retrievalConfig = "hybrid-v1",signal,approvedDocumentIds = null } = {}) {
   const documents = await listKnowledgeDocuments(userId, { includeChunkCounts:false });
-  const version = corpusVersion(documents);
+  const eligibleDocuments = documents.filter(d => d.status === 'active' && (!d.expiryDate || Date.parse(d.expiryDate) > Date.now())
+    && (!scopes.length || scopes.includes(d.scope))
+    && (d.scope !== 'CURATED_PUBLIC' || !approvedDocumentIds || approvedDocumentIds.has(d.id))
+    && matchesJurisdiction({...d,sourceType:d.metadata?.sourceType},jurisdictionScope));
+  const eligibleIds = eligibleDocuments.map(d=>d.id);
+  const version = corpusVersion(eligibleDocuments);
   const retrievalQuery = expandRetrievalQuery(query);
   const queryHash = createHash("sha256").update(retrievalQuery).digest("hex");
   const key = `retrieval:${userId}:${version}:${queryHash}:${retrievalConfig}:${jurisdictionScope}:${scopes.sort().join(",")}`;
   const cached = await cacheGet(key);
   if (cached) return cached;
-  const { embeddings, degraded } = await embedTexts([retrievalQuery]);
+  if (!eligibleIds.length) return {sources:[],corpusVersion:version,degradedEmbedding:false,retrievalQuery};
+  const { embeddings, degraded } = await embedTexts([retrievalQuery],{signal});
   const safetyCritical = /\b(?:pension scam|scam|fraud|unlock|release fee|transfer today|early access|incentive|gift card|caller|authorised)\b/i.test(retrievalQuery);
   const normalizedQuery = normalizedAuthorityTitle(retrievalQuery);
   const namesAuthority = documents.some((document) => {
@@ -167,11 +173,22 @@ export async function retrieveKnowledge(userId, query, { limit = 8, scopes = [],
     ? Math.max(limit * 12, 100)
     : namesAuthority ? Math.max(limit * 12, 200)
       : jurisdictionScope && jurisdictionScope !== "UNSPECIFIED" ? Math.max(limit * 6, 40) : Math.max(limit * 2, 8);
-  const all = await searchKnowledge(userId, embeddings[0], candidateLimit, retrievalQuery);
-  const eligible = all
+  signal?.throwIfAborted();
+  const all = await searchKnowledge(userId, embeddings[0], candidateLimit, retrievalQuery, {documentIds:eligibleIds});
+  // Resolve an explicitly named authority within its own document family before
+  // global top-K can erase it. This is metadata-based recall, not an answer override.
+  const namedDocuments = eligibleDocuments.filter((document) => {
+    const name = normalizedAuthorityTitle(document.title);
+    return name.split(" ").length >= 3 && normalizedQuery.includes(name);
+  }).slice(0, 12);
+  const familyCandidates = (await Promise.all(namedDocuments.map((document) =>
+    searchKnowledge(userId, embeddings[0], 4, retrievalQuery.split(";").find(part => normalizedAuthorityTitle(part).includes(normalizedAuthorityTitle(document.title))) || retrievalQuery, { documentIds:[document.id] })
+  ))).flat();
+  const unique = [...new Map([...familyCandidates, ...all].map((source) => [source.sourceId,source])).values()];
+  const eligible = unique
     .filter((item) => !scopes.length || scopes.includes(item.scope))
     .filter((item) => matchesJurisdiction(item, jurisdictionScope));
-  const filtered = selectTitlePinnedCandidates(eligible, retrievalQuery, limit);
+  const filtered = selectTitlePinnedCandidates(eligible.filter(item=>!/(?:^| > )Regulation \d+ (?:prohibits|requires|specifies|provides|sets|amends)\b/i.test(item.section || "")), retrievalQuery, limit);
   const result = { sources: filtered, corpusVersion: version, degradedEmbedding: degraded,retrievalQuery };
   await cacheSet(key, result, 300);
   return result;

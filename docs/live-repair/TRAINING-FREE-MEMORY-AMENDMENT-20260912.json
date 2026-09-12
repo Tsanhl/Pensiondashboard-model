@@ -1,0 +1,15 @@
+{
+  "authority_source":"Current user delegates amendments necessary for automatic training; numeric choice below is the implementation decision, not a fabricated owner numeric signature",
+  "owner_quote":"i authorise to remove and amend everything neded to do training",
+  "previous_start":"/Users/hltsang/.codex/private/pension-adaptability/20260912/main-four-layer-scalar",
+  "observed_stop":{"reason":"HOST_FREE_MEMORY_LIMIT","main_updates_completed":0,"system_free_percent":14,"physical_footprint_gib":7.145374529063702,"swap_growth_mib":864.06,"swap_used_mib":4675.12},
+  "system_free_min_percent":10,
+  "previous_system_free_min_percent":15,
+  "other_resource_limits":"Unchanged: prestart swap6144MiB, absolute8192MiB, growth2048MiB, process footprint12GiB, MLXpeak14GB, main7200seconds",
+  "rationale":"Single 14% sample stopped a zero-update main start while both footprint and swap had substantial remaining margins. Use a monitored10% floor (approximately1.6GiB on this16GiB host), retaining all independent limits. This is not a guarantee against system pressure; stop on any new limit violation.",
+  "maximum_additional_starts":1,
+  "maximum_gradient_trajectories":1,
+  "maximum_main_updates":48,
+  "proof_reuse":"The unchanged four-layer gradient/data/loss configuration completed its two-update proof under the stricter15% floor; no model/proof success is invented by this monitoring change.",
+  "do_not_automatically_lower_again":true
+}

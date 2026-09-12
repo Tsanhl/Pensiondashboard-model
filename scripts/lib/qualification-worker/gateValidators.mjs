@@ -6,8 +6,8 @@ import { projectQualificationFixtureValues } from "../../../server/services/qual
 import { validateReviewWorkerPolicy } from "./reviewWorkerPolicy.mjs";
 
 const HARD_GATES = ["all_material_claims_supported", "citations_entail_claims", "correct_jurisdiction", "no_unsafe_instruction", "no_unsupported_outcome", "no_wrong_personal_fact", "no_absolute_certainty_claim"];
-export const CANONICAL_RUNTIME_CONFIGURATION_SHA256 = "a2cbf2090d7d09ef5a659ef537e593f3b9656c5531f3e4dff7b7a16b3eaef0b2";
-export const CANONICAL_QUALIFICATION_CONFIG_SHA256 = "d3dbdcda2aebab12d856b66add9a3460f6917868e23c283b1aa74e3f7d27f4b9";
+export const CANONICAL_RUNTIME_CONFIGURATION_SHA256 = "a1b5678d68a83a54c5fed78c883d3689ad92c035c242ea175bb145d53cf738c4";
+export const CANONICAL_QUALIFICATION_CONFIG_SHA256 = "4355599952bb58c8d5c30cb9ced3b248ad5b88dec142cbe5c30512f13a9651ab";
 const REQUIRED_DISABLED_REVIEW_FEATURES = Object.freeze([
   "shell_tool","unified_exec","browser_use","browser_use_external","computer_use",
   "apps","multi_agent","hooks","skill_search","tool_suggest",

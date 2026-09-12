@@ -26,8 +26,11 @@ export function selectEvidenceExcerpt(text, query, maxChars = 1000) {
   }
   let end = Math.min(text.length, best.start + limit);
   if (end < text.length) {
-    const space = text.lastIndexOf(" ", end);
-    if (space > best.start) end = space;
+    const passage = text.slice(best.start,end);
+    const boundaries = [...passage.matchAll(/(?:[.;]\s+|\n(?=\(\d+\)))/g)];
+    const last = boundaries.at(-1);
+    if (last && last.index > 0) end = best.start + last.index + (last[0].startsWith('\n') ? 0 : 1);
+    else { const space = text.lastIndexOf(" ", end); if (space > best.start) end = space; }
   }
   return { text:text.slice(best.start, end), start:best.start, end, truncated:true };
 }

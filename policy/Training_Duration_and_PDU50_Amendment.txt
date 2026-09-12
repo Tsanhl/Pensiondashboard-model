@@ -1,0 +1,140 @@
+26. V3 AMENDMENT — MEASURE TRAINING DURATION; 48 IS A COMPARATOR, NOT A MAGIC TARGET
+
+This section implements the owner's new request to test whether 48 optimiser updates is a suitable choice. It supersedes any surviving wording that mandates completion or selection of exactly 48 updates. Preserve 0/48 and earlier limits as historical facts, not a present quality guarantee. No evidence in the supplied v2 file establishes why 48 was originally chosen or that it is optimal. Audit the actual original proposal and do not retrospectively invent a rationale.
+
+26.1 Declare what is being compared
+Create TRAINING-DURATION-STUDY.json and a readable companion before inspecting new results. Record the parent/base, dataset/splits, formatter/loss/reviewer hashes, optimiser, scheduler, trainable parameters, batch size, accumulation, sampling/packing/drop-last behaviour, seed, candidate checkpoints, early-stop rule and finite resource/inference/review budgets.
+
+The default first study is ONE compatible training trajectory capped at 48 actual optimiser updates, with candidate snapshots at additional-update counts 0, 12, 24, 36 and 48. Point 0 is the intact baseline checkpoint 104, not a different model labelled checkpoint 0. These milestones are a proposed coarse comparison grid, not a claim that they are individually optimal. Preserve the absolute parent identifier separately from each new-run relative update count.
+
+Do NOT run separate 12-, 24-, 36- and 48-step training jobs by default: that would consume 120 updates and four training starts, not the original bounded experiment. One trajectory saves intermediate checkpoints while keeping the rest constant. A shorter snapshot from a schedule designed for a 48-step horizon is not equivalent to a separately trained short-horizon schedule; report that limitation. Comparing different learning-rate schedules, seeds, ranks or datasets is another experiment, not a free extension of this one.
+
+If matching saved checkpoints and exact evaluation receipts already exist, use them instead of retraining. If a completed run saved only step 48, report that earlier comparison evidence is unavailable; do not claim it is best and do not silently launch another full run. A changed cadence, total compute or incomplete compatibility with the old authority requires one consolidated exact amendment request through the existing controls.
+
+The new owner request authorises preparation of this duration study, code instrumentation and PDU50 fixture/evaluator integration plus bounded development inference within existing provider/resource permissions. It does not reset failed full-model probes or enlarge memory/swap/time budgets. Execute training only under valid applicable remaining run authority and a passed compatible two-update proof. If an immutable old approval permits only an exact incompatible configuration, show the specific changed fields once; do not overwrite its signature or repeatedly ask for already documented consent.
+
+26.2 Verify that an update really is an update
+Inspect the installed trainer/optimiser and wrappers. Do not blindly equate CLI --iters with completed optimiser updates, especially under gradient accumulation. Track actual completed optimiser-step events and synchronisation; label microsteps, gradient evaluations, training batches, epochs and generation calls separately.
+
+Record for each saved candidate: completed updates, microbatches, sample IDs or privacy-preserving IDs and exposure counts, unique examples seen, total presented prompt tokens, supervised nonpadding target tokens, effective batch, data-order state and exact optimiser/RNG state.
+
+For a simple un-packed single-device run, effective examples per update may be microbatch_size * accumulation_steps, but only when that matches real code, full/partial batches and sampler behaviour. Compute example-exposure equivalents as total example presentations / eligible training-example count, and explicitly state assumptions. Packing, sampling with replacement and repeated/truncated examples require their own accounting. Do not infer '24 examples x two epochs = 48 updates' without runtime evidence. Token volume is a complementary exposure measure, not a universal learning-dose formula.
+
+26.3 Select on the existing validation role, not on the new 50-question exam
+Use the compatible reviewed eight-example validation set for teacher-forced loss and a fixed rubric for generated-answer behaviour. Remove target answers from inference inputs. Bind supervised loss and generated answers to the exact saved adapter bytes after loading. Inputs legitimately include their permitted evidence, not hidden expected answers. Label validation replay with supplied evidence as selection diagnostics, not normal-retrieval qualification.
+
+Before scoring, freeze a rule. Suggested default to be ratified through the existing policy process:
+1. Invalid identity, partial adapter, resource failure, missing review, or any observed hard safety/privacy/factual/citation-applicability failure makes the checkpoint ineligible for promotion. Operationally unreviewed candidates are UNASSESSED, not evidence of worse legal capability.
+2. Among fully assessed hard-gate-clean checkpoints, prefer the larger count of correct, complete or genuinely justified-clarification outcomes on the fixed validation rubric, then fewer material omissions and unnecessary/repeated questions. A blanket refusal cannot win by containing no false claims.
+3. Use validation loss as a secondary selection signal, not a replacement for answer semantics. Compare like-for-like token weighting and per-example reports so a long item does not conceal poor performance elsewhere.
+4. When semantic outcomes are tied and relative validation loss differs by at most a PREDECLARED 1% tolerance, prefer fewer additional updates and lower demonstrated resource cost. This tolerance is a conservative engineering tie rule, not statistical proof of equal models; pin a different justified tolerance before results only through the documented process.
+5. Select baseline 104 or NONE if no new checkpoint shows the required observed benefit without hard regression. There is no obligation to select step 48.
+
+If a meaningful monotonic-regression early stop is already declared, use it without relabelling the run as 48/48. Do not invent a stopping rule from the current trajectory after seeing it. The default coarse comparison assesses scheduled checkpoints through the authorised cap unless a resource/safety guard or declared stopping rule intervenes. If the run stops at 24, steps 36/48 are NOT_RUN; no conclusion comparing those unobserved points is allowed.
+
+The first study's nominal selection workload is at most five candidates x eight validation examples = 40 generated validation answers, plus required loss passes and review calls. Calculate the actual maximum including both reviewer calls, allowed operational retries and runtime/evaluator receipt reuse. Share a review only when job scope and byte bindings legitimately match; do not fabricate credit or add unlimited calls. Pin provider-call/token/time budgets before launch. If current quota does not fit, give the exact missing budget/candidate coverage rather than picking a winner from unassessed checkpoints.
+
+Keep one model copy resident at a time. Checkpoints may be stored during training and evaluated sequentially after releasing training memory if that preserves the fixed schedule and declared selection/stop policy. An inference-only checkpoint can be evaluated without replacing the active user service. Evaluation overhead must fit its own approved budget, not be hidden inside the old training deadline.
+
+26.4 What conclusion is allowed?
+Return a table for candidate 0/12/24/36/48: actual exposure, loss, semantic outcomes, hard failures, unnecessary questions, source support, resource peaks, time, exact hashes and eligible/selected/not-run status.
+
+Allowed: 'Among the fully assessed saved checkpoints on this dataset, parent, seed, schedule and limits, step 24 was selected; step 48 was not better under the predeclared rule.'
+Not allowed: '24 is universally optimal', '48 is best because it is the last step', or 'the Mac cannot train because a policy guard stopped it.' A single short trajectory and eight validation cases give limited evidence. More than 48 updates, new schedules/seeds or a new dataset requires a distinct reviewed experiment and explicit compute/attempt authority, never an automatic extension.
+
+Rename current status fields to UPDATE_CAP / SCHEDULED_CHECKPOINTS / COMPLETED_MAIN_UPDATES / SELECTED_ADDITIONAL_UPDATE_COUNT / STOP_REASON / DURATION_COMPARISON_SCOPE. Preserve historical UPDATES_OUT_OF_48 fields in archived receipts, not as a mandatory completion target in new summaries.
+
+27. PDU50-v1 — NEW REAL-USER DEVELOPMENT SUITE, NOT LEGACY LIVE-50 OR SEALED UNSEEN
+
+This amendment explicitly adds ONE 50-scenario development set requested by the owner. It does not replace, rename, consume or automatically qualify the existing LIVE50_FULL_REGRESSION. Use unique IDs PDU50-001 through PDU50-050 and the supplied file hashes.
+
+The pack contains 50 primary user questions, of which 10 have one additional real follow-up: 60 user turns per complete candidate execution, before retries and separate fault/gap experiments. There are 38 cases requiring mixed personal facts and public legal/guidance support; the remaining cases test records, calculations, privacy or read-only controls. Counts are inventory attributes, not a claim of current model accuracy.
+
+The pack is visible to the owner and implementing assistant. It is DEVELOPMENT_COMPARISON evidence, NEVER 'sealed', 'unseen certified' or an independently created final exam. Exact/semantic overlap with old 24/8 and other permitted development cases must be audited; do not open protected banks to perform the audit. Shared publicly available legal authority is not itself leakage, but copied question/answer/scenario structure and tuning exposure change interpretation.
+
+27.1 Install fixtures through the real two-database path
+Read the supplied README, suite manifest, synthetic portfolios, messages, harness setup, evaluator guide and source catalogue as distinct roles. All people, employers, plans, amounts and document text in this pack are invented; they are NOT the owner's actual portfolio, not new legal rules and not a replacement for original databases.
+
+Map the semantic fixture fields to the verified actual DB roles and repository API. If private records and text/vector knowledge occupy separate stores, seed isolated namespaces/copies in BOTH and verify their version linkage. If the actual roles differ, record the real mapping; do not force a fictional architecture or build a third DB. Resolve unsupported fields through a minimal legitimate mapping, not hidden prompt injection of expected content.
+
+Data readiness must verify queryable records, document ownership, source links, confirmation status, corpus/index versions and original source spans. Do not just paste a fixture JSON blob into the model and claim two DBs were tested. No test-only branch in production keyed by PDU50 IDs. Test envelopes/fixture controls stay in a development harness and do not grant authority to ordinary requests.
+
+Install each case in a fresh isolated state or transactionally reset its namespace after use. Cases may share a logical fixture specification but must not inherit unrelated conversation or mutations. Send only the actual user message and legitimately returned data/tools to the normal answer route. Fixture IDs, expected routes/outcomes, acceptance points, source-search hints, numeric reference outputs, reviewer verdicts and hidden partner data must never appear in generator context.
+
+product_messages.jsonl is message-only. harness_setup.jsonl is executor-only. evaluator_manifest.jsonl, Evaluator_Guide.md and numeric_reference.json are evaluator-only. synthetic_portfolios.json is seed/record-source material, not an instruction packet. The files being separate is not security by itself: enforce loader allowlists and verify actual generated prompt/context bytes with a forbidden-field control.
+
+For two-turn cases, submit turn1, preserve the real assistant reply/session, then submit the supplied follow-up through the UI/transport. Do not seed a correct assistant reply from the rubric. If turn1 is an infrastructure failure, record the case's incomplete branch instead of faking history. Score first turn, follow-up and journey separately.
+
+Case46's authenticated user switch must actually occur through the legitimate development auth flow and start an appropriately isolated userB session. The words 'I signed in' cannot change server identity. The old user's context/ACL must not carry over. Case47's verified payroll update occurs only through the declared authenticated synthetic harness mutation between turns, with new read versions and cache invalidation; do not convert the user's claim into verified data automatically.
+
+27.2 Legal label and source readiness
+The supplied acceptance points are DRAFT requirements, not independently reviewed legal gold. The official source catalogue contains checked official starting pages AND explicitly labelled unfetched/discovery-only seeds. A URL or this pack's local format validation is not source admission or expert approval.
+
+For each case requiring legal content, fetch permitted original applicable sources, verify date/jurisdiction/conditions and bind only the necessary source spans through the existing admission and dual-review system. Review the proposed acceptance points against those spans before seeing candidate answers. Resolve ambiguous expectations; do not demand every possible clarification or an unsupported definite personal conclusion.
+
+Do not hardcode statutory numerical thresholds from memory into the evaluator. The fixture's payroll amounts and private scheme text are synthetic records; they do not establish the applicable law. An ordinary regulator/consumer guide may support a scoped explanation without proving an individual contractual outcome. Add missing authorities through controlled source work without treating question-specific search hints as runtime gold.
+
+Pin the as-of date, actual corpus and label/version hashes. Default fixture law date is 10 September 2026. To test a later date, create a clearly rebased suite/corpus and re-review changing legal expectations; do not mix dates within a supposedly paired run. Source-not-ready cases are CASE_NOT_READY, listed with the missing evidence and denominator; do not label them model FAIL or silently drop them to inflate success. Product-held answers and actual model errors remain separate measurements once prerequisites are ready.
+
+27.3 The comparison sequence
+A. Before any new weight updates, if the service and suite are ready, record a baseline104 run. Prefer authored/locked labels and post-training results kept unavailable to the optimiser/selection worker. If the whole baseline is delayed by source readiness, complete it before making any claimed paired improvement; no invented historical baseline. Existing unrelated 17 checks do not count as PDU50.
+B. Select a checkpoint using section26's validation protocol, NOT by running all 50 questions on each of 0/12/24/36/48 and choosing the best-looking score.
+C. With unchanged product/corpus/fixtures/settings, run the selected candidate through all 50 scenarios. Compare to the matched baseline. If product/corpus changed since A, record that as a different experiment and obtain a same-configuration baseline before attributing gains to the adapter.
+D. For mixed cases retain independent proof of authorised DB reads + actual relevant retrieval spans + prompt-bound context + genuine local generation + actual runtime reviews + displayed answer/source drawer/history. Each layer has its own verdict; 'two DB connections returned OK' is not end-to-end acceptance.
+
+Default initial PDU50 run scope is at most one complete baseline and one complete selected-candidate run = 120 primary user turns, not 50 total calls. Replay first-use faults or alternative transports only in separately budgeted named subruns. Production-permitted retries remain bounded and recorded. Before execution, compute the number of generator/planner/reviewer calls and elapsed-time/cost budget; typical per-turn two-reviewer use is a real workload, not free. Reuse exact valid receipts where legitimate. No repeat-until-PASS; reserve subsequent full reruns for a recorded candidate change and valid finite authority.
+
+Not every scenario must touch every store. A pure balance question should use authoritative records rather than inventing legal retrieval. Mixed cases must show both relevant personal records/documents and applicable public support. A read-only refusal or static protective notice must be labelled its true route; it cannot substitute for all generative legal acceptance cases.
+
+Normal paired comparison uses one pinned admitted corpus and disables changing it during scoring. Case49 additionally defines ONE separate injected-public-gap development run in a disposable corpus. Test real permitted search/admission/chunk/index/retrieval there; keep its outcome out of the fixed-corpus paired denominator. No protected test content may be exposed to public discovery.
+
+Use the numeric reference only for the exact synthetic convention and fields. It is a tested arithmetic oracle, not pension suitability advice or official projection certification. If the existing engine cannot represent separate DB/State start ages, expose that product limitation and implement the correct versioned calculation path or deliver an honest scoped result; never silently move benefits earlier to make figures fit. Do not feed the oracle output directly into a model-only answer and claim the engine was tested.
+
+27.4 Scoring and honest success criteria
+Score all material user subquestions, attribution, facts/units/date, legal scope/conditions, retrieval sufficiency, claim support/entailment, useful completeness, sensible clarification, privacy, read-only action boundary, runtime review completion and delivery. Keep raw-generation quality, reviewer filtering and delivered outcomes separate so refusing everything cannot produce apparent perfect accuracy.
+
+Report per-case and per-turn: PASS / FAIL / HOLD / CASE_NOT_READY / NOT_RUN; first failed boundary; source/fixture/candidate identity; exact calls/attempts; true runtime/evaluator reviewer evidence; response latency; and exposure to training/selection/repair. Only actual executed healthy replies are substantive successes. Appropriate refusal/clarification and safe outage recovery have their own expected outcomes and denominators.
+
+A perfect 50-case development score is not universal accuracy. Report group and mixed-case rates with counts, no invented probability or addition of unit tests to legal questions. Material privacy, unsafe action, unsupported legal conclusion or fabricated personal value remains a hard blocker. Meet the five prior legal failures and existing gate rules as well; the new suite does not replace them or loosen the existing formal standards.
+
+28. CONTROLLED EVALUATION -> REPAIR -> OPTIONAL TRAINING LOOP
+
+The owner requests a further evaluation/training loop, NOT feeding this 50-question exam directly into the current 24-example training loader.
+
+Initially exclude PDU50 questions, follow-ups, fixture-specific outputs, numeric oracles and acceptance wording from gradient training and checkpoint selection. The implementing agent knows the set, so the defensible label is visible development comparison, not hidden holdout. Baseline inspection that informs product repair must be logged as development exposure.
+
+After a failed PDU50 evaluation, use section00's first-boundary rule. Build a FailurePatternReport grouping causes: user/ACL/read consistency; parser/source/index/retrieval miss; evidence packing; calculation; model behaviour; validator/reviewer; rendering/transport; or inadequate evaluator label. Repair a proven data/engine/retrieval defect without assuming training is needed. Re-review changed labels through their legitimate process, not to obtain a convenient PASS.
+
+For genuine model-behaviour failures with sufficient correct evidence, this request authorises preparing a bounded NEXT_TRAINING_PROPOSAL and draft contrast examples, but not automatically launching another weight-update run. Default drafting cap: at most 24 new examples, chosen by distinct failure patterns rather than 50 copied answers. Keep a source-case-to-pattern-to-derived-example lineage table, explicit TRAIN/VALIDATION roles, exact evidence, final user-facing targets and both required independent dataset reviews. Do not train on hidden reasoning, reviewer verdicts, raw unreleased drafts or private chats without permission.
+
+Use meaningfully different facts/scenarios and evidence combinations, not name substitutions; cover both positive and negative sides of a conditional rule and necessary versus unnecessary questions. Audit permitted exact/near/template overlap. If any original PDU50 case or close derivative is deliberately used for training, mark that family EXPOSED/REGRESSION_ONLY for future reporting; do not claim its improved score is independent generalisation. Even pattern-derived fixes make later PDU50 results iterative development evidence.
+
+Freeze a separate adequate validation selection set for a new dataset. Never move failed validation items into training while continuing to call them validation. Enlarging/changing the training dataset makes the earlier 48-step dose/comparison non-transferable: recompute actual example/token exposure and run a newly authorised finite duration study if warranted. Re-run the two-update resource proof only if workload/configuration compatibility is not covered by a valid existing proof; do not repeat it needlessly or reuse it after material shape/optimiser changes.
+
+Any next actual training run needs the dataset/configuration/compute/attempt authority required by the original contract. Do not auto-repeat the same 48-step recipe, add epochs, bypass guards, relabel baseline104 or buy resources. Continue non-training repairs within scope. After a genuinely revised candidate, rerun affected cases and the authorised regression scope with new receipts; retain all earlier failures and exposures.
+
+For independent final evidence, preserve the separately controlled visible stages and sealed unseen already in the project. Do not create another sealed bank here. New development questions may be proposed under a separate finite plan when needed, not regenerated without limit until scores improve. A failed exposed unseen bank cannot be repaired into a new claim of unseen performance.
+
+29. V3 HANDOVER AND EXECUTION ORDER
+
+Priority is not more documentation. Reconcile current state and adopt valid completed work; then:
+1. Audit why 48 was chosen, what actual update counts mean, and remaining resource/attempt authority. Implement loss/guard/proof repairs and a minimal stable serving contract without waiting for perfect legal answers.
+2. Integrate and validate PDU50 fixture mapping and evidence/label readiness. Use lightweight preparation while training is blocked; do not load competing 8B models.
+3. Lock the one-trajectory <=48 comparison plan and validation rule. Execute the two-update proof and main study only when resource conditions and exact authorisation permit. Save eligible checkpoints and select before inspecting post-training PDU50 results.
+4. Execute matched PDU50 baseline/selected-candidate evaluation and real browser acceptance, with intact two-reviewer controls, fixture isolation, exact source traces and no gold in generation.
+5. Diagnose failures; implement relevant fixes and prepare only justified, bounded next-training examples/proposals. Do not launch another run without its required authority.
+6. When development acceptance passes, continue the original formal qualification route and stop at separate unseen authorisation.
+
+V3 report must include:
+- WHY_48: original recorded rationale or NOT_DOCUMENTED, never a guess.
+- UPDATE_ACCOUNTING: actual optimiser updates, microbatches, examples/token exposure, effective batch and exact local CLI interpretation.
+- DURATION_STUDY: candidate 0/12/24/36/48 table; selected additional-update count or NONE; tested scope and unexecuted points; legal/generation versus loss evidence.
+- RESOURCE_PROOF: authority, actual metrics/limits, consumed attempts, completed proof updates, save/reload and clean process receipts; or exact blocker.
+- PDU50_READINESS: hashes, 50 primary/10 follow-up inventory, sources/labels reviewed, real DB mapping and any CASE_NOT_READY reasons.
+- PDU50_RESULTS: matched case/turn/group counts and first failed layers, real vs mocked operations, runtime and independent reviewer identities, actual browser/source/history receipts.
+- EXPOSURE: current training/validation lists, PDU50 development exposure and regression-only families.
+- NEXT_TRAINING: only a supported proposal with reviewed or review-pending examples and clear remaining authority, never an automatic promise.
+- PRODUCT_IMPROVEMENT and ADAPTER_IMPROVEMENT separately, final active version/service, original formal gates and unseen untouched status.
+
+Use the supplied static validator as a packaging/schema check only. Its PASS is not real DB/model/browser/source/reviewer proof. The source catalogue and draft evaluator labels need the original contract's review before live scoring. Do not tell the owner the 50 cases passed or 48 is best without actually executing the applicable runs.
+

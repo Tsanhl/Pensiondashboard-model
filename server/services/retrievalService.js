@@ -1,3 +1,4 @@
+import { selectMandatorySources } from "./evidenceContractService.js";
 import { retrieveKnowledge } from "./knowledgeService.js";
 import { lookupStructuredData } from "./structuredDataService.js";
 import { rerankSources } from "./rerankingService.js";
@@ -37,13 +38,14 @@ async function configuredCorpusPolicy() {
   return approvedCorpusSourcePolicy();
 }
 
-export async function retrieveForQuery({ userId,sessionId,requestId,queryPlan,limit = 8 }) {
+export async function retrieveForQuery({ userId,sessionId,requestId,queryPlan,limit = 8,signal,dashboardSnapshot = null }) {
+  signal?.throwIfAborted();
   const sources = [];
   const corpusPolicy = await configuredCorpusPolicy();
   const retrievalQuery = queryPlan.retrieval_query || queryPlan.self_contained_query;
   let structuredTrace = { requested:[],matchedAccounts:0 };
   if (queryPlan.source_scopes.includes("USER_PORTFOLIO") || (queryPlan.structured_lookups || []).some((lookup) => ["account","charges","document_status","projection","investment_profile"].includes(lookup))) {
-    const structured = lookupStructuredData(userId, queryPlan);
+    const structured = lookupStructuredData(userId, queryPlan, dashboardSnapshot);
     sources.push(...structured.sources);
     structuredTrace = structured.trace;
   }
@@ -58,14 +60,14 @@ export async function retrieveForQuery({ userId,sessionId,requestId,queryPlan,li
   let threshold = null;
   if (unstructuredScopes.length) {
     knowledge = await retrieveKnowledge(userId, retrievalQuery, {
-      limit:Math.max(limit * 2, 8),scopes:unstructuredScopes,jurisdictionScope:queryPlan.retrieval_jurisdiction_scope || queryPlan.jurisdiction_scope || "UNSPECIFIED"
+      signal,approvedDocumentIds:corpusPolicy?.documentIds || null,limit:Math.max(limit * 2, 8),scopes:unstructuredScopes,jurisdictionScope:queryPlan.retrieval_jurisdiction_scope || queryPlan.jurisdiction_scope || "UNSPECIFIED"
     });
     // Expansion aids recall; reranking must answer the user's actual issue, not
     // broad expansion terms that can promote an unrelated statutory provision.
     const permittedKnowledge = filterSourcesByApprovedPolicy(knowledge.sources,corpusPolicy);
-    reranked = await rerankSources(queryPlan.self_contained_query || retrievalQuery, permittedKnowledge, { entities:queryPlan.entities,limit });
+    reranked = await rerankSources(queryPlan.self_contained_query || retrievalQuery, permittedKnowledge, { entities:queryPlan.entities,limit:permittedKnowledge.length,signal });
     threshold = knowledge.degradedEmbedding ? Number(process.env.DEGRADED_RETRIEVAL_MIN_SCORE || 0.04) : Number(process.env.RETRIEVAL_MIN_SCORE || 0.18);
-    sources.push(...reranked.sources.filter((source) => Number(source.score) >= threshold));
+    sources.push(...selectMandatorySources(reranked.sources.filter((source) => Number(source.score) >= threshold),queryPlan,limit));
   }
   const noResult = sources.length === 0;
   await recordRetrievalOutcome(noResult);

@@ -1,0 +1,77 @@
+{
+  "scope": "DEVELOPMENT_ONLY",
+  "protected_banks_opened": false,
+  "tests": [
+    "/Users/hltsang/Desktop/Pensions dashboard demo/test/auth-routes.test.mjs",
+    "/Users/hltsang/Desktop/Pensions dashboard demo/test/backend.test.mjs",
+    "/Users/hltsang/Desktop/Pensions dashboard demo/test/chat-rag.test.mjs",
+    "/Users/hltsang/Desktop/Pensions dashboard demo/test/custodian-context.test.mjs",
+    "/Users/hltsang/Desktop/Pensions dashboard demo/test/development-isolation.test.mjs",
+    "/Users/hltsang/Desktop/Pensions dashboard demo/test/document-evidence.test.mjs",
+    "/Users/hltsang/Desktop/Pensions dashboard demo/test/evidence-excerpt.test.mjs",
+    "/Users/hltsang/Desktop/Pensions dashboard demo/test/final-release-packaging.test.mjs",
+    "/Users/hltsang/Desktop/Pensions dashboard demo/test/legal-context-boundaries.test.mjs",
+    "/Users/hltsang/Desktop/Pensions dashboard demo/test/live-demo-repair.test.mjs",
+    "/Users/hltsang/Desktop/Pensions dashboard demo/test/live-owner-answers.test.mjs",
+    "/Users/hltsang/Desktop/Pensions dashboard demo/test/live-request-lifecycle.test.mjs",
+    "/Users/hltsang/Desktop/Pensions dashboard demo/test/local-model-identity.test.mjs",
+    "/Users/hltsang/Desktop/Pensions dashboard demo/test/model-context.test.mjs",
+    "/Users/hltsang/Desktop/Pensions dashboard demo/test/pinned-model-server.test.mjs",
+    "/Users/hltsang/Desktop/Pensions dashboard demo/test/pinned-retrieval-identity.test.mjs",
+    "/Users/hltsang/Desktop/Pensions dashboard demo/test/projection-oracle.test.mjs",
+    "/Users/hltsang/Desktop/Pensions dashboard demo/test/protective-notice.test.mjs",
+    "/Users/hltsang/Desktop/Pensions dashboard demo/test/qualification-active-reliability.test.mjs",
+    "/Users/hltsang/Desktop/Pensions dashboard demo/test/qualification-review-calibration.test.mjs",
+    "/Users/hltsang/Desktop/Pensions dashboard demo/test/qualification-review-selection.test.mjs",
+    "/Users/hltsang/Desktop/Pensions dashboard demo/test/qualification-review-workers.test.mjs",
+    "/Users/hltsang/Desktop/Pensions dashboard demo/test/qualification-worker-ai-review.test.mjs",
+    "/Users/hltsang/Desktop/Pensions dashboard demo/test/qualification-worker-artifacts.test.mjs",
+    "/Users/hltsang/Desktop/Pensions dashboard demo/test/qualification-worker-gates.test.mjs",
+    "/Users/hltsang/Desktop/Pensions dashboard demo/test/qualification-worker-launchd.test.mjs",
+    "/Users/hltsang/Desktop/Pensions dashboard demo/test/qualification-worker-policy.test.mjs",
+    "/Users/hltsang/Desktop/Pensions dashboard demo/test/qualification-worker-state.test.mjs",
+    "/Users/hltsang/Desktop/Pensions dashboard demo/test/readiness.test.mjs",
+    "/Users/hltsang/Desktop/Pensions dashboard demo/test/release-content.test.mjs",
+    "/Users/hltsang/Desktop/Pensions dashboard demo/test/release-evidence.test.mjs",
+    "/Users/hltsang/Desktop/Pensions dashboard demo/test/sealed-unseen-one-shot.test.mjs",
+    "/Users/hltsang/Desktop/Pensions dashboard demo/test/temporal-scoring.test.mjs",
+    "/Users/hltsang/Desktop/Pensions dashboard demo/test/training-evidence-integrity.test.mjs",
+    "/Users/hltsang/Desktop/Pensions dashboard demo/test/validated-generation-budget.test.mjs"
+  ],
+  "excluded": [
+    {
+      "path": "test/formal/chat-rag-fixture-audit.test.mjs",
+      "reason": "Protected visible-bank content audit"
+    },
+    {
+      "path": "test/formal/replacement-identity.test.mjs",
+      "reason": "Protected suite identity audit"
+    },
+    {
+      "path": "test/formal/pinned-preflight.test.mjs",
+      "reason": "Qualification input hash/cardinality audit"
+    },
+    {
+      "path": "test/formal/stage-child-watchdog.test.mjs",
+      "reason": "Installs a separate stage OS sandbox; run by qualification:test"
+    },
+    {
+      "path": "test/formal/reviewer-os-profile.test.mjs",
+      "reason": "Separate OS sandbox smoke check; macOS forbids nested sandbox installation; run by qualification:test"
+    }
+  ],
+  "denied_paths": [
+    "/Users/hltsang/Desktop/Pensions dashboard demo/training",
+    "/Users/hltsang/Desktop/Pensions dashboard demo/training 2",
+    "/Users/hltsang/Desktop/Pensions dashboard demo/Log",
+    "/Users/hltsang/Desktop/Pensions dashboard demo/Logging",
+    "/Users/hltsang/Desktop/Pensions dashboard demo/01-question-set-review-revision-v2",
+    "/Users/hltsang/Desktop/Pensions dashboard demo/Pensiondashboard-model-failclosed-20260902",
+    "/Users/hltsang/Desktop/Pensions dashboard demo/test/formal",
+    "/var/folders/sm/6g7jmw3x43b5r6rjcw1fnbr00000gn/T/pension-development-tests-JVMfor/protected-sentinel",
+    "/private/var/folders/sm/6g7jmw3x43b5r6rjcw1fnbr00000gn/T/pension-development-tests-JVMfor/protected-sentinel"
+  ],
+  "output": "/var/folders/sm/6g7jmw3x43b5r6rjcw1fnbr00000gn/T/pension-development-tests-JVMfor",
+  "exit_code": 0,
+  "signal": null
+}

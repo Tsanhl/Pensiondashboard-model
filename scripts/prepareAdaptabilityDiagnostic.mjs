@@ -1,0 +1,12 @@
+import {readFileSync,writeFileSync,mkdirSync} from 'node:fs';
+import {resolve} from 'node:path';
+import {boundedFileDigest as hash} from './lib/boundedFileDigest.mjs';
+import {loadTrainingAuthorization} from './lib/adaptabilityTrainingAuthorization.mjs';
+const root=resolve(process.argv[2]);
+const planPath=resolve(root,'training-plan.json'),plan=JSON.parse(readFileSync(planPath));
+const authority=loadTrainingAuthorization(plan.authorization.receipt_path);
+const diagnostic=resolve(root,'diagnostic');mkdirSync(diagnostic,{mode:0o700});
+const extra=[planPath,resolve(root,'training.sb'),resolve('ml/diagnose_adaptability_runtime.py'),resolve('scripts/diagnoseAdaptabilityRuntime.mjs'),resolve('scripts/lib/adaptabilityResourceLimits.mjs')];
+const binding={classification:'DISPOSABLE_RUNTIME_DIAGNOSTIC',mode:plan.execution.mode,loss_implementation:plan.execution.loss_implementation,original_plan:planPath,bound_inputs:[...plan.bound_inputs,...extra.map(path=>({path,sha256:hash(path)}))],versions:{mlx:'0.32.2','mlx-lm':'0.31.3',transformers:'5.16.1'},output:resolve(diagnostic,'quarantined-adapter'),profile:resolve(root,'training.sb'),updates:2,main_update_credit:0,timeout_seconds:authority.resource_limits.total_seconds,resource_limits:authority.resource_limits,stage_timeout_seconds:{startup:120,loading:120,device_kernel:45,parent_verification:90,frozen_verification:180,validation:120,compilation_graph:180,compiled_update:240,save:60,reload:60,generation:180},authorization:authority,changed_factor:'Compiled target-only loss (previous probes were eager); full validation, finite gradients/base hashes, clean interpreter reload and generation now verified.'};
+writeFileSync(resolve(diagnostic,'binding.json'),JSON.stringify(binding,null,2)+'\n',{flag:'wx',mode:0o600});
+console.log(JSON.stringify({binding:resolve(diagnostic,'binding.json'),child_started:false}));

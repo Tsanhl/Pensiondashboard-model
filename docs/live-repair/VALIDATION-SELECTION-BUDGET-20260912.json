@@ -1,0 +1,21 @@
+{
+  "scope": "Predeclared selection for the existing single <=48 update trajectory; no PDU50 inputs",
+  "candidates": [0,12,24,36,48],
+  "validation_examples_per_candidate": 8,
+  "maximum_generated_answers": 40,
+  "generation_settings": {"temperature":0,"seed":42,"max_tokens":192,"enable_thinking":false},
+  "generation_timeout_seconds": 7200,
+  "maximum_review_packets": 5,
+  "reviewer_calls_per_packet": 2,
+  "maximum_reviewer_calls": 10,
+  "static_selection_count_controls_per_packet": 2,
+  "maximum_review_case_judgments_including_controls": 100,
+  "control_scope": "Supported direct record answer versus redundant question that omits an available answer; evaluator-only, no additional model generation. Both isolated reviewers must identify the controls correctly before their selection counts are accepted.",
+  "review_call_timeout_seconds": 300,
+  "automatic_review_retries": 0,
+  "rubric": "Existing isolated development-answer review; both reviewers independently check original evidence, all claims/citations, completeness, necessary versus unnecessary clarification and hard safety gates. Require all eight paired reviews, exact saved weight identity, no hard failure. No blanket-refusal advantage.",
+  "loss_tie_tolerance": 0.01,
+  "on_missing_or_failed_review": "UNASSESSED or ineligible; never fabricate a semantic score or select by loss alone",
+  "early_stop": "Only measured resource/safety stop; no retrospective outcome-driven stop rule",
+  "limitations": "Eight synthetic validation examples and one seed/schedule cannot establish general legal accuracy; shorter saved checkpoints are not separate short-horizon schedules."
+}

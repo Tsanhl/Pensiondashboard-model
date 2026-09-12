@@ -1,3 +1,4 @@
+// Projection expectations below use real-cashflows-v2 (independently checked in projection-oracle.test.mjs).
 import test from "node:test";
 import assert from "node:assert/strict";
 import { processQuery } from "../server/services/queryProcessorService.js";
@@ -17,10 +18,10 @@ test("canonical fact oracle records authenticated demo totals and projection gap
   assert.equal(registry.facts["derivedFacts.workplacePotsTotal"].value, 115800);
   assert.equal(registry.facts["derivedFacts.personalPotsTotal"].value, 7650);
   assert.equal(registry.facts["statePension.forecastMonthly"].value, 550);
-  assert.equal(registry.facts["projection.monthlyGap"].value, 804);
-  assert.equal(registry.facts["projection.scenarios.extra50.remainingGap"].value, 738);
-  assert.equal(registry.facts["projection.scenarios.extra100.remainingGap"].value, 673);
-  assert.equal(registry.facts["projection.scenarios.extra200.remainingGap"].value, 542);
+  assert.equal(registry.facts["projection.monthlyGap"].value, 816);
+  assert.equal(registry.facts["projection.scenarios.extra50.remainingGap"].value, 751);
+  assert.equal(registry.facts["projection.scenarios.extra100.remainingGap"].value, 686);
+  assert.equal(registry.facts["projection.scenarios.extra200.remainingGap"].value, 556);
   assert.equal(registry.facts["accounts.aviva.policyNumber"].value, "AW12345678");
   assert.equal(registry.facts["documents.oneLife.status"].value, "Review");
   assert.equal(registry.facts["profile.currentEmployer"].value, "Northbridge Retail Ltd");
@@ -101,13 +102,14 @@ test("P3 strips contact-the-scammer wording", () => {
   assert.match(cleaned, /contact the provider through independently verified details/i);
 });
 
-test("P5 England and Wales demo profile does not stay unspecified for personal booklet questions", () => {
+test("P5 profile residence alone does not establish scheme amendment jurisdiction", () => {
   const booklet = processQuery("What does the Northbridge workplace scheme booklet say I should do before asking to change scheme?", PROFILE);
   assert.equal(booklet.intent, "USER_DOCUMENT");
   assert.ok(booklet.source_scopes.includes("USER_DOCUMENTS"));
   assert.ok(booklet.source_scopes.includes("USER_PORTFOLIO"));
-  assert.equal(booklet.jurisdiction_scope, "GREAT_BRITAIN");
-  assert.notEqual(booklet.jurisdiction_scope, "UNSPECIFIED");
+  assert.equal(booklet.jurisdiction_scope, "UNSPECIFIED");
+  const specified = processQuery("What does my workplace scheme booklet say about changes in England?", PROFILE);
+  assert.equal(specified.jurisdiction_scope, "GREAT_BRITAIN");
   const generic = processQuery("What does pension law say?", {});
   assert.equal(generic.jurisdiction_scope, "UNSPECIFIED");
 });
@@ -127,12 +129,12 @@ test("deterministic answers cover totals, gap, extra £100 and OneLife status", 
   const total = deterministicDashboardAnswer("How much have I got in pensions altogether if you add all the pots up?", { userId: "alex-morgan", sources });
   assert.match(total.answer, /123,450/);
   const gap = deterministicDashboardAnswer("Explain my £804 monthly gap and what I can review.", { userId: "alex-morgan", sources });
-  assert.match(gap.answer, /804/);
+  assert.match(gap.answer, /816/);
   const extra = deterministicDashboardAnswer("What happens to my monthly gap if I add £100 a month?", { userId: "alex-morgan", sources });
-  assert.match(extra.answer, /673/);
-  assert.match(extra.answer, /1,827|1827/);
+  assert.match(extra.answer, /686/);
+  assert.match(extra.answer, /1,814|1814/);
   const projected = deterministicDashboardAnswer("How much monthly income am I projected to have in retirement on the current dashboard figures?", { userId: "alex-morgan", sources });
-  assert.match(projected.answer, /1,696|1696/);
+  assert.match(projected.answer, /1,684|1684/);
   const oldPot = deterministicDashboardAnswer("What's left in my old Standard Life pension from when I worked at Harbour Logistics?", { userId: "alex-morgan", sources });
   assert.match(oldPot.answer, /32,150/);
   const buffer = deterministicDashboardAnswer("Do I have enough emergency savings, or should I stop pension contributions to build a cash buffer?", { userId: "alex-morgan", sources });
@@ -183,21 +185,20 @@ test("R51 product repairs cover redundancy, lost pension, consolidation, DB reca
   assert.match(redundancy.answer, /personal pension/i);
 
   const lost = deterministicDashboardAnswer("I think I am missing a pension from a job before Harbour Logistics. How do I find a lost pension?", { userId: "alex-morgan", sources });
-  assert.match(lost.answer, /Pension Tracing Service/);
-  assert.doesNotMatch(lost.answer, /Contact Aviva.{0,40}missing Harbour/i);
+  assert.equal(lost, null, "Public tracing claims must use public retrieval, not account-only citations");
 
   const combine = deterministicDashboardAnswer("Would combining every pension I have into one pot be the right move for me?", { userId: "alex-morgan", sources });
   assert.match(combine.answer, /cannot recommend combining/i);
   assert.equal(processQuery("Should I combine all my pensions into one pot to make them easier to manage?", PROFILE).response_route, "ANSWER_AND_HANDOFF");
   const lostPara = deterministicDashboardAnswer("How do I trace a pension from an employer before Harbour Logistics that is not on the dashboard?", { userId: "alex-morgan", sources });
-  assert.match(lostPara.answer, /Pension Tracing Service/);
+  assert.equal(lostPara, null);
+  assert.ok(processQuery("How do I trace a lost pension?", PROFILE).source_scopes.includes("CURATED_PUBLIC"));
   const schemePara = processQuery("What official legal process applies if my workplace pension scheme is changed?", PROFILE);
   assert.equal(schemePara.personal_dashboard_primary, false);
   assert.equal(schemePara.legal_evidence_required, true);
 
   const db = deterministicDashboardAnswer("Do I have a defined benefit pension on this dashboard?", { userId: "alex-morgan", sources });
-  assert.match(db.answer, /No defined benefit scheme is recorded/i);
-  assert.match(db.answer, /four defined contribution pots/i);
+  assert.equal(db, null, "A generic workplace label cannot establish every scheme is DC");
 
   const schemeChange = processQuery("Check the legal route for changing my workplace pension scheme.", PROFILE);
   assert.equal(schemeChange.legal_evidence_required, true);
@@ -248,7 +249,7 @@ test("Live-50 L19/L23/L26/L38/L43 product repairs stay on dashboard facts and ad
   assert.ok(contribution.structured_lookups.includes("projection"));
   const contributionAnswer = deterministicDashboardAnswer("Use my dashboard and explain what I should check before changing pension contributions. Include the current contribution scenarios.", { userId: "alex-morgan", sources });
   assert.match(contributionAnswer.answer, /£50|50/);
-  assert.match(contributionAnswer.answer, /738/);
+  assert.match(contributionAnswer.answer, /751/);
   assert.match(contributionAnswer.answer, /100/);
   assert.match(contributionAnswer.answer, /200/);
   assert.match(contributionAnswer.answer, /not a recommendation/i);

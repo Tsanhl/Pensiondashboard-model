@@ -1,0 +1,11 @@
+import {readFileSync,writeFileSync,readdirSync,mkdirSync,existsSync} from 'node:fs';
+import {resolve} from 'node:path';
+import {createHash} from 'node:crypto';
+import {runDevelopmentAnswerReview} from './lib/qualification-worker/aiReview.mjs';
+const [input,output]=process.argv.slice(2).map(p=>resolve(p));if(!input||!output||existsSync(output))throw Error('Input and fresh review output required');
+const records=readdirSync(input).filter(x=>x.endsWith('.json')&&!['receipt.json','case-manifest.json'].includes(x)).map(x=>JSON.parse(readFileSync(resolve(input,x))));
+const packet={scope:'DEVELOPMENT_GENERATION_REVIEW_ONLY',candidate_sha256:records[0].identity.adapter_sha256,cases:records.map(r=>({case_id:r.id,question:r.question,generated_answer:r.answer,raw_json_complete:r.checks.json,evidence:[{...r.source,evidence_id:'S1'}],citation_aliases:{S1:r.source.sourceId},limitations:['Fictional development exercise, not UK legal authority'],raw_receipt_sha256:createHash('sha256').update(readFileSync(resolve(input,r.id+'.json'))).digest('hex')}))};
+mkdirSync(output,{recursive:true,mode:0o700});writeFileSync(resolve(output,'packet.json'),JSON.stringify(packet,null,2),{flag:'wx',mode:0o600});
+const config=JSON.parse(readFileSync('config/qualification-worker.json'));config.__project_root=resolve('.');
+const result=await runDevelopmentAnswerReview({packet,config,outputDir:output});
+console.log(JSON.stringify({passed:result.passed,results:result.results,reviewers:result.reviewer_outputs.map(o=>o.cases.map(c=>({id:c.case_id,verdict:c.verdict,score:c.quality_score,rationale:c.rationale})))},null,2));if(!result.passed)process.exitCode=1;

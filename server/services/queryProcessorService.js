@@ -1,3 +1,4 @@
+import {resolvePortfolioAccounts, schemeFactGaps} from './portfolioEvidenceService.js';
 const INTENTS = new Set([
   "GENERAL_PENSION_FAQ", "USER_PORTFOLIO", "USER_DOCUMENT", "PENSION_LAW", "PROJECTION", "HYBRID",
   "UNSUPPORTED_ACTION", "HUMAN_HANDOFF"
@@ -23,10 +24,23 @@ export function personalDashboardQuestion(text) {
   return false;
 }
 
+export function urgentTransferPressure(text) {
+  const value = String(text || "");
+  if (!/\b(?:transfer|move my pension|move the pension)\b/i.test(value)) return false;
+  if (/\b(?:not|never) (?:being |been )?(?:pressured|rushed)|\bno (?:one is )?pressure\b/i.test(value)) return false;
+  return /\b(?:pressur(?:e|ed|ing)|rushed|rushing|pushing me|hurry)\b/i.test(value)
+    || (/\b(?:deadline|today|tomorrow|urgently)\b/i.test(value) && /\b(?:they say|told me|must|only|insist|insisting)\b/i.test(value));
+}
+
 export function legalSchemeChangeQuestion(text) {
   const value = String(text || "");
+  const pension = /\b(?:pension|retirement fund|scheme|benefits?)s?\b/i.test(value);
+  const amendment = /\b(?:chang(?:e|ing|ed|es)|amend(?:ed|ing|ments?|s)?|alter(?:s|ed|ing|ations?)?|reduc(?:e[ds]?|ing|tions?)|cut(?:ting|s)?|lower(?:s|ed|ing)?|stop(?:s|ping|ped)?|clos(?:e[ds]?|ing|ures?))\b/i.test(value);
+  const employerOrRights = /\b(?:employer|company|boss(?:es)?|workplace|trustees?|consent|approval|already (?:earned|built)|accrued|future|rights?)\b/i.test(value);
+  if (pension && amendment && employerOrRights) return true;
   if (/\b(?:legal route|official legal process|legal process)\b/i.test(value) && /\b(?:chang(?:e|ing|ed)|scheme is changed)\b/i.test(value) && /\bscheme\b/i.test(value)) return true;
   if (/\bworkplace pension scheme is changed\b/i.test(value)) return true;
+  if (/\b(?:employer|company|workplace)\b/i.test(value) && /\b(?:chang(?:e|es|ed|ing)|alter(?:s|ed|ing)?|amend(?:s|ed|ing)?)\b/i.test(value) && /\b(?:scheme|pension|benefits?|contributions?)\b/i.test(value)) return true;
   return false;
 }
 
@@ -38,6 +52,7 @@ export function dashboardRecordQuestion(text) {
   const value = String(text || "");
   if (!personalDashboardQuestion(value) && !/\b(?:facts? that need confirmation|need(?:s)? confirmation|fully checked)\b/i.test(value)) return false;
   if (/\b(?:should i (?:keep|buy|sell|switch|invest|transfer|combine)|which one should i keep|best returns?|recommend|legal route|tax-free|annual allowance|auto(?:matic)?[- ]enrolment|opt(?:ed)? out|pension protection fund|\bppf\b|complain|divorc|die before|death benefit|scam|unlock|expression of wish|survivor|does that prove|prove it is)\b/i.test(value)) return false;
+  if (/\bwhat (?:charge|balance|pot value|contribution rate) (?:is|shows|appears)\b/i.test(value)) return true;
   if (/\ba member\b/i.test(value) && !/\b(?:my|i am|i'm|i have)\b/i.test(value)) return false;
   return /\b(?:how much|what(?:'s| is) my|which of my|when was|lowest|highest|altogether|add(?:ed)? all|forecast|monthly gap|extra £|add £|assumption|income target|policy number|percentage do i|annual charge|current employer|confirmation|fully checked|manual entry|retirement age|salary|booklet|annual statement|still paying)\b/i.test(value)
     || (/\bstate pension\b/i.test(value) && /\bforecast\b/i.test(value))
@@ -132,19 +147,21 @@ function orderedProviders(context = {}) {
 
 function knownEntities(question, context = {}) {
   const entities = { ...(context.resolvedEntities || {}) };
+  const explicitlyNamed = (context.accounts || []).filter(a=>String(question).toLowerCase().includes(String(a.id).toLowerCase()) || (a.policy && String(question).replace(/\s/g," ").toLowerCase().includes(String(a.policy).toLowerCase())));
+  if (explicitlyNamed.length === 1) { entities.accountId=explicitlyNamed[0].id; entities.policyNumber=explicitlyNamed[0].policy; entities.provider=explicitlyNamed[0].provider; }
   const jurisdiction = detectJurisdiction(question, context);
   if (jurisdiction !== "UNSPECIFIED") entities.jurisdiction = jurisdiction;
   const providers = context.providers || [];
   for (const provider of providers) {
-    if (new RegExp(`\\b${String(provider).replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "i").test(question)) entities.provider = provider;
+    if (new RegExp(`\\b${String(provider).replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "i").test(question)) { if (entities.provider !== provider) { delete entities.accountId; delete entities.policyNumber; } entities.provider = provider; }
   }
   const policy = question.match(/\b(?:policy|plan|account)\s*(?:number|no\.?|#)?\s*([A-Z]{1,5}[- ]?\d{4,})\b/i);
-  if (policy) entities.policyNumber = policy[1];
+  if (policy) { delete entities.accountId; entities.policyNumber = policy[1]; }
   const ordinal = question.match(/\b(first|second|third|last)(?:\s+(?:one|plan|account|provider))?\b/i)?.[1]?.toLowerCase();
   if (ordinal) {
     const ordered = orderedProviders(context);
     const index = ordinal === "first" ? 0 : ordinal === "second" ? 1 : ordinal === "third" ? 2 : Math.max(0, ordered.length - 1);
-    if (ordered[index]) entities.provider = ordered[index];
+    if (ordered[index]) { delete entities.accountId; delete entities.policyNumber; entities.provider = ordered[index]; }
   }
   return entities;
 }
@@ -172,8 +189,8 @@ function responseRoute(question) {
     || deceptiveAction;
   if (prohibitedAction) return { route:"REFUSE_ACTION",reason:"read_only_action_boundary" };
 
-  const scam = /\b(?:unlock|early access|access pension benefits? immediately)\b.*\bpension\b|\bpension benefits?\b[^.!?]{0,80}\b(?:immediately|before (?:age )?55|before (?:age )?57)\b|\b(?:guaranteed|risk[- ]?free)\b.*\breturn|\b(?:unsolicited|cold call|whatsapp|pressur(?:e|ed|ing)|urgent(?:ly)?[^.!?]{0,40}transfer|transfer today|completes? today|pay (?:a |the )?fee|release fee|shopping voucher|cash incentive)\b|\b(?:caller|promoter|firm)\b[^.!?]{0,100}\b(?:knows? (?:my |the )?(?:pension value|date of birth|account details)|proves? (?:they|it) (?:are|is) authorised)\b|\b(?:fraud|scam)\b[^.!?]{0,60}\b(?:now|urgent|warning|suspect|suspected|committing)\b/i.test(text);
-  if (scam) return { route:"SECURITY_FALLBACK",reason:"possible_pension_scam_or_unauthorised_early_access" };
+  const scam = /\b(?:unlock|early access|access pension benefits? immediately)\b.*\bpension\b|\bpension benefits?\b[^.!?]{0,80}\b(?:immediately|before (?:age )?55|before (?:age )?57)\b|\b(?:guaranteed|risk[- ]?free)\b.*\breturn|\b(?:unsolicited|cold call|whatsapp|urgent(?:ly)?[^.!?]{0,40}transfer|transfer today|completes? today|pay (?:a |the )?fee|release fee|shopping voucher|cash incentive)\b|\b(?:caller|promoter|firm)\b[^.!?]{0,100}\b(?:knows? (?:my |the )?(?:pension value|date of birth|account details)|proves? (?:they|it) (?:are|is) authorised)\b|\b(?:fraud|scam)\b[^.!?]{0,60}\b(?:now|urgent|warning|suspect|suspected|committing)\b/i.test(text);
+  if (scam || urgentTransferPressure(text)) return { route:"SECURITY_FALLBACK",reason:"possible_pension_scam_or_unauthorised_early_access" };
 
   if (/\b(?:speak to|talk to|refer me to|connect me to|human support|human adviser|human advisor|handoff)\b/i.test(text)) return { route:"HUMAN_HANDOFF",reason:"user_requested_human" };
 
@@ -220,7 +237,7 @@ function detectIntent(question, route) {
 }
 
 function rewrite(question, context, entities) {
-  const needsContext = /^(it|that|this|they|them|the (?:one|plan|account|provider)|what about|and |can i still)/i.test(question.trim()) || /\b(it|that one|the cheapest|this plan|first one|second one|third one|last one)\b/i.test(question);
+  const needsContext = /^(it|that|this|they|them|the (?:one|plan|account|provider)|what about|and |can i still|actually\b|correction\b|sorry\b)/i.test(question.trim()) || /\b(it|that one|the cheapest|this plan|first one|second one|third one|last one)\b/i.test(question);
   if (!needsContext) return question.trim();
   const anchors = [];
   if (entities.provider) anchors.push(`provider ${entities.provider}`);
@@ -228,7 +245,7 @@ function rewrite(question, context, entities) {
   if (entities.jurisdiction) anchors.push(`jurisdiction ${entities.jurisdiction.replaceAll("_", " ")}`);
   const prior = String(context.lastUserMessage || "").trim().slice(0, 500);
   const clean = question.trim().replace(/\b(?:it|that one|this plan|first one|second one|third one|last one)\b/gi, entities.provider || entities.policyNumber || "$&");
-  const suffix = anchors.length ? ` (${anchors.join(", ")})` : prior ? ` (conversation context: ${prior})` : "";
+  const suffix = [prior ? ` (conversation context: ${prior})` : "", anchors.length ? ` (${anchors.join(", ")})` : ""].join("");
   return `${clean}${suffix}`;
 }
 
@@ -260,6 +277,9 @@ function jurisdictionClarificationPrompt(question) {
 function responseRequirements(question) {
   const text = String(question || "");
   const requirements = [];
+  if (legalSchemeChangeQuestion(text)) {
+    requirements.push("Give a supported conditional general explanation, not an unconditional yes/no. Separate the power in scheme rules and contractual terms (identify missing documents) from consultation and occupational subsisting-rights conditions. Distinguish changes to future contributions/accrual, existing rights and merely changing provider. Do not treat consultation as consent. Apply occupational/personal and DB/DC scope correctly; a DC automatic-enrolment guidance excerpt is only about that purpose. Cite each supported distinction; identify any unsupported subissue explicitly. Use scheme, proposed-change and jurisdiction facts already supplied in the query, records or conversation. Ask only for decisive facts that remain missing or ambiguous; do not ask the user to repeat supplied facts. Use up to six concise sentences when needed to cover these points.");
+  }
   if (/\bpension from an employer\b[^.!?]{0,80}\bmissing from (?:my |the )?dashboard\b/i.test(text)) {
     requirements.push("State that a missing dashboard result does not mean the pension no longer exists. Explain matching, scheme-connection and data-availability possibilities conditionally; cite current official evidence for generic dashboard or tracing statements; and give only a verified scheme-contact or official pension-tracing route.");
   }
@@ -646,7 +666,7 @@ function retrievalQuery(question) {
     additions.push("Pensions Dashboards Regulations 2022 find request matching possible match scheme connection value data GOV.UK Pension Tracing Service MoneyHelper find pension contact former employer pension");
   }
   if (legalSchemeChangeQuestion(text)) {
-    additions.push("Occupational and Personal Pension Schemes Consultation by Employers and Miscellaneous Amendment Regulations 2006 SI 2006/349 listed changes employer consultation; Occupational Pension Schemes Modification of Schemes Regulations 2006 SI 2006/759 Pensions Act 1995 section 67 subsisting rights scheme amendment");
+    additions.push("Pension schemes under the employer duties; Occupational and Personal Pension Schemes Consultation by Employers and Miscellaneous Amendment Regulations 2006 SI 2006/349 regulation 6 consultation required before decisions to make listed changes; Occupational Pension Schemes Modification of Schemes Regulations 2006 SI 2006/759 Pensions Act 1995 section 67 subsisting rights scheme amendment");
   }
   if (/\bpension under an employer i have never worked for\b|\bpossible false match\b/i.test(text)) {
     additions.push("Pensions Dashboards Regulations 2022 regulation 23 find request matching possible match view data Information Commissioner UK GDPR accuracy data minimisation security personal data breach false match privacy incident");
@@ -700,17 +720,23 @@ function retrievalQuery(question) {
 }
 
 export function processQuery(question, context = {}) {
-  const clean = String(question || "").trim();
+  const original = String(question || "").trim();
+  const clean = rewrite(original, context, knownEntities(original, context));
   if (!clean) throw Object.assign(new Error("message is required"), { status: 400 });
   const routeDecision = responseRoute(clean);
   const entities = knownEntities(clean, context);
   let jurisdiction = normaliseJurisdiction(entities.jurisdiction);
+  if (detectJurisdiction(original,{}) !== "UNSPECIFIED") entities.jurisdictionBasis = 'user_statement';
+  if ((pensionRuleQuestion(clean) || legalSchemeChangeQuestion(clean)) && /\bI (?:live|reside) in\b/i.test(original)
+    && !/\b(?:work|working|employed|scheme|proceedings|law) (?:in|is in|of)\b/i.test(original)) {
+    jurisdiction = "UNSPECIFIED"; delete entities.jurisdiction; entities.jurisdictionBasis = 'residence_only';
+  }
   if (TAX_PATTERN.test(clean)) jurisdiction = "UK_TAX";
   const personalDashboard = personalDashboardQuestion(clean);
   const recordQuestion = dashboardRecordQuestion(clean);
-  if (jurisdiction === "UNSPECIFIED" && (personalDashboard || recordQuestion)) {
+  if (jurisdiction === "UNSPECIFIED" && (personalDashboard || recordQuestion) && !pensionRuleQuestion(clean) && !legalSchemeChangeQuestion(clean)) {
     const profileJurisdiction = normaliseJurisdiction(context.profileJurisdiction);
-    if (profileJurisdiction !== "UNSPECIFIED") jurisdiction = profileJurisdiction;
+    if (profileJurisdiction !== "UNSPECIFIED") { jurisdiction = profileJurisdiction; entities.jurisdictionBasis = "profile_residence"; }
   }
   if (jurisdiction === "ENGLAND_AND_WALES" && !/\b(?:divorc|pension sharing|pension attachment|earmarking|job\b.*\btransferr?ing|employment transfer|tupe)\b/i.test(clean)) jurisdiction = "GREAT_BRITAIN";
   if (jurisdiction !== "UNSPECIFIED") entities.jurisdiction = jurisdiction;
@@ -719,7 +745,7 @@ export function processQuery(question, context = {}) {
   const confirmationQuestion = /\b(?:facts? that need confirmation|need(?:s)? confirmation|fully checked)\b/i.test(clean);
   const bookletQuestion = /\b(?:scheme booklet|member booklet|workplace scheme booklet)\b/i.test(clean);
   const conflictingSchemeDocuments = routeDecision.reason === "conflicting_scheme_documents";
-  const legalEvidenceRequired = pensionRuleQuestion(clean) && !dashboardFactComparison && !conflictingSchemeDocuments && !recordQuestion;
+  const legalEvidenceRequired = (pensionRuleQuestion(clean) || legalSchemeChangeQuestion(clean)) && !dashboardFactComparison && !conflictingSchemeDocuments && (!recordQuestion || legalSchemeChangeQuestion(clean));
   let intent = detectIntent(clean, routeDecision.route);
   if (dashboardFactComparison) intent = "USER_PORTFOLIO";
   if (recordQuestion && ["GENERAL_PENSION_FAQ", "PENSION_LAW", "HYBRID"].includes(intent)) {
@@ -734,7 +760,9 @@ export function processQuery(question, context = {}) {
   if (legalEvidenceRequired && ["USER_DOCUMENT", "HYBRID"].includes(intent) && !explicitUserDocument && !explicitPersonalEvidence && !bookletQuestion && !confirmationQuestion) intent = "PENSION_LAW";
   if (intent === "PENSION_LAW" && explicitPersonalEvidence) intent = "HYBRID";
   const personalDashboardPrimary = (personalDashboard || recordQuestion) && !legalEvidenceRequired && !legalSchemeChangeQuestion(clean);
-  const publicEvidenceRequired = legalEvidenceRequired || (!personalDashboardPrimary && PUBLIC_GUIDANCE_PATTERN.test(clean));
+  // A personal pronoun does not prove a records-only question. Preserve public
+  // retrieval for unfamiliar personal questions rather than trapping them in the dashboard.
+  const publicEvidenceRequired = legalEvidenceRequired || (personalDashboard && !recordQuestion && !confirmationQuestion) || (!personalDashboardPrimary && PUBLIC_GUIDANCE_PATTERN.test(clean));
   const personalScope = personalDashboard || Boolean(entities.provider || entities.policyNumber || entities.accountId) || ["USER_PORTFOLIO", "PROJECTION", "HYBRID"].includes(intent) || routeDecision.reason === "regulated_personalised_advice";
   const documentScope = ["USER_DOCUMENT","HYBRID"].includes(intent) || confirmationQuestion || bookletQuestion || (legalEvidenceRequired && personalScope) || routeDecision.route === "ANSWER_AND_HANDOFF" || /\b(?:uploaded|document|statement|letter|notice|pdf|scheme rules?|booklet)\b/i.test(clean);
   const sourceScopes = [];
@@ -748,15 +776,19 @@ export function processQuery(question, context = {}) {
   if (intent === "USER_DOCUMENT" || confirmationQuestion || bookletQuestion) structuredLookups.push("document_status");
   if (intent === "PROJECTION" || contributionScenarioQuestion(clean) || /\b(?:gap|extra £|add £|assumptions?|target|projected|salary|retire)\b/i.test(clean)) structuredLookups.push("projection");
   if (/\b(invest|allocation|fund|risk|cautious|balanced)\b/i.test(clean) || routeDecision.reason === "regulated_personalised_advice") structuredLookups.push("investment_profile");
+  if (/\b(?:annual allowance|tax year|withdraw|drawdown|maternity|parental leave|unpaid leave|opt(?:ed)? out|re[- ]?enrol|divorc|separat|nomination|expression of wish|salary sacrifice|cash buffer|monthly expenses)\b/i.test(clean)) structuredLookups.push("supplemental_records");
   if (sourceScopes.includes("CURATED_PUBLIC") && TAX_PATTERN.test(clean)) structuredLookups.push("public_tax_facts");
 
   const accountAmbiguity = /\b(my (?:plan|account)|that (?:plan|account)|(?:first|second|third|last) one)\b/i.test(clean) && !entities.provider && (context.providers || []).length > 1;
   const jurisdictionAmbiguity = requiresJurisdictionClarification(clean, jurisdiction);
-  return {
+  const selection = context.accounts ? resolvePortfolioAccounts({pensionAccounts:context.accounts}, entities, clean) : null;
+  if (selection?.selectedAccountId) entities.accountId = selection.selectedAccountId;
+  const result = {
+    original_query:original,
     intent:INTENTS.has(intent) ? intent : "GENERAL_PENSION_FAQ",
     response_route:RESPONSE_ROUTES.has(routeDecision.route) ? routeDecision.route : "ANSWER",
     handoff_reason:routeDecision.reason,
-    self_contained_query:rewrite(clean, context, entities),
+    self_contained_query:clean,
     retrieval_query:retrievalQuery(clean),
     entities,
     jurisdiction_scope:jurisdiction,
@@ -772,4 +804,16 @@ export function processQuery(question, context = {}) {
     clarification_prompt:jurisdictionAmbiguity ? jurisdictionClarificationPrompt(clean) : null,
     response_requirements:responseRequirements(clean)
   };
+  if (selection) {
+    result.account_selection = {accountIds:selection.accountIds,selectedAccountId:selection.selectedAccountId,ambiguous:selection.ambiguous};
+    result.missing_facts = legalSchemeChangeQuestion(clean) ? schemeFactGaps(result, selection) : selection.ambiguous ? ['account_selection'] : [];
+    if (result.legal_evidence_required) {
+      // Give supported general information before requesting a decisive detail.
+      result.needs_clarification = false;
+      result.response_requirements.push(`Missing or ambiguous facts: ${result.missing_facts.join(', ') || 'none of scheme type, proposal or jurisdiction'}. Do not request facts already supplied. Governing documents remain unverified unless present in evidence.`);
+    } else if (selection.ambiguous && /my (?:plan|scheme|account)|this (?:plan|scheme|account)/i.test(clean)) {
+      result.needs_clarification = true; result.clarification_reason = 'account_ambiguity';
+    }
+  }
+  return result;
 }

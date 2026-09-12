@@ -1,0 +1,10 @@
+import {readFileSync,existsSync} from 'node:fs';
+import {resolve} from 'node:path';
+import {runDevelopmentTrainingReview,revalidateDevelopmentTrainingReview} from './lib/qualification-worker/aiReview.mjs';
+const [dataset,output,mode='run']=process.argv.slice(2);
+if(!dataset||!output)throw Error('Dataset and fresh review output required');
+const config=JSON.parse(readFileSync('config/qualification-worker.json'));config.__project_root=resolve('.');
+const packet=JSON.parse(readFileSync(resolve(dataset,'review-packet.json')));
+const result=mode==='verify'?revalidateDevelopmentTrainingReview({packet,config,outputDir:resolve(output)}):await runDevelopmentTrainingReview({packet,config,outputDir:resolve(output)});
+console.log(JSON.stringify({passed:result.passed,formal_credit:false,counts:result.reviewer_outputs.map(x=>({pass:x.items.filter(i=>i.verdict==='PASS').length,hold:x.items.filter(i=>i.verdict==='HOLD').length,fail:x.items.filter(i=>i.verdict==='FAIL').length})),findings:result.reviewer_outputs.map(x=>x.items.filter(i=>i.verdict!=='PASS'))},null,2));
+if(!result.passed)process.exitCode=1;

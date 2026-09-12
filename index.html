@@ -317,14 +317,14 @@
             <div>
               <p class="eyebrow">Assistant</p>
               <h1 id="assistant-title">AI assistant</h1>
-              <p class="subtle">Sample profile: Alex Morgan at Northbridge Retail Ltd. Use the live demo script to test grounded answers.</p>
+              <p id="assistant-profile-context" class="subtle">Sample profile: Alex Morgan at Northbridge Retail Ltd. Use the live demo script to test grounded answers.</p>
             </div>
             <span class="action-pill danger urgent-action-pill hidden" data-urgent-action-pill><span aria-hidden="true">!</span> Action needed</span>
           </div>
           <div class="assistant-layout">
             <article class="card chat-card">
               <h3>Ask your questions</h3>
-              <div class="info-panel compact-panel"><strong>Read-only and evidence grounded.</strong><p>Qwen3-8B can use your verified dashboard and indexed documents. Figures, policy terms, tax and legal statements must cite supplied evidence.</p></div>
+              <div class="info-panel compact-panel"><strong>Read-only and evidence grounded.</strong><p>Qwen3-8B can use your saved dashboard records and indexed documents. Figures, policy terms, tax and legal statements must cite supplied evidence.</p></div>
               <div class="demo-prompt-groups" aria-label="Suggested questions">
                 <section class="demo-prompt-group">
                   <h4>Portfolio</h4>
@@ -338,7 +338,7 @@
                 <section class="demo-prompt-group">
                   <h4>Contributions and projection</h4>
                   <div class="quick-prompt-grid">
-                    <button type="button" class="quick-prompt" data-view="assistant" data-prompt="Explain my £804 monthly gap and what I can review."><span aria-hidden="true">£</span><strong>Close the gap</strong></button>
+                    <button type="button" class="quick-prompt" data-view="assistant" data-prompt="Explain my current monthly gap and what I can review."><span aria-hidden="true">£</span><strong>Close the gap</strong></button>
                     <button type="button" class="quick-prompt" data-view="assistant" data-prompt="Use my dashboard and explain what I should check before changing pension contributions. Include the current contribution scenarios."><span aria-hidden="true">◉</span><strong>Check contributions</strong></button>
                     <button type="button" class="quick-prompt" data-view="assistant" data-prompt="What happens to my monthly gap if I add £100 a month?"><span aria-hidden="true">↗</span><strong>Add £100</strong></button>
                   </div>
@@ -347,7 +347,7 @@
                   <h4>Documents, law and safety</h4>
                   <div class="quick-prompt-grid">
                     <button type="button" class="quick-prompt" data-view="assistant" data-prompt="Review the document facts that need confirmation."><span aria-hidden="true">▤</span><strong>Facts to confirm</strong></button>
-                    <button type="button" class="quick-prompt" data-view="assistant" data-prompt="What does my Aviva annual statement show?"><span aria-hidden="true">▤</span><strong>Aviva statement</strong></button>
+                    <button type="button" class="quick-prompt" data-view="assistant" data-prompt="What do my uploaded pension statements show?"><span aria-hidden="true">▤</span><strong>Pension statement</strong></button>
                     <button type="button" class="quick-prompt" data-view="assistant" data-prompt="What is the Pension Protection Fund?"><span aria-hidden="true">⚖</span><strong>PPF</strong></button>
                     <button type="button" class="quick-prompt" data-view="assistant" data-prompt="Check the legal route for changing my workplace pension scheme."><span aria-hidden="true">⚖</span><strong>Legal route</strong></button>
                     <button type="button" class="quick-prompt" data-view="assistant" data-prompt="Someone is pressuring me to transfer my pension urgently."><span aria-hidden="true">!</span><strong>Urgent transfer</strong></button>
@@ -359,7 +359,7 @@
                 <input id="assistant-input" name="question" type="text" autocomplete="off" placeholder="Ask your question…" />
                 <button class="primary-action" type="submit">Send</button>
               </form>
-              <p class="locked-note">Assistant responses are generated from your verified dashboard data.</p>
+              <p class="locked-note">Answers use saved dashboard records and supplied sources, with confirmation status shown where available.</p>
               <div class="assistant-sources" id="assistant-sources" aria-live="polite"></div>
             </article>
 
@@ -385,7 +385,7 @@
                     <small>Portfolio · Northbridge / Harbour</small>
                   </li>
                   <li>
-                    <button type="button" class="text-link" data-view="assistant" data-prompt="Explain my £804 monthly gap and what I can review.">Explain my £804 monthly gap.</button>
+                    <button type="button" class="text-link" data-view="assistant" data-prompt="Explain my current monthly gap and what I can review.">Explain my current monthly gap.</button>
                     <small>Projection · target versus forecast</small>
                   </li>
                   <li>
@@ -422,9 +422,9 @@
                 <div class="card-title-row"><h3>What the assistant can use</h3><span class="card-icon">▥</span></div>
                 <ul class="dot-list">
                   <li>Employer, scheme names, pots, charges and last-updated dates.</li>
-                  <li>Per-pot allocation, contribution rates and the Balanced risk profile.</li>
+                  <li>Recorded allocation, contribution rates and any completed risk profile.</li>
                   <li>State Pension forecast, retirement targets and projections.</li>
-                  <li>Sample document facts, including the Northbridge scheme booklet.</li>
+                  <li>Extracted document facts, with confirmation status and missing information shown.</li>
                   <li>Indexed official materials for public-law questions.</li>
                 </ul>
               </article>

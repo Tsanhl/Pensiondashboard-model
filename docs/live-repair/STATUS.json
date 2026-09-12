@@ -1,0 +1,548 @@
+{
+  "classification": "DEVELOPMENT_ONLY",
+  "functional_completion": "INCOMPLETE",
+  "formal_qualification": "NOT_RUN_PREREQUISITE_FAILED",
+  "historical_formal_run": {
+    "run_id": "post-t4-20260905071509-eb857ef9",
+    "status": "BLOCKED_NOT_QUALIFIED",
+    "completed_gates": 0
+  },
+  "fresh_formal_runs": 0,
+  "highest_completed_gate": null,
+  "next_gate": "VERIFY_RUNTIME",
+  "unseen_accessed": false,
+  "training": false,
+  "training_occurred": true,
+  "model_substitution": false,
+  "push": true,
+  "git_delivery": {
+    "date": "2026-09-12",
+    "repository": "https://github.com/Tsanhl/Pensiondashboard-model.git",
+    "branch": "codex/public-latest",
+    "commit": "15dc420146e1a7416d58b619158a46796e8e2aea",
+    "scope": "464 allowlisted public source and synthetic development pack files; private workspace ancestry and assets excluded",
+    "main_changed": false,
+    "deployment": false,
+    "future_sync": "node scripts/syncPublicCode.mjs --publish"
+  },
+  "deployment": false,
+  "checkpoint": 104,
+  "review_route": "AI_TWO_ISOLATED_REVIEWERS",
+  "source_admission": {
+    "passed": true,
+    "documents": 212,
+    "manifest_sha256": "f559e3ce18ce0ba9cf1128bd3f52d64b44b9faa1d954af93738dec1b3e0f0365",
+    "formal_credit": false
+  },
+  "owner_question_counts": {
+    "PASS": 5,
+    "FAIL": 1,
+    "HOLD": 0,
+    "NOT_RUN": 0,
+    "denominator": 6,
+    "scope": "Q2 reviewed protective notice only; Q3/Q4 deterministic; Q5/Q6 local clarification. Q1 legal fails. Latest real healthy2 scenarios, targeted5FAIL; not model legal accuracy."
+  },
+  "tests": {
+    "development": {"pass":285,"fail":0,"exit_code":0,"log":"/var/folders/sm/6g7jmw3x43b5r6rjcw1fnbr00000gn/T/pension-development-tests-5aqLEa/result.json"},
+    "controller_synthetic": {
+      "pass": 20,
+      "fail": 0,
+      "exit_code": 0,
+      "log": "/Users/hltsang/.codex/private/pension-live-repair/20260909/hybrid-repair/controller.log"
+    },
+    "syntax": {
+      "files": 347,
+      "exit_code": 0,
+      "log": null,
+      "static_copy_app_syntax_rechecked": true
+    },
+    "browser_targeted": {
+      "pass": 0,
+      "fail": 5,
+      "denominator": 5,
+      "exit_code": 1,
+      "receipt": "/Users/hltsang/.codex/private/pension-live-repair/20260909/hybrid-repair/browser-targeted-final/receipt.json",
+      "formal_credit": false
+    },
+    "browser_healthy-copy": {
+      "pass": 2,
+      "fail": 0,
+      "denominator": 2,
+      "exit_code": 0,
+      "receipt": "/Users/hltsang/.codex/private/pension-live-repair/20260909/hybrid-repair/browser-healthy-copy-final/receipt.json",
+      "formal_credit": false
+    },
+    "browser_faults": {
+      "pass": 12,
+      "fail": 0,
+      "denominator": 12,
+      "exit_code": 0,
+      "receipt": "/Users/hltsang/.codex/private/pension-live-repair/20260909/hybrid-repair/browser-faults-final/receipt.json",
+      "formal_credit": false
+    },
+    "browser_dependencies": {
+      "pass": 2,
+      "fail": 0,
+      "denominator": 2,
+      "exit_code": 0,
+      "receipt": "/Users/hltsang/.codex/private/pension-live-repair/20260909/hybrid-repair/browser-dependencies-final/receipt.json",
+      "formal_credit": false
+    },
+    "browser_live-cancel": {
+      "pass": 1,
+      "fail": 0,
+      "denominator": 1,
+      "exit_code": 0,
+      "receipt": "/Users/hltsang/.codex/private/pension-live-repair/20260909/hybrid-repair/browser-live-cancel-final/receipt.json",
+      "formal_credit": false
+    },
+    "browser_full21": {
+      "status": "NOT_RUN_PREREQUISITE_FAILED",
+      "reason": "Targeted legal0/5 FAIL. Independent normal/resilience subsets17PASS; not a combined21 acceptance run."
+    },
+    "http_data_roundtrip": {
+      "status": "PASS",
+      "receipt": "/Users/hltsang/.codex/private/pension-live-repair/20260909/hybrid-repair/http-data-roundtrip.json",
+      "synthetic_data": true,
+      "model_backed": false
+    }
+  },
+  "remaining_blockers": [
+    "Latest lineage31 is 5/8 dual-review PASS on synthetic validation; hard failures003/006 and material omission008 remain. No candidate is eligible for promotion.",
+    "PDU50 source admission and independent case readiness remain incomplete; 38 legal cases CASE_NOT_READY and 12 fixture stores have degraded embeddings.",
+    "Real product/browser acceptance and formal qualification remain unmet. No promotion or sealed access."
+  ],
+  "model_diagnosis": "MODEL-DIAGNOSIS.md",
+  "candidate": "CANDIDATE.json",
+  "private_evidence_root": "/Users/hltsang/.codex/private/pension-live-repair/20260909/hybrid-repair",
+  "local_url": "http://127.0.0.1:3001/#assistant",
+  "training_continuation": {
+    "owner_authorized": true,
+    "status": "CHECKPOINTED_MAIN_COMPLETE",
+    "historical_recovery": {"status":"RECOVERY_INTERRUPTED_SWAP_GROWTH_LIMIT","main_work_before_latest_segment":30,"durable_lineage_before_latest_segment":19,"historical_remaining17_not_required":true},
+    "latest_main_root": "/Users/hltsang/.codex/private/pension-adaptability/20260912/checkpointed-v8-bounded-memory-main",
+    "dataset_training": 24,
+    "dataset_validation": 8,
+    "isolated_reviewers": {
+      "A": "32_PASS",
+      "B": "32_PASS"
+    },
+    "baseline_development_generation": {
+      "dual_review_pass": 3,
+      "dual_review_partial": 3,
+      "total": 6,
+      "formal_credit": false
+    },
+    "run_root": "/Users/hltsang/.codex/private/pension-adaptability/20260912/recovery-from12",
+    "sealed_accessed": false,
+    "main_updates_completed": 42,
+    "main_updates_remaining": 0,
+    "durable_weight_lineage_updates": 31,
+    "recovery_segment_updates_completed": 7,
+    "remaining_updates_automatically_scheduled": false,
+    "latest_saved_candidate": "/Users/hltsang/.codex/private/pension-adaptability/20260912/checkpointed-v8-bounded-memory-main/checkpoints/12/adapter.safetensors",
+    "latest_saved_candidate_sha256": "140879a7499577e87783158e2e9b419c1f81856662f57a754ef918031f420cb6",
+    "recovery_optimizer_reset": true,
+    "recovery_scope": "One24-update weight-only segment from saved12. At most47 confirmed main updates across both segments; final lineage36. No checkpoint48 or exact-resume claim.",
+    "smoke_updates_confirmed": 2,
+    "selected_adapter": null,
+    "dataset_revision_pending": null,
+    "review_v3": {
+      "A": "32_PASS",
+      "B": "31_PASS_1_HOLD",
+      "receipt": "/Users/hltsang/.codex/private/pension-adaptability/20260909/review-v3/training-data-review.json"
+    },
+    "dataset_revision": "v4",
+    "dataset_root": "/Users/hltsang/.codex/private/pension-adaptability/20260909/dataset-v4",
+    "review_root": "/Users/hltsang/.codex/private/pension-adaptability/20260909/review-v4",
+    "hashes": {
+      "train.jsonl": "85d114fc659a7eea40e8706261c2981e058ca6b793b72725957153053822dd58",
+      "valid.jsonl": "ce702af64cd487a6189c595536d3255e8ce1957a2fa4390b217f8fb543bd6504",
+      "review-packet.json": "14cd3c0b2744e36e53c05370dc270842c4b0bc091ac129d431ffd7354549bcb3",
+      "review_receipt": "83cc3f262b20b4cdb968074edac9e801cc225ab1552ecff9dccb3a142d3bf49c"
+    },
+    "owner_authorized_scope": "Training and evidence-backed bounded resource adjustments are authorized without repeated generic confirmation. Main12 completed; semantic comparison, product/browser acceptance and qualification remain separate."
+  },
+  "local_runtime_state": "SERVICE_OFFLINE_COMPARISON_COMPLETE_NO_MODEL_OR_REVIEW_PROCESS",
+  "reconciled_at": "2026-09-12T17:18:30.634Z",
+  "owner_contract": "docs/OWNER-EXECUTION-CONTRACT.md",
+  "current_milestone": "THREE_CANDIDATE_COMPARISON_COMPLETE_LINEAGE31_5_OF8_NOT_PROMOTABLE",
+  "lineage31_comparison": {"root":"/Users/hltsang/.codex/private/pension-adaptability/20260912/lineage31-comparison-v1","status":"COMPLETE_NO_HARD_GATE_CLEAN_CANDIDATE","maximum_generations":24,"maximum_reviewer_calls":6,"training_updates":0,"candidates":["baseline104","parent19","segment12_lineage31"],"model_total_seconds":3600,"reviewer_seconds_per_call":300,"automatic_retry":false,"formal_credit":false,"promotion":false,"completed_generations":24,"completed_reviewer_calls":6,"full_validation_items_per_candidate":8,"dual_review_pass":{"baseline104":1,"parent19":2,"segment12_lineage31":5},"denominator_per_candidate":8,"validation_loss":{"baseline104":1.2275672090162926,"parent19":1.1127172090591642,"segment12_lineage31":1.0706597361542762},"truncated":{"baseline104":3,"parent19":0,"segment12_lineage31":0},"candidate_failed_cases":["adapt-valid-003","adapt-valid-006","adapt-valid-008"],"candidate_hard_failure_cases":["adapt-valid-003","adapt-valid-006"],"selected":null,"maximum_swap_growth_mib":1969,"maximum_swap_mib":6614.25,"minimum_free_percent":18,"maximum_footprint_gib":5.806369811296,"maximum_mlx_decimal_gb":5.962747654,"metrics_samples":665,"owned_processes_gone":true,"all_receipts_revalidated":true,"audit":"/Users/hltsang/.codex/private/pension-adaptability/20260912/lineage31-comparison-v1/independent-artifact-audit.json","result":"/Users/hltsang/.codex/private/pension-adaptability/20260912/lineage31-comparison-v1/result.json","scope":"SYNTHETIC_VALIDATION_REPLAY_NOT_LEGAL_BROWSER_OR_QUALIFICATION"},
+  "active_owned_processes": [],
+  "resource_adjustment_delegation": {"owner_authorized":true,"record":"docs/live-repair/RESOURCE-ADJUSTMENT-DELEGATION-20260912.md","repeated_generic_confirmation_required":false,"validation_seconds":300,"swap_growth_mib":2048,"swap_raised":false,"main_validation_seconds":420,"quality_thresholds_unchanged":true},
+  "verification_supplement": {"root":"/Users/hltsang/.codex/private/pension-adaptability/20260912/bounded-memory-verification-300","status":"RUNTIME_RESUME_PROOF_COMPLETE","maximum_gradient_updates":0,"maximum_total_seconds":480,"validation_seconds":300,"attempts_consumed":1,"original_failure_preserved":true,"validation_items":8,"full_validation_loss":1.10652219729686,"generation_finish":"stop","elapsed_seconds":333.158,"new_gradient_updates":0,"semantic_assessment":"NOT_PERFORMED","promotion":false},
+  "bounded_memory_main": {"root":"/Users/hltsang/.codex/private/pension-adaptability/20260912/checkpointed-v8-bounded-memory-main","status":"CHECKPOINTED_MAIN_COMPLETE","maximum_updates":12,"completed_updates":12,"historical_main_work":30,"parent_weight_lineage":19,"maximum_total_main_work":42,"maximum_weight_lineage":31,"validation_seconds":420,"effective_control":"delegated-control.json","swap_growth_mib":2048,"automatic_retry":false,"proof_workload_identity":"d9701fb5e5592eaabe3b0dfa9f34441a71a52aef7673018c21ccb3b6ed789c44","full_validation_items":8,"full_validation_loss":1.0706597361542762,"generation_finish":"stop","elapsed_seconds":1008.041,"maximum_swap_growth_mib":510.69,"maximum_swap_mib":5437.25,"minimum_free_percent":16,"maximum_footprint_gib":7.019474260509,"maximum_mlx_decimal_gb":8.044202496,"metrics_samples":195,"all_required_probes_valid":true,"owned_processes_gone":true,"semantic_assessment":"NOT_PERFORMED","promotion":false},
+  "bounded_memory_execution": {"root":"/Users/hltsang/.codex/private/pension-adaptability/20260912/checkpointed-v8-bounded-memory-proof","contract":"docs/live-repair/BOUNDED-MEMORY-20260912.md","status":"FAILED_STAGE_TIMEOUT_full_validation","memory_strategy":"frozen-prefix-query128","limits_raised":false,"attempts_consumed":1,"automatic_retry":false,"maximum_updates":2,"completed_updates":2,"main_updates_added":0,"workload_identity":"d9701fb5e5592eaabe3b0dfa9f34441a71a52aef7673018c21ccb3b6ed789c44","maximum_swap_growth_mib":578.88,"maximum_swap_mib":5622.19,"minimum_free_percent":18,"maximum_footprint_gib":6.99640301615,"maximum_mlx_decimal_gb":7.993175162,"metrics_samples":54,"all_required_probes_valid":true,"training_phases_exit0":2,"validation_items_completed":6,"validation_items_required":8,"generation":"NOT_RUN","elapsed_seconds":277.287,"checkpoint2_adapter_sha256":"5cd1d4472d59b19bbc37521ab54d0e0e757042f9884373f05cde2cd4c7734592","checkpoint2_state_sha256":"3c20a1adf024b4c806a7b3c06ee66d8b68a2dd7e4e18e4b5578ba7d88468ffd7","main_status":"NOT_RUN_INCOMPLETE_PROOF","owned_processes_gone":true,"proposed_verification_only_amendment":"docs/live-repair/MEMORY-REPAIR-RESULT-20260912.md"},
+  "two_layer_execution": {"root":"/Users/hltsang/.codex/private/pension-adaptability/20260912/checkpointed-v8-two-layer-proof","contract":"docs/live-repair/TWO-LAYER-CONTINUATION-20260912.md","status":"FAILED_SWAP_GROWTH_LIMIT","trainable_layers":2,"maximum_updates":2,"completed_updates":0,"main_updates_added":0,"attempts_consumed":1,"attempts_remaining":0,"automatic_retry":false,"workload_identity":"e7f52b4b8e80455062d861b6bd374832cc8948de63e1047f2271c866749e1b23","start_swap_mib":3818.19,"start_free_percent":56,"maximum_swap_growth_mib":2793.81,"maximum_swap_mib":6612,"minimum_free_percent":19,"maximum_footprint_gib":7.326389431953,"samples":9,"required_probes_pass":true,"elapsed_seconds":45.154,"last_stage":"compile_and_update","full_gradient_mlx_peak":"UNAVAILABLE_NO_COMPLETED_UPDATE_EVENT","owned_processes_gone":true,"main_status":"NOT_RUN_MATCHING_PROOF_FAILED","comparison_status":"NOT_RUN","promotion":false},
+  "checkpointed_v8_execution": {"dataset":"/Users/hltsang/.codex/private/pension-adaptability/20260912/dataset-v8-consultation-effect","review":"/Users/hltsang/.codex/private/pension-adaptability/20260912/dataset-v8-review/training-data-review.json","review_A":"32_PASS","review_B":"32_PASS","tokenizer_preflight":"PASS_3625_TOKENS_WITHIN3680_NO_TRUNCATION","proof_root":"/Users/hltsang/.codex/private/pension-adaptability/20260912/checkpointed-v8-proof","workload_identity":"26ead16f335b3fe13f9f086dd59b3f40b07ced9e825ca9ecb0685d4dd98d05c6","proof_status":"FAILED_SWAP_GROWTH_LIMIT","proof_attempts_consumed":1,"proof_attempts_remaining":0,"completed_proof_updates":0,"main_updates_added":0,"main_status":"NOT_STARTED_MATCHING_PROOF_FAILED","maximum_swap_growth_mib":3182.13,"maximum_swap_used_mib":6646.69,"minimum_free_percent":9,"maximum_process_footprint_gib":8.992618724704,"metrics_samples":9,"required_metric_probes_valid":true,"observed_stage":"compile_and_update","actual_full_gradient_mlx_peak":"UNAVAILABLE_CHILD_STOPPED_BEFORE_NEXT_EVENT","elapsed_seconds":45.182,"child_signal":"SIGTERM","owned_processes_gone":true,"new_candidate_comparison":"NOT_RUN_MAIN_NOT_COMPLETED","automatic_retry":false},
+  "checkpointed_continuation_plan": {"contract":"docs/live-repair/CHECKPOINTED-CONTINUATION-20260912.md","proof_attempts_max":1,"proof_updates_max":2,"main_segment_updates_max":12,"historical_main_updates":30,"maximum_total_main_updates":42,"parent_weight_lineage":19,"new_weight_lineage_max":31,"max_seq_length":3680,"status":"TERMINAL_PROOF_FAILED_SWAP_GROWTH_ZERO_UPDATES_MAIN_NOT_RUN","v7_review":{"A":"31_PASS_1_HOLD","B":"32_PASS","held_item":"adapt-train-008"},"v8_dataset":"/Users/hltsang/.codex/private/pension-adaptability/20260912/dataset-v8-consultation-effect","v8_review":"/Users/hltsang/.codex/private/pension-adaptability/20260912/dataset-v8-review"},
+  "latest_host_observation": {"at":"2026-09-12T17:18:30.634Z","swap_used_mib":4405.19,"system_free_percent":73,"owned_model_training_review_processes":0,"scope":"Post-comparison idle snapshot; no new attempt or automatic training scheduled"},
+  "resume_repair": {
+    "root": "/Users/hltsang/.codex/private/pension-adaptability/20260912/resume-state-proof-v2",
+    "cpu_fresh_process_bit_exact": true,
+    "disposable_updates_completed": 2,
+    "main_updates_added": 0,
+    "full_model_validation": "PASS_8_ITEMS_FINITE_FRESH_RELOAD_GENERATION_NORMAL_STOP_ALL_3_PROCESSES_EXIT0",
+    "runtime_proof_receipt": "/Users/hltsang/.codex/private/pension-adaptability/20260912/resume-state-proof-v2/result.json",
+    "maximum_observed_swap_growth_mib": 1823.13,
+    "legacy_checkpoint19_exact_resume_possible": false,
+    "main_route_integration": "IMPLEMENTED_AND_RUNTIME_VERIFIED_MAIN12_FULL_STATE_PER_UPDATE",
+    "reason": "Legacy checkpoints did not record RNG or sampler state; the new format does, and cannot reconstruct missing historical randomness.",
+    "no_child_preflight_bug_receipt": "/Users/hltsang/.codex/private/pension-adaptability/20260912/resume-state-proof-v1/attempt.json",
+    "no_child_preflight_bug_fixed": "Initial delta is zero relative to observed host swap, not relative to zero swap. No full-model child was started by that rejected preflight."
+  },
+  "pdu50_current_preparation": {
+    "fixture_cases_seeded": 12,
+    "fixture_binding_review": "PENDING",
+    "fixture_receipt": "/Users/hltsang/.codex/private/pension-adaptability/20260912/pdu50-fixture-preparation/receipt.json",
+    "guidance_sources_dual_review_pass": 3,
+    "source_review": "/Users/hltsang/.codex/private/pension-adaptability/20260912/pdu50-workplace-sources-v2/review/source-admission-review.json",
+    "active_corpus_changed": false,
+    "legal_labels_approved": 0,
+    "browser_cases_passed": 0,
+    "seed_integrity_audit": "PASS12_OF12_READ_ONLY_NOT_ACCEPTANCE",
+    "seed_integrity_receipt": "/Users/hltsang/.codex/private/pension-adaptability/20260912/pdu50-seed-readonly-audit/receipt.json",
+    "degraded_embedding_cases": 12
+  },
+  "partial_assessment": {"root":"/Users/hltsang/.codex/private/pension-adaptability/20260912/partial-baseline-vs12","status":"COMPLETE_NO_HARD_GATE_CLEAN_CANDIDATE","candidate_lineage_updates":[0,12],"completed_generations":16,"reviewer_calls":4,"new_training_updates":0,"baseline":{"dual_review_pass":3,"denominator":8,"validation_loss":1.2541333136906114,"material_omissions":2,"unnecessary_questions":3},"candidate12":{"dual_review_pass":6,"denominator":8,"validation_loss":1.1618373909952429,"material_omissions":1,"unnecessary_questions":0,"hard_failure_cases":["adapt-valid-006"]},"promoted":false,"full_study_complete":false},
+  "current_training_start_history": {
+    "historical_only": "Earlier execution record; current authority is resource_adjustment_delegation and latest run is bounded_memory_main.",
+    "first_start": "main-four-layer: stopped for validation-throughput repair, no confirmed optimizer update",
+    "second_start": "main-four-layer-scalar: HOST_FREE_MEMORY_LIMIT at14%, no confirmed optimizer update",
+    "current_start": "main-four-layer-free10: same parent/data/gradient configuration; delegated10% free floor amendment, all other caps unchanged",
+    "current_resource_amendment": "TRAINING-FREE-MEMORY-AMENDMENT-20260912.json",
+    "successful_proof": "/Users/hltsang/.codex/private/pension-adaptability/20260912/run-v3-four-layer/diagnostic/exit.json"
+  },
+  "diagnostic_budget": {
+    "historical_only": "Earlier execution record; current authority is resource_adjustment_delegation and latest run is bounded_memory_main.",
+    "full_model_probes_max": 2,
+    "full_model_probes_consumed": 2,
+    "updates_per_disposable_probe": 2,
+    "per_probe_timeout_seconds": 660,
+    "stage_timeout_seconds": {
+      "loading": 90,
+      "validation": 90,
+      "forward": 90,
+      "gradient": 150,
+      "optimizer": 45,
+      "save_reload": 45
+    },
+    "control": "First eager stages; compiled comparison only if informative and safe. No model/data/architecture changes; no main-run credit.",
+    "remaining": 0,
+    "second_probe_rationale": "First eager probe demonstrates pressure without compilation; test validated memory-bounded target loss, not a repeated stalled command"
+  },
+  "next_executable_action": "Repair the supported failure patterns under a fresh bounded development hypothesis: unknown conditions must yield undetermined rather than categorical No; do not invent missing terms already supplied; preserve explicit unconfirmed/human-verification facts. Use shared behavior and contrast controls, not hardcoded validation answers or moving validation into training. Record and review any new data/prompt/config before a finite matched retest. No further gradients scheduled. PDU50 case readiness and real browser acceptance remain prerequisites to formal qualification.",
+  "repository_identity": {
+    "requested": "Tsanhl/Pensiondashboard-model",
+    "actual_origin": "https://github.com/Tsanhl/Pensions-dashboard-.git",
+    "local_head": "b0b2a4bd0a78f903ae9aae17afd88e647ab2b400",
+    "action": "Preserve same local checkout; no remote change"
+  },
+  "diagnostic_binding": {
+    "path": "/Users/hltsang/.codex/private/pension-adaptability/20260909/diagnostic-target-loss/binding.json",
+    "sha256": "eeb267becd88d70a1ad2366e00a62b95b6d264040a59c937f56259a47569db7f"
+  },
+  "training_runtime": "MAIN_COMPLETE_42_ACTUAL_WORK_31_DURABLE_LINEAGE_NO_ACTIVE_TRAINING",
+  "diagnostic_results": [
+    {
+      "path": "/Users/hltsang/.codex/private/pension-adaptability/20260909/diagnostic-eager/exit.json",
+      "exit_code": null,
+      "signal": "SIGTERM",
+      "abort_reason": "HOST_MEMORY_PRESSURE_LIMIT",
+      "started_at": "2026-09-09T06:33:23.310Z",
+      "ended_at": "2026-09-09T06:34:28.371Z",
+      "last_stage": "gradient",
+      "updates_confirmed": 0,
+      "main_updates": 0,
+      "formal_credit": false,
+      "binding_sha256": "dffcce85fad32a97fc38f51932f6b94275d8ec8933f7ef8faf6bb3b6e82e2e0b"
+    },
+    {
+      "path": "/Users/hltsang/.codex/private/pension-adaptability/20260909/diagnostic-target-loss/exit.json",
+      "exit_code": null,
+      "signal": "SIGTERM",
+      "abort_reason": "HOST_MEMORY_PRESSURE_LIMIT",
+      "started_at": "2026-09-09T06:36:19.371Z",
+      "ended_at": "2026-09-09T06:37:59.599Z",
+      "last_stage": "gradient",
+      "updates_confirmed": 0,
+      "main_updates": 0,
+      "formal_credit": false,
+      "binding_sha256": "eeb267becd88d70a1ad2366e00a62b95b6d264040a59c937f56259a47569db7f"
+    }
+  ],
+  "runtime_identity_receipt": "/Users/hltsang/.codex/private/pension-live-repair/20260909/hybrid-repair/runtime-identity-final.json",
+  "last_completed_action": "Three-version paired synthetic validation comparison completed:24 local generations,24 loss examples,6 isolated reviewer calls, all clean exits and artifact/prompt bindings audited. Baseline1041/8, parent192/8, lineage315/8. Candidate003 categorical No despite unknown conditions;006 unsupported missing scheme terms;008 omitted human confirmation. No fully hard-gate-clean candidate, no promotion or new gradient updates.",
+  "training_status": "CHECKPOINTED_MAIN_COMPLETE_NO_ACTIVE_TRAINING",
+  "selected_adapter": null,
+  "improvement": "SAME_INPUT_SYNTHETIC_REPLAY_BASELINE1_OF8_PARENT19_2_OF8_LINEAGE31_5_OF8_HARD_FAILURES_REMAIN",
+  "current_policy_comparison": {
+    "root": "/Users/hltsang/.codex/private/pension-adaptability/20260912/evidence-boundary-comparison-v1",
+    "status": "COMPLETE_ANSWER_REPAIR_NOT_DEMONSTRATED",
+    "baseline_pass": 3,
+    "candidate12_pass": 5,
+    "denominator": 8,
+    "candidate_hard_failure_cases": ["adapt-valid-003", "adapt-valid-005", "adapt-valid-006"],
+    "generations": 16,
+    "reviewer_calls": 4,
+    "scope": "Current shared policy and context builder; direct temperature0/max256 generation omits literal product no_think prefix and transport recovery. Not full product/browser acceptance. Historical6/8 is separately preserved.",
+    "promotion": false,
+    "main_updates_added": 0
+  },
+  "current_dataset_repair": {
+    "root": "/Users/hltsang/.codex/private/pension-adaptability/20260912/dataset-v8-consultation-effect",
+    "review_root": "/Users/hltsang/.codex/private/pension-adaptability/20260912/dataset-v8-review",
+    "review_status": "COMPLETE_DUAL32PASS_DATA_APPROVED_MAIN12_COMPLETED",
+    "v6_review": {"A":"32_PASS","B":"31_PASS_1_HOLD","held_item":"adapt-train-009","reason":"Missing prerequisite checks and qualifying-earnings option with stated contribution minima","receipt":"/Users/hltsang/.codex/private/pension-adaptability/20260912/dataset-v6-target-review/training-data-review.json"},
+    "v5_review": {"A":"18_PASS_14_HOLD","B":"27_PASS_5_HOLD"},
+    "changed_training_targets": 14,
+    "changed_development_validation_references": 3,
+    "all_input_messages_preserved": true,
+    "validation_gradient_items": 0,
+    "maximum_tokens": 3625,
+    "existing_max_seq_length": 3680,
+    "previous_max_seq_length": 3584,
+    "preflight": "PASS_FULL_CONTEXT_AND_ALL_SUPERVISED_TARGETS_AT3680",
+    "new_main_training_started": true
+  },
+  "browser_acceptance": "FAIL",
+  "owner_test_status": "NOT_READY",
+  "last_completed_optimizer_update": 12,
+  "last_completed_optimizer_update_scope": "LATEST_MAIN_SEGMENT_12_ADDED_TO_LINEAGE19_EQUALS31",
+  "remaining_attempts": {
+    "full_model_diagnostics_in_declared_budget": 0,
+    "main_training_updates": 17,
+    "main_training_updates_scope": "Historical interrupted recovery arithmetic, not a required target or automatically scheduled allowance",
+    "fresh_visible_qualification_runs": 1,
+    "sealed_runs_authorized": 0
+  },
+  "candidate_snapshot_status": "Historical CANDIDATE.json is not a current freeze; no new candidate registered or approved",
+  "training_resource_approval": "AUTHORIZED_BY_CURRENT_USER_20260912",
+  "training_resource_proposal": "/Users/hltsang/.codex/private/pension-live-repair/20260909/hybrid-repair/training-resource-proposal.json",
+  "tests_previous_before_hybrid_implementation": {
+    "development": {
+      "pass": 239,
+      "fail": 0,
+      "exit_code": 0,
+      "inventory": "/var/folders/sm/6g7jmw3x43b5r6rjcw1fnbr00000gn/T/pension-development-tests-JVMfor",
+      "log": "/Users/hltsang/.codex/private/pension-adaptability/20260909/development-tests-routing.log"
+    },
+    "controller_synthetic": {
+      "pass": 20,
+      "fail": 0,
+      "exit_code": 0,
+      "log": "/Users/hltsang/.codex/private/pension-adaptability/20260909/controller-tests.log"
+    },
+    "syntax": {
+      "files": 332,
+      "exit_code": 0,
+      "log": "/Users/hltsang/.codex/private/pension-adaptability/20260909/syntax-delivery.log"
+    },
+    "browser": {
+      "pass": 17,
+      "fail": 4,
+      "denominator": 21,
+      "exit_code": 1,
+      "receipt": "/Users/hltsang/.codex/private/pension-live-repair/20260909/browser-restored-baseline/receipt.json",
+      "scope": "Full real Chrome baseline matrix before isolated query-routing repair; fault injection cases remain separately named"
+    },
+    "browser_previous_20260908": {
+      "pass": 17,
+      "fail": 3,
+      "exit_code": 1,
+      "receipt": "/Users/hltsang/.codex/private/pension-live-repair/20260908/browser-delivery-all/receipt.json",
+      "cases": [
+        {
+          "name": "healthy-ws-Q2-Q6",
+          "pass": true,
+          "error": null
+        },
+        {
+          "name": "healthy-http-empty-profile",
+          "pass": true,
+          "error": null
+        },
+        {
+          "name": "Q1-live",
+          "pass": false,
+          "error": "Legal answer prerequisite remains unmet"
+        },
+        {
+          "name": "Q1-paraphrase",
+          "pass": false,
+          "error": "Legal answer prerequisite remains unmet"
+        },
+        {
+          "name": "Q1-non-demo",
+          "pass": false,
+          "error": "Legal answer prerequisite remains unmet"
+        },
+        {
+          "name": "live-model-cancel-and-next-request",
+          "pass": true,
+          "error": null
+        },
+        {
+          "name": "model-paused-ws",
+          "pass": true,
+          "error": null
+        },
+        {
+          "name": "retrieval-paused-http",
+          "pass": true,
+          "error": null
+        },
+        {
+          "name": "http-401-recovery",
+          "pass": true,
+          "error": null
+        },
+        {
+          "name": "http-403-recovery",
+          "pass": true,
+          "error": null
+        },
+        {
+          "name": "http-429-recovery",
+          "pass": true,
+          "error": null
+        },
+        {
+          "name": "http-500-recovery",
+          "pass": true,
+          "error": null
+        },
+        {
+          "name": "http-200-recovery",
+          "pass": true,
+          "error": null
+        },
+        {
+          "name": "manual-retry-reconciles-accepted-request",
+          "pass": true,
+          "error": null
+        },
+        {
+          "name": "history-sync-failure-preserves-answer",
+          "pass": true,
+          "error": null
+        },
+        {
+          "name": "ws-drop-before-accept",
+          "pass": true,
+          "error": null
+        },
+        {
+          "name": "ws-drop-after-accept",
+          "pass": true,
+          "error": null
+        },
+        {
+          "name": "ws-malformed",
+          "pass": true,
+          "error": null
+        },
+        {
+          "name": "ws-missing-terminal",
+          "pass": true,
+          "error": null
+        },
+        {
+          "name": "cancel-new-chat-profile-separation",
+          "pass": true,
+          "error": null
+        }
+      ]
+    },
+    "browser_serving_repair": {
+      "pass": 0,
+      "fail": 4,
+      "denominator": 4,
+      "exit_code": 1,
+      "scope": "Real Chrome legal/supplied-facts regression only; no fault injection",
+      "receipt": "/Users/hltsang/.codex/private/pension-live-repair/20260909/browser-routing-fix/receipt.json"
+    }
+  },
+  "delivery_hashes": "/Users/hltsang/.codex/private/pension-live-repair/20260909/hybrid-repair/serving-delivery-hashes.json",
+  "product_improvement": "SUPPORTED_FOR_DATA_FLOW_AND_FAILURE_REPORTING_ONLY",
+  "legal_answer_improvement": "NOT_DEMONSTRATED",
+  "adapter_improvement": "OBSERVED_SYNTHETIC_VALIDATION_GAIN_AND_NO_TRUNCATION_NOT_LEGAL_ACCEPTANCE_NOT_PROMOTED",
+  "paired_review": {
+    "baseline": "/Users/hltsang/.codex/private/pension-live-repair/20260909/hybrid-repair/baseline-review/development-answer-review.json",
+    "final_status": "COMPLETE_A5FAIL_B5FAIL",
+    "final_output": "/Users/hltsang/.codex/private/pension-live-repair/20260909/hybrid-repair/final-review",
+    "final_receipt": "/Users/hltsang/.codex/private/pension-live-repair/20260909/hybrid-repair/final-review/development-answer-review.json",
+    "sha256": "72e0408f055c39d2455bd509d0d472a5f9bc35b36ea2e4afa7e048937028b7ef",
+    "exit_code": 1
+  },
+  "comparison_budget": {
+    "serving_revisions_max": 2,
+    "serving_revisions_consumed": 2,
+    "new_training_attempts": 0,
+    "final_verification": "Same final backend; last static UI copy change separately identified and healthy retested"
+  },
+  "no_active_training_or_review_worker": true,
+  "continuation_resource_authority": {
+    "historical_only": "Earlier execution record; current authority is resource_adjustment_delegation and latest run is bounded_memory_main.",
+    "historical_superseded_by": "TRAINING-FOUR-LAYER-AMENDMENT-20260912.json",
+    "owner_message": "PENSION DASHBOARD \u2014 FINISH LEGAL-ANSWER REPAIR; EXECUTE ONE BOUNDED RESOURCE PROOF",
+    "proposal_sha256": "9cf62925336c753c8f81873ad68f3c7e4d1026efe1f00f8687ccf13067f2dd24",
+    "new_allowance": 1,
+    "consumed": 0,
+    "historical_consumed": 2,
+    "status": "RESOURCE_LIMIT_APPROVAL_REQUIRED",
+    "main_runs_conditionally_authorized": 1,
+    "main_runs_consumed": 0,
+    "receipt_root": "/Users/hltsang/.codex/private/pension-live-repair/20260909/hybrid-repair/legal-generation-continuation",
+    "prestart_guard": "PRESTART_SWAP_LIMIT",
+    "observed_stopped_services_swap_mib": 8615,
+    "current_reconciled_swap_mib": 0,
+    "current_swap_observation_does_not_grant_numeric_resource_approval": true,
+    "numeric_comparison": "/Users/hltsang/.codex/private/pension-live-repair/20260909/hybrid-repair/legal-generation-continuation/resource-admissibility.json",
+    "baseline_receipt": "/Users/hltsang/.codex/private/pension-live-repair/20260909/hybrid-repair/legal-generation-continuation/owned-services-stopped-resource-baseline.json"
+  },
+  "latest_continuation": {
+    "historical_only": "September9 continuation; superseded for current status by resume_repair and current_policy_comparison",
+    "root": "/Users/hltsang/.codex/private/pension-live-repair/20260909/hybrid-repair/legal-generation-continuation",
+    "v15_legal_review": {
+      "A": "5FAIL",
+      "B": "5FAIL",
+      "receipt": "/Users/hltsang/.codex/private/pension-live-repair/20260909/hybrid-repair/legal-generation-continuation/review-v15/development-answer-review.json"
+    },
+    "v15_broader_review": {
+      "A": "4FAIL_2PARTIAL",
+      "B": "4FAIL_1PARTIAL_1PASS",
+      "receipt": "/Users/hltsang/.codex/private/pension-live-repair/20260909/hybrid-repair/legal-generation-continuation/broader-v15-review/development-answer-review.json"
+    },
+    "v15_decision": "REJECTED",
+    "retained_fix": "Preserve complete already-generated trailing citation tokens on truncated JSON recovery; no validator relaxation",
+    "new_diagnostic_attempts": 0,
+    "main_updates": 0,
+    "owner_status": "NOT_READY"
+  },
+  "v3_pack_merge": {
+    "source": "/Users/hltsang/Desktop/Pension_Dashboard_v3_Pack",
+    "merged_at": "2026-09-12T09:54:37Z",
+    "pack_validation": "PASS_44_OF_44_OFFLINE_ONLY",
+    "previous_contract_archive": "docs/live-repair/history/OWNER-EXECUTION-CONTRACT-2026-09-09.md",
+    "checkpoint_preserved": 104,
+    "pdu50_readiness": "docs/live-repair/PDU50-READINESS.json",
+    "duration_study": "docs/live-repair/TRAINING-DURATION-STUDY.json",
+    "development_tests": {
+      "pass": 265,
+      "fail": 0,
+      "inventory_and_result": "/var/folders/sm/6g7jmw3x43b5r6rjcw1fnbr00000gn/T/pension-development-tests-WmjmTH/result.json"
+    },
+    "qualification_controller_tests": {"pass": 20, "fail": 0},
+    "syntax_files": 347,
+    "model_generation": "NOT_RUN",
+    "training": "NOT_RUN",
+    "browser_evaluation": "NOT_RUN",
+    "formal_qualification": "NOT_RUN",
+    "sealed_unseen": "NOT_ACCESSED",
+    "service": "OFFLINE",
+    "pdu50_legal_readiness": "CASE_NOT_READY_38_OF_38",
+    "pdu50_fixture_only_readiness": "CASE_NOT_READY_12_OF_12_PENDING_BINDING_REVIEW",
+    "resource_authority": "RESOURCE_LIMIT_APPROVAL_REQUIRED"
+  }
+}

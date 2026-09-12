@@ -1,0 +1,592 @@
+{
+  "version": "qualification-python-environments-v2",
+  "environments": {
+    "model": {
+      "executable": "/Users/hltsang/Desktop/Pensions dashboard demo/.training-venv/bin/python",
+      "requirements_path": "training/requirements-mac.txt",
+      "requirements_sha256": "50bd3e52ef7f3dea3fc6eb2649d713222611c3e7ccf84fafa0c4c35c14f55034",
+      "fingerprint": {
+        "distributions": [
+          {
+            "content_sha256": "56feea451dd540d18ab78a878a5b75ff2557386664bddf019875fe0c3d9d3cba",
+            "files": 9,
+            "name": "annotated-doc",
+            "version": "0.0.5"
+          },
+          {
+            "content_sha256": "e98129877517e4deacea7a2c5258635fd17326202cd6b2d39e1883e741349f24",
+            "files": 53,
+            "name": "anyio",
+            "version": "4.14.2"
+          },
+          {
+            "content_sha256": "c5002b7f6a844e8d89d02eb753c8a718ca4a99e5c70dc1ac7e51b253f13fb315",
+            "files": 13,
+            "name": "certifi",
+            "version": "2026.7.22"
+          },
+          {
+            "content_sha256": "1892f864f2ac30ef3ad0e368371447aa38ae0d2fb649fe891bb4e1a5f629fc95",
+            "files": 23,
+            "name": "click",
+            "version": "8.5.0"
+          },
+          {
+            "content_sha256": "e304206eb06ec93f1b31c177c4d1f473b60221b6b9a07c1442a91de32dc6c535",
+            "files": 27,
+            "name": "filelock",
+            "version": "3.32.4"
+          },
+          {
+            "content_sha256": "3910873a7852db147b1da583a04d9797f82f88e328bdbabf3b50180c086aabb9",
+            "files": 62,
+            "name": "fsspec",
+            "version": "2026.6.0"
+          },
+          {
+            "content_sha256": "40857ac7fc04eac8697840ff5fee11bad79b26d77ddfc768923ddab17ae254b8",
+            "files": 18,
+            "name": "h11",
+            "version": "0.16.0"
+          },
+          {
+            "content_sha256": "1f368ba7ead3d2c506edee2832251b3925d730dc32ce4a9867de89785e088513",
+            "files": 8,
+            "name": "hf-xet",
+            "version": "1.6.0"
+          },
+          {
+            "content_sha256": "229c54b44f0c72c46b686690bb7c32830a8ab414be95d3552dcfe54d79c9dd8b",
+            "files": 37,
+            "name": "httpcore",
+            "version": "1.0.9"
+          },
+          {
+            "content_sha256": "8f002764bb33208cac5629065a0253c877bbb3c34ffaa599127ec9e21f6a3df8",
+            "files": 31,
+            "name": "httpx",
+            "version": "0.28.1"
+          },
+          {
+            "content_sha256": "1f8df01433c52fc72c26fc5ac7a5db8a2fd2b2e3b3bd2f69b8fec7de5dcf923f",
+            "files": 196,
+            "name": "huggingface-hub",
+            "version": "1.29.0"
+          },
+          {
+            "content_sha256": "82f82b67dfc68e17464832d5c6b3a34e62d91307d8e268ea81c9ef07774f6d81",
+            "files": 18,
+            "name": "idna",
+            "version": "3.19"
+          },
+          {
+            "content_sha256": "bb725a0ad14b570b3d423083431de23184bdd31f82524f844e36804774c49cd5",
+            "files": 32,
+            "name": "jinja2",
+            "version": "3.1.6"
+          },
+          {
+            "content_sha256": "71ddbac1523abc5d70de9aa66251f048e6d35a3e4b894954e9502034a2bc9988",
+            "files": 76,
+            "name": "markdown-it-py",
+            "version": "4.2.0"
+          },
+          {
+            "content_sha256": "0926c0076dc82f184e150e480338f4241baf635adb372650b80fcb8f64adf2a8",
+            "files": 12,
+            "name": "markupsafe",
+            "version": "3.0.3"
+          },
+          {
+            "content_sha256": "39ee26da54ce6645f581798bb299c4f9ecaeafc1b6189ed222016d47d78c7ce2",
+            "files": 12,
+            "name": "mdurl",
+            "version": "0.1.2"
+          },
+          {
+            "content_sha256": "f39f6a4ad8085e43069d8568a865d4cad45fa845ebd46ce87bb57eaf56db5c2b",
+            "files": 51,
+            "name": "mlx",
+            "version": "0.32.2"
+          },
+          {
+            "content_sha256": "31bcb1e8984032e298e8fb68f6679c3b4f33973793302b3bf41e675c8c1ef273",
+            "files": 193,
+            "name": "mlx-lm",
+            "version": "0.31.3"
+          },
+          {
+            "content_sha256": "e02b9b31064a337c67eff3cc139e13887958ba54d85cbbf1e3ee8a2501dfa769",
+            "files": 406,
+            "name": "mlx-metal",
+            "version": "0.32.2"
+          },
+          {
+            "content_sha256": "d82c9c99a32546b086c0a0e8bcc945e006c9b26a4cec77b646cb640bd612b640",
+            "files": 926,
+            "name": "numpy",
+            "version": "2.5.2"
+          },
+          {
+            "content_sha256": "bab57202d272c7c787a1a05305e126a48692c8da940cf795bb9dc4c50f7dec98",
+            "files": 30,
+            "name": "packaging",
+            "version": "26.3"
+          },
+          {
+            "content_sha256": "bef420a395cc751d295952e0e82269176c4ca72070bbf85c9ee49e868c3399a0",
+            "files": 63,
+            "name": "protobuf",
+            "version": "7.36.0"
+          },
+          {
+            "content_sha256": "11e994f19e3e8121de7d376f089edf8d813bff82631d06ffb7bec0a9c1dd69d9",
+            "files": 351,
+            "name": "pygments",
+            "version": "2.21.0"
+          },
+          {
+            "content_sha256": "756c66031c549ae0aeb104eaf7d2cc6e2bb2ca829dcce5440f7da0bc12dd96bf",
+            "files": 25,
+            "name": "pyyaml",
+            "version": "6.0.3"
+          },
+          {
+            "content_sha256": "dc7a198dc02ca7b84e1f19c26e8696e000adb5342d4d030acde27e6db5c81c69",
+            "files": 11,
+            "name": "regex",
+            "version": "2026.7.19"
+          },
+          {
+            "content_sha256": "08aa4b4f62a5fd065da47d241685c9b7d5fcb7d380d172610964dc4a6add2cae",
+            "files": 106,
+            "name": "rich",
+            "version": "15.0.0"
+          },
+          {
+            "content_sha256": "cc2b8c3840f0cebfc4e0f618a96b1abbef97e0c0e83a7e0de956f2ef38b9c1e1",
+            "files": 16,
+            "name": "safetensors",
+            "version": "0.8.0"
+          },
+          {
+            "content_sha256": "f27a124afb6c32f8305aa70e21bbb4968a84e17649bbc1012c75ea013669f826",
+            "files": 17,
+            "name": "sentencepiece",
+            "version": "0.2.2"
+          },
+          {
+            "content_sha256": "ecc3fbc4d94ef702d4a2189a3b77d8b837a096e1f455109cea2288e37f0ba2f2",
+            "files": 14,
+            "name": "shellingham",
+            "version": "1.5.4"
+          },
+          {
+            "content_sha256": "038ebe497c0bccb5a1c078438e19bb1ff32f2fc5e0b62f144dcec3697683f614",
+            "files": 33,
+            "name": "tokenizers",
+            "version": "0.23.1"
+          },
+          {
+            "content_sha256": "6d9e825f742536599881281d9e9ea5d8c21863dda09abf1e152e3b2b89b2ca47",
+            "files": 41,
+            "name": "tqdm",
+            "version": "4.70.0"
+          },
+          {
+            "content_sha256": "43f44ee224bca620d4da4b73f3d4271aeffafbdba6ff1d005ad6a214b084db11",
+            "files": 2646,
+            "name": "transformers",
+            "version": "5.16.1"
+          },
+          {
+            "content_sha256": "0074a1cf249b178bfa7d54662b5f77b74b8cddd15439a8bdd36a5820f4ce60e1",
+            "files": 42,
+            "name": "typer",
+            "version": "0.27.1"
+          },
+          {
+            "content_sha256": "93f8105c4c4b8cb5c8ba5624e59afc8896e860a114d756bc3b54d88ea218c1ce",
+            "files": 6,
+            "name": "typing-extensions",
+            "version": "4.16.0"
+          }
+        ],
+        "executable_realpath": "/Library/Frameworks/Python.framework/Versions/3.14/bin/python3.14",
+        "executable_sha256": "bd3498159da515acf12963b736f3e7e7599619204348868e018bbbc9e0fc9343",
+        "import_trees": [
+          {
+            "entries": 0,
+            "records_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+            "root": "/Library/Frameworks/Python.framework/Versions/3.14/lib/python314.zip",
+            "type": "missing"
+          },
+          {
+            "entries": 68849,
+            "records_sha256": "681c82ada7afcbcc55107cdd4c8288a7251950b10f5ce70c1783abcd705cb387",
+            "root": "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14",
+            "type": "directory"
+          },
+          {
+            "entries": 77,
+            "records_sha256": "112c0de5fcac72d80b0982e63270f2f37b581b5844a1dc591c447c1d47dd532d",
+            "root": "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/lib-dynload",
+            "type": "directory"
+          },
+          {
+            "entries": 17836,
+            "records_sha256": "40fa985a2be16133439491f360c9fbd794af254560bb410a8a4ae02249fa5ad1",
+            "root": "/Users/hltsang/Desktop/Pensions dashboard demo/.training-venv/lib/python3.14/site-packages",
+            "type": "directory"
+          }
+        ],
+        "python_version": "3.14.5",
+        "roots": [
+          "mlx",
+          "mlx-lm",
+          "safetensors",
+          "tokenizers",
+          "transformers"
+        ],
+        "startup_contract": {
+          "base_prefix": "/Library/Frameworks/Python.framework/Versions/3.14",
+          "dont_write_bytecode": true,
+          "ignore_environment": true,
+          "isolated": true,
+          "no_user_site": true,
+          "safe_path": true,
+          "sys_path": [
+            "/Library/Frameworks/Python.framework/Versions/3.14/lib/python314.zip",
+            "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14",
+            "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/lib-dynload",
+            "/Users/hltsang/Desktop/Pensions dashboard demo/.training-venv/lib/python3.14/site-packages"
+          ],
+          "sys_prefix": "/Users/hltsang/Desktop/Pensions dashboard demo/.training-venv",
+          "user_site_enabled": false
+        },
+        "version": "python-environment-fingerprint-v2"
+      }
+    },
+    "retrieval": {
+      "executable": "/Users/hltsang/Desktop/Pensions dashboard demo/.retrieval-venv/bin/python",
+      "requirements_path": "ml/requirements-embedding.txt",
+      "requirements_sha256": "50790e259e7da1873014ddba3a72ddbbb8460ed567490dc2547b2b47d4454693",
+      "fingerprint": {
+        "distributions": [
+          {
+            "content_sha256": "587c441484d243f82874b8c661d6e3f05ca122290c1a5823762477d8364ec432",
+            "files": 8,
+            "name": "annotated-types",
+            "version": "0.8.0"
+          },
+          {
+            "content_sha256": "e1814266958454dded435d6b6c088b82f69f319b3669ab3cae2488993ff3f2e8",
+            "files": 54,
+            "name": "anyio",
+            "version": "4.15.0"
+          },
+          {
+            "content_sha256": "c5002b7f6a844e8d89d02eb753c8a718ca4a99e5c70dc1ac7e51b253f13fb315",
+            "files": 13,
+            "name": "certifi",
+            "version": "2026.7.22"
+          },
+          {
+            "content_sha256": "bae5baccb31be3035942e216e448e0a8be5a066b4b645268befb5c93b1240f88",
+            "files": 23,
+            "name": "charset-normalizer",
+            "version": "3.5.1"
+          },
+          {
+            "content_sha256": "1892f864f2ac30ef3ad0e368371447aa38ae0d2fb649fe891bb4e1a5f629fc95",
+            "files": 23,
+            "name": "click",
+            "version": "8.5.0"
+          },
+          {
+            "content_sha256": "a178d350c1b6c638be81f6aca0909e3c26749f9ae9926e44bb4759d71f4d19ce",
+            "files": 8,
+            "name": "cloudpickle",
+            "version": "3.1.2"
+          },
+          {
+            "content_sha256": "a82aeb160b910690835c57d59f1f2afa215a2a682868d51727cc451d375fc0ba",
+            "files": 53,
+            "name": "fastapi",
+            "version": "0.116.1"
+          },
+          {
+            "content_sha256": "50605ff06c6b726cc362393d5def76948580714567abbe6937fb8a5334f12a65",
+            "files": 27,
+            "name": "filelock",
+            "version": "3.32.5"
+          },
+          {
+            "content_sha256": "9e085089d7d44f7a53c383083c457a780d2fceb25efe4824d6a67035b0e93039",
+            "files": 62,
+            "name": "fsspec",
+            "version": "2026.7.0"
+          },
+          {
+            "content_sha256": "40857ac7fc04eac8697840ff5fee11bad79b26d77ddfc768923ddab17ae254b8",
+            "files": 18,
+            "name": "h11",
+            "version": "0.16.0"
+          },
+          {
+            "content_sha256": "1f368ba7ead3d2c506edee2832251b3925d730dc32ce4a9867de89785e088513",
+            "files": 8,
+            "name": "hf-xet",
+            "version": "1.6.0"
+          },
+          {
+            "content_sha256": "38c2fd5a9a9b6c02b706bfeb4e79c2854615147fa4b93ed2b918ae7c0bd723d1",
+            "files": 174,
+            "name": "huggingface-hub",
+            "version": "0.36.2"
+          },
+          {
+            "content_sha256": "b94976424311d2771bc8e2709438339097a364226232294ce45b5f029c184ae5",
+            "files": 18,
+            "name": "idna",
+            "version": "3.19"
+          },
+          {
+            "content_sha256": "bb725a0ad14b570b3d423083431de23184bdd31f82524f844e36804774c49cd5",
+            "files": 32,
+            "name": "jinja2",
+            "version": "3.1.6"
+          },
+          {
+            "content_sha256": "401566e45479b4a03acb931b7b1948b583e2f89d7cadf5f95d0a0a7b2ae42eff",
+            "files": 142,
+            "name": "joblib",
+            "version": "1.6.0"
+          },
+          {
+            "content_sha256": "0926c0076dc82f184e150e480338f4241baf635adb372650b80fcb8f64adf2a8",
+            "files": 12,
+            "name": "markupsafe",
+            "version": "3.0.3"
+          },
+          {
+            "content_sha256": "5aa4028130087636dbc43ba52888d48183b4d07dce84316825ecf17d67f52051",
+            "files": 93,
+            "name": "mpmath",
+            "version": "1.3.0"
+          },
+          {
+            "content_sha256": "52a1f45d5c0771ecbdea74a05af0f8472f0f081f9a5d21e1c25f2f46c0cfc120",
+            "files": 168,
+            "name": "narwhals",
+            "version": "2.25.0"
+          },
+          {
+            "content_sha256": "60b1fa80491429e2654b7b54dde6523638757316ae957af0dc524226f053d357",
+            "files": 602,
+            "name": "networkx",
+            "version": "3.6.1"
+          },
+          {
+            "content_sha256": "d0c59f3a7a206d5f0feb30143a6be3f5bcf51841def067581757afc0441f7b2d",
+            "files": 926,
+            "name": "numpy",
+            "version": "2.5.2"
+          },
+          {
+            "content_sha256": "bab57202d272c7c787a1a05305e126a48692c8da940cf795bb9dc4c50f7dec98",
+            "files": 30,
+            "name": "packaging",
+            "version": "26.3"
+          },
+          {
+            "content_sha256": "2cdd78b011febbf669f89e6f376c2949e93c0a1a47ddeec47a2b0bbfa9de75a5",
+            "files": 140,
+            "name": "pillow",
+            "version": "12.3.0"
+          },
+          {
+            "content_sha256": "7d10b474ab5f620c5c8abad89393904eb7d0ec5ac60419ebdd29f9dcfac8d8be",
+            "files": 112,
+            "name": "pydantic",
+            "version": "2.13.5"
+          },
+          {
+            "content_sha256": "36298dbf9c39ffb0799324a293a432315f8ae8483be801a2867790ac3fcb202e",
+            "files": 11,
+            "name": "pydantic-core",
+            "version": "2.46.5"
+          },
+          {
+            "content_sha256": "756c66031c549ae0aeb104eaf7d2cc6e2bb2ca829dcce5440f7da0bc12dd96bf",
+            "files": 25,
+            "name": "pyyaml",
+            "version": "6.0.3"
+          },
+          {
+            "content_sha256": "ba266f37e99872d459a09bec70eec0727ba83747d2e5291866dae375f8706906",
+            "files": 11,
+            "name": "regex",
+            "version": "2026.9.3"
+          },
+          {
+            "content_sha256": "217e99dbf26ee0afcbadfeb0cfabf5fe50649dc7c46e2810438261893f797193",
+            "files": 27,
+            "name": "requests",
+            "version": "2.34.2"
+          },
+          {
+            "content_sha256": "cc2b8c3840f0cebfc4e0f618a96b1abbef97e0c0e83a7e0de956f2ef38b9c1e1",
+            "files": 16,
+            "name": "safetensors",
+            "version": "0.8.0"
+          },
+          {
+            "content_sha256": "b95601284b0235128abd8896486790c7e84244403b28610ac34d7da9802a1d83",
+            "files": 990,
+            "name": "scikit-learn",
+            "version": "1.9.0"
+          },
+          {
+            "content_sha256": "1625d9f36b7131e5e90b127c19ade218a9563c780a9d0586e9aef8d5f0985f51",
+            "files": 1430,
+            "name": "scipy",
+            "version": "1.18.1"
+          },
+          {
+            "content_sha256": "089301346af7d907a171044496eb6215d169e83c178bad00ade9ba602ea0b491",
+            "files": 179,
+            "name": "sentence-transformers",
+            "version": "5.1.0"
+          },
+          {
+            "content_sha256": "0d60ccd3d4bb328292252c3ab34b22a5c4b90fdc8bb30d018abd782a9f54a8ce",
+            "files": 344,
+            "name": "setuptools",
+            "version": "84.0.0"
+          },
+          {
+            "content_sha256": "bf0ebcc894830c6cb8b0330940a63c918ef145519bce291aab7ebae8fa29d3bf",
+            "files": 40,
+            "name": "starlette",
+            "version": "0.47.3"
+          },
+          {
+            "content_sha256": "2e5b92ec4327e86011d6ea586c46ec78ca2f52cad81aa74a329a02923082707b",
+            "files": 1572,
+            "name": "sympy",
+            "version": "1.14.0"
+          },
+          {
+            "content_sha256": "6aa0a5bcf67388db6d3dee3e4db0f9fc8fa2649edcceb9b3522f08dbd1c9213c",
+            "files": 6,
+            "name": "threadpoolctl",
+            "version": "3.6.0"
+          },
+          {
+            "content_sha256": "e6ea9594b0ecc0d3acb9e533c0ed1798a6d2d545125cd98d41d5fe4fbb48f15a",
+            "files": 30,
+            "name": "tokenizers",
+            "version": "0.22.2"
+          },
+          {
+            "content_sha256": "e0ae80d78df4e06e2edc9b44eb21cdb4d52d81cfd31d8ccdc10718f73f1cbc83",
+            "files": 12873,
+            "name": "torch",
+            "version": "2.14.0"
+          },
+          {
+            "content_sha256": "715bdfb1e38cb66f1eaa44c4d0dacf5c9f44ce700de071a4047fd839fd5a843f",
+            "files": 41,
+            "name": "tqdm",
+            "version": "4.70.0"
+          },
+          {
+            "content_sha256": "4ef6aa720b4f3f3ed93ec5fcc30105dd5cddaf08919e196799f0c9a1dd597de2",
+            "files": 2249,
+            "name": "transformers",
+            "version": "4.57.6"
+          },
+          {
+            "content_sha256": "93f8105c4c4b8cb5c8ba5624e59afc8896e860a114d756bc3b54d88ea218c1ce",
+            "files": 6,
+            "name": "typing-extensions",
+            "version": "4.16.0"
+          },
+          {
+            "content_sha256": "0788671bd88ea929255670e69c30328d6f844cb99cbeb33d99f8fb2ecea5a63b",
+            "files": 10,
+            "name": "typing-inspection",
+            "version": "0.4.4"
+          },
+          {
+            "content_sha256": "44498ed022646c364ec70e592a5c5201c8096952922336eafa4506fd3eee03c2",
+            "files": 43,
+            "name": "urllib3",
+            "version": "2.7.0"
+          },
+          {
+            "content_sha256": "ff70157b51538d58f20858e499c6c58e306743948e7d422c50b2458732fe2ade",
+            "files": 48,
+            "name": "uvicorn",
+            "version": "0.35.0"
+          }
+        ],
+        "executable_realpath": "/Library/Frameworks/Python.framework/Versions/3.14/bin/python3.14",
+        "executable_sha256": "bd3498159da515acf12963b736f3e7e7599619204348868e018bbbc9e0fc9343",
+        "import_trees": [
+          {
+            "entries": 0,
+            "records_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+            "root": "/Library/Frameworks/Python.framework/Versions/3.14/lib/python314.zip",
+            "type": "missing"
+          },
+          {
+            "entries": 68849,
+            "records_sha256": "681c82ada7afcbcc55107cdd4c8288a7251950b10f5ce70c1783abcd705cb387",
+            "root": "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14",
+            "type": "directory"
+          },
+          {
+            "entries": 77,
+            "records_sha256": "112c0de5fcac72d80b0982e63270f2f37b581b5844a1dc591c447c1d47dd532d",
+            "root": "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/lib-dynload",
+            "type": "directory"
+          },
+          {
+            "entries": 37854,
+            "records_sha256": "e3d53d2305796febcb6a4593cd05cfdf770ef4b9c73c628d3111778821315413",
+            "root": "/Users/hltsang/Desktop/Pensions dashboard demo/.retrieval-venv/lib/python3.14/site-packages",
+            "type": "directory"
+          }
+        ],
+        "python_version": "3.14.5",
+        "roots": [
+          "fastapi",
+          "numpy",
+          "sentence-transformers",
+          "torch",
+          "transformers",
+          "uvicorn"
+        ],
+        "startup_contract": {
+          "base_prefix": "/Library/Frameworks/Python.framework/Versions/3.14",
+          "dont_write_bytecode": true,
+          "ignore_environment": true,
+          "isolated": true,
+          "no_user_site": true,
+          "safe_path": true,
+          "sys_path": [
+            "/Library/Frameworks/Python.framework/Versions/3.14/lib/python314.zip",
+            "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14",
+            "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/lib-dynload",
+            "/Users/hltsang/Desktop/Pensions dashboard demo/.retrieval-venv/lib/python3.14/site-packages"
+          ],
+          "sys_prefix": "/Users/hltsang/Desktop/Pensions dashboard demo/.retrieval-venv",
+          "user_site_enabled": false
+        },
+        "version": "python-environment-fingerprint-v2"
+      }
+    }
+  }
+}

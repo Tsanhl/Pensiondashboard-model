@@ -1,0 +1,51 @@
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_DB: pensions
+      POSTGRES_USER: pensions
+      POSTGRES_PASSWORD: pensions-local-only
+    ports:
+      - "5432:5432"
+    volumes:
+      - pensions-postgres:/var/lib/postgresql/data
+      - ../server/migrations:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pensions -d pensions"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - pensions-redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+  minio:
+    image: minio/minio:latest
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: pensions-local
+      MINIO_ROOT_PASSWORD: change-me-local-only
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - pensions-objects:/data
+  minio-init:
+    image: minio/mc:latest
+    depends_on:
+      - minio
+    entrypoint: ["/bin/sh", "-c"]
+    command: ["until mc alias set local http://minio:9000 pensions-local change-me-local-only; do sleep 2; done; mc mb --ignore-existing local/pension-documents; mc anonymous set none local/pension-documents"]
+
+volumes:
+  pensions-postgres:
+  pensions-redis:
+  pensions-objects:

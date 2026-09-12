@@ -88,7 +88,8 @@ function diversifySources(sources, limit, maxPerDocument = 2) {
   return selected;
 }
 
-export async function rerankSources(query, sources = [], { entities = {},limit = 8 } = {}) {
+export async function rerankSources(query, sources = [], { entities = {},limit = 8,signal } = {}) {
+  signal?.throwIfAborted();
   if (!sources.length) return { sources:[],mode:"none",model:null,degraded:false };
   const baseUrl = String(process.env.RERANK_SERVICE_URL || "").replace(/\/$/, "");
   const crossEncoderRequired = String(process.env.REQUIRE_CROSS_ENCODER_RERANK || "false").toLowerCase() === "true";
@@ -100,7 +101,7 @@ export async function rerankSources(query, sources = [], { entities = {},limit =
       const response = await fetch(`${baseUrl}/rerank`, {
         method:"POST",headers:{ "Content-Type":"application/json" },
         body:JSON.stringify({ model:process.env.RERANK_MODEL || "BAAI/bge-reranker-base",query,documents:sources.map((source) => `${source.title}\n${source.section || ""}\n${source.snippet}`),top_n:limit }),
-        signal:AbortSignal.timeout(Number(process.env.RERANK_TIMEOUT_MS || 20_000))
+        signal:signal ? AbortSignal.any([signal,AbortSignal.timeout(Number(process.env.RERANK_TIMEOUT_MS || 20_000))]) : AbortSignal.timeout(Number(process.env.RERANK_TIMEOUT_MS || 20_000))
       });
       if (!response.ok) throw new Error(`reranker returned ${response.status}`);
       const payload = await response.json();
@@ -122,6 +123,7 @@ export async function rerankSources(query, sources = [], { entities = {},limit =
       }).filter(Boolean).sort((left,right) => right.rerankScore - left.rerankScore);
       return { sources:diversifySources(ranked, limit),mode:"cross_encoder",model:payload.model || process.env.RERANK_MODEL,degraded:false };
     } catch (error) {
+      signal?.throwIfAborted();
       if (crossEncoderRequired) throw error;
     }
   }

@@ -1,3 +1,5 @@
+import {resolvePortfolioAccounts} from './portfolioEvidenceService.js';
+import { describeDocumentEvidence } from "./documentEvidenceService.js";
 import { createHash } from "node:crypto";
 import { getVerifiedDashboardContext } from "../portfolioStore.js";
 
@@ -5,24 +7,28 @@ function sourceId(label, value) {
   return `structured_${label}_${createHash("sha256").update(String(value)).digest("hex").slice(0, 10)}`;
 }
 
-function selectedAccounts(dashboard, entities = {}) {
-  const accounts = dashboard.pensionAccounts || [];
-  if (entities.provider) return accounts.filter((item) => String(item.provider).toLowerCase() === String(entities.provider).toLowerCase());
-  if (entities.policyNumber) return accounts.filter((item) => String(item.policy).replace(/\s/g, "").toLowerCase() === String(entities.policyNumber).replace(/\s/g, "").toLowerCase());
-  return accounts;
-}
-
-export function lookupStructuredData(userId, queryPlan = {}) {
-  const dashboard = getVerifiedDashboardContext({ userId });
+export function lookupStructuredData(userId, queryPlan = {}, snapshot = null) {
+  const dashboard = snapshot || getVerifiedDashboardContext({ userId });
+  if (dashboard.userId !== userId) throw new Error('Portfolio snapshot user mismatch');
   const lookups = new Set(queryPlan.structured_lookups || []);
-  const accounts = selectedAccounts(dashboard, queryPlan.entities);
+  const selection = resolvePortfolioAccounts(dashboard, queryPlan.entities, queryPlan.self_contained_query);
+  const accounts = selection.accounts;
   const sources = [];
   if (lookups.has("account") || lookups.has("charges")) {
     sources.push({
-      sourceId:sourceId("accounts", `${userId}:${accounts.map((item) => item.id || item.policy).join("|")}`),
-      title:"Verified pension account records",section:"Authenticated Info DB lookup",scope:"USER_PORTFOLIO",score:1,
+      sourceId:sourceId("accounts", `${userId}:${dashboard.snapshotId}:${accounts.map((item) => item.id || item.policy).join("|")}`),
+      title:"Pension account records with source status",section:"Authenticated Info DB lookup",scope:"USER_PORTFOLIO",score:1,
       effectiveDate:dashboard.systemUpdate?.date || null,
-      snippet:accounts.map((item) => [
+      snapshotId:dashboard.snapshotId, sourceType:"authenticated_record",
+      facts:accounts.map(item=>({accountId:item.id,...item.facts,rawFacts:item.rawFacts,provenance:item.provenance})),
+      snippet:(accounts.length ? "" : "No pension accounts are recorded. Contribution amounts, rates and account inputs are missing. ") + accounts.map((item) => queryPlan.legal_evidence_required ? [
+        `${item.name} (${item.provider}); account ID ${item.id}`,
+        `arrangement ${item.type}; scheme type ${item.schemeType || "not recorded"}; status ${item.schemeStatus || "not recorded"}`,
+        `employee contribution ${item.employee}; employer contribution ${item.employer}`,
+        `employer ${item.employerName || "not recorded"}; scheme ${item.schemeName || "not recorded"}`,
+        `source ${item.source || "unknown"}; record status ${item.provenance?.status || "unknown"}; updated ${item.lastUpdated || "unknown"}`,
+        "These records do not establish amendment powers, contractual terms or governing law."
+      ].join("; ") : [
         `${item.name} (${item.provider})`,
         item.type,
         item.schemeStatus,
@@ -39,17 +45,21 @@ export function lookupStructuredData(userId, queryPlan = {}) {
         item.employer && item.employer !== "—" ? `employer contribution ${item.employer}${item.employerYearly ? ` (${item.employerYearly})` : ""}` : "",
         item.style ? `style ${item.style}` : "",
         Array.isArray(item.allocation) && item.allocation.length ? `allocation ${item.allocation.map((part) => `${part.label} ${part.value}`).join(", ")}` : "",
+        `account ID ${item.id}`,
+        `record status ${item.provenance?.status || "unknown"}; not independently verified unless a verification receipt is present`,
+        `raw facts ${JSON.stringify({...(item.facts || {}),...(item.rawFacts || {})})}`,
         `source ${item.source}`,
         `last updated ${item.lastUpdated}`
-      ].filter(Boolean).join("; ")).join("\n") + (dashboard.statePension?.monthlyIncome != null ? `\nState Pension forecast ${dashboard.statePension.monthlyIncome} a month` : "")
+      ].filter(Boolean).join("; ")).join("\n") + (!queryPlan.legal_evidence_required && dashboard.statePension?.monthlyIncome != null ? `\nState Pension forecast ${dashboard.statePension.monthlyIncome} a month` : "")
     });
   }
   if (lookups.has("document_status")) sources.push({
-    sourceId:sourceId("documents", userId),title:"Verified document status records",section:"Authenticated Info DB lookup",scope:"USER_PORTFOLIO",score:1,effectiveDate:dashboard.systemUpdate?.date || null,
+    sourceId:sourceId("documents", userId),title:"Document status records",section:"Authenticated Info DB lookup",scope:"USER_PORTFOLIO",score:1,effectiveDate:dashboard.systemUpdate?.date || null,
     snippet:(dashboard.documents || []).filter((item) => !queryPlan.entities?.provider || String(item.provider).toLowerCase() === String(queryPlan.entities.provider).toLowerCase()).map((item) => {
       const extracted = item.extracted || {};
       return [
         item.name,
+        describeDocumentEvidence(item),
         item.provider,
         item.type,
         `status ${item.status}`,
@@ -69,8 +79,10 @@ export function lookupStructuredData(userId, queryPlan = {}) {
     }).join("\n")
   });
   if (lookups.has("projection")) sources.push({
-    sourceId:sourceId("projection", userId),title:"Deterministic pension projection",section:"Verified calculation service",scope:"USER_PORTFOLIO",score:1,effectiveDate:dashboard.systemUpdate?.date || null,
+    sourceId:sourceId("projection", JSON.stringify({userId,projection:dashboard.projection})),title:"Deterministic pension projection",section:"Verified calculation service",scope:"USER_PORTFOLIO",score:1,effectiveDate:dashboard.systemUpdate?.date || null,
     snippet:[
+      dashboard.projectionMethod || "",
+      dashboard.assumptions?.contributionBasis || "",
       `Current pot ${dashboard.pensionPotValue}`,
       `monthly target ${dashboard.monthlyTarget}`,
       `projected monthly income ${dashboard.projectedMonthlyIncome}`,
@@ -82,8 +94,16 @@ export function lookupStructuredData(userId, queryPlan = {}) {
       Array.isArray(dashboard.contributionScenarios) ? dashboard.contributionScenarios.map((item) => `add ${item.extraMonthlyContribution}/month: final pot ${item.projectedFinalPot}, monthly income ${item.projectedMonthlyIncome}, gap ${item.monthlyGap}`).join("; ") : ""
     ].filter(Boolean).join(". ")
   });
+  if (lookups.has("supplemental_records")) sources.push({
+    sourceId:sourceId("supplemental_records", `${userId}:${dashboard.snapshotId}`),title:"Authenticated supplemental pension records",section:"Authenticated Info DB lookup",scope:"USER_PORTFOLIO",score:1,
+    effectiveDate:dashboard.systemUpdate?.date || null,snapshotId:dashboard.snapshotId,sourceType:"authenticated_record",
+    facts:dashboard.supplementalRecords || {},
+    snippet:Object.keys(dashboard.supplementalRecords || {}).length
+      ? `Supplemental record fields: ${JSON.stringify(dashboard.supplementalRecords)}`
+      : "No supplemental pension records are recorded."
+  });
   if (lookups.has("investment_profile")) sources.push({
-    sourceId:sourceId("investment_profile", userId),title:"Verified investment and risk profile",section:"Authenticated Info DB lookup",scope:"USER_PORTFOLIO",score:1,effectiveDate:dashboard.systemUpdate?.date || null,
+    sourceId:sourceId("investment_profile", userId),title:"Recorded investment and risk profile",section:"Authenticated Info DB lookup",scope:"USER_PORTFOLIO",score:1,effectiveDate:dashboard.systemUpdate?.date || null,
     snippet:[
       dashboard.investmentProfile?.currentStyle ? `current style ${dashboard.investmentProfile.currentStyle}` : "",
       dashboard.investmentProfile?.equityExposure ? `equity ${dashboard.investmentProfile.equityExposure}` : "",
@@ -94,5 +114,5 @@ export function lookupStructuredData(userId, queryPlan = {}) {
       dashboard.riskProfile?.completed ? `risk profile completed, preferred style ${dashboard.riskProfile.preferredStyle}, horizon ${dashboard.riskProfile.timeHorizonYears} years, loss tolerance ${dashboard.riskProfile.lossTolerancePct}%, goal ${dashboard.riskProfile.mainGoal}` : "risk profile incomplete"
     ].filter(Boolean).join(". ")
   });
-  return { sources,trace:{ requested:[...lookups],matchedAccounts:accounts.length,ambiguous:!queryPlan.entities?.provider && accounts.length > 1 } };
+  return { sources,trace:{ requested:[...lookups],matchedAccounts:accounts.length,ambiguous:selection.ambiguous,selectedAccountId:selection.selectedAccountId,snapshotId:dashboard.snapshotId } };
 }

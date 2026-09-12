@@ -1,0 +1,79 @@
+{
+  "suite_id": "PDU50-v1",
+  "status": "INTEGRATED_COMPONENT_TESTS_PASS_EVALUATION_NOT_RUN",
+  "classification": "VISIBLE_DEVELOPMENT_DIAGNOSTIC_NOT_SEALED_UNSEEN",
+  "pack_integrity": {
+    "status": "PASS",
+    "passed_checks": 44,
+    "failed_checks": 0,
+    "manifest_sha256": "ca34a93be8da8a453fb85dca92f7199bfa312d628dbea70ebe68e97aec9fe438"
+  },
+  "counts": {
+    "cases": 50,
+    "followups": 10,
+    "user_turns": 60,
+    "mixed_legal_cases": 38,
+    "fixture_only_cases": 12,
+    "synthetic_fixtures": 26,
+    "source_leads": 24
+  },
+  "trust_roles": {
+    "product_messages": "MODEL_VISIBLE_PRODUCT_MESSAGES",
+    "harness_setup_and_fixtures": "HARNESS_ONLY_SETUP",
+    "evaluator_manifest_numeric_reference_and_source_catalog": "EVALUATOR_ONLY_NOT_MODEL_INPUT",
+    "gold_or_expected_outputs_in_model_input": false
+  },
+  "storage_mapping": {
+    "physical_store": "one configured userDataStore SQLite database in current development mode",
+    "logical_roles": ["user portfolio record", "user-scoped private knowledge documents and chunks"],
+    "forced_third_database": false,
+    "real_repository_path_used": true,
+    "cross_user_switch_requires_auth_harness": true,
+    "fresh_case_preparation_entrypoint": "npm run pdu50:prepare-case -- --case PDU50-001 --output /fresh/private/directory"
+  },
+  "implemented_repairs": [
+    "Synthetic fixture-to-portfolio mapping with typed raw record facts",
+    "Separate DB and State Pension start-age projection gates",
+    "Exact private span IDs and locators preserved during knowledge seeding",
+    "Instruction-like uploaded text quarantined",
+    "Controlled turn-two fixture mutation supported without rewriting prior source documents"
+  ],
+  "readiness_gates": {
+    "pack_static_validation": "PASS",
+    "development_component_tests": "PASS_5_OF_5_WITHIN_FULL_280_OF_280_DEVELOPMENT_SUITE",
+    "live_database_case_seed": "PASS_12_FIXTURE_ONLY_CASES_IN_SEPARATE_ISOLATED_SQLITE_STORES_PREPARATION_ONLY",
+    "model_generation_baseline": "NOT_RUN",
+    "browser_evaluation": "NOT_RUN",
+    "independent_runtime_review": "NOT_RUN",
+    "legal_source_admission": "PENDING_ACTIVE_CORPUS_AND_CASE_AS_OF_BINDING_THREE_NARROW_GUIDANCE_USES_DUAL_REVIEWED",
+    "label_review": "PENDING_50_OF_50_DRAFT",
+    "mixed_legal_cases": "CASE_NOT_READY_38_OF_38",
+    "fixture_only_cases": "CASE_NOT_READY_12_OF_12_PENDING_FIXTURE_BINDING_REVIEW"
+  },
+  "current_preparation_receipts": {
+    "fixture_batch": "/Users/hltsang/.codex/private/pension-adaptability/20260912/pdu50-fixture-preparation/receipt.json",
+    "read_only_store_audit": "/Users/hltsang/.codex/private/pension-adaptability/20260912/pdu50-seed-readonly-audit/receipt.json",
+    "read_only_store_audit_result": "PASS_12_OF_12_ORIGINAL_ACCOUNT_FACTS_USER_SCOPE_DOCUMENT_TEXT_SPANS_LOCATORS_AND_DATABASE_HASHES",
+    "degraded_embedding_cases": 12,
+    "vector_readiness": "NOT_READY_ALL12_STORES_USE_DEGRADED_EMBEDDINGS_NOT_PINNED_SEMANTIC_INDEX",
+    "source_review": "/Users/hltsang/.codex/private/pension-adaptability/20260912/pdu50-workplace-sources-v2/review/source-admission-review.json",
+    "source_ids_dual_review_pass": ["PUB_CONTRIB", "PUB_LEAVE", "PUB_JOIN"],
+    "source_scope_note": "Captured official guidance only. PUB_JOIN excludes re-enrolment after a preserved HOLD. No current-law, territorial or legal-label certification; no active corpus mutation.",
+    "fixture_label_review": "PENDING",
+    "legal_label_review": "PENDING"
+  },
+  "local_source_reconciliation": {
+    "approved_manifest": "approved-materials/approved-corpus-manifest-20260908-repair-v1.json",
+    "approved_manifest_documents": 212,
+    "pack_source_leads": 24,
+    "exact_canonical_url_matches": 2,
+    "exact_match_source_ids": ["PUB_MODIFY_GB", "PUB_TPR"],
+    "not_exactly_matched": 22,
+    "automatically_admitted_for_pdu50": 0,
+    "reason": "An existing exact URL is useful reconciliation evidence but does not replace case-as-of source binding and independent label/source review."
+  },
+  "training_use_allowed": false,
+  "checkpoint_selection_use_allowed": false,
+  "formal_credit": false,
+  "sealed_unseen_accessed": false
+}

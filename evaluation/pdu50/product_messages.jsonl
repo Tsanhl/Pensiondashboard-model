@@ -1,0 +1,50 @@
+{"case_id": "PDU50-001", "user_turns": [{"turn": 1, "message": "How much do I have in pension pots altogether, and does that total include my old final-salary pension?"}]}
+{"case_id": "PDU50-002", "user_turns": [{"turn": 1, "message": "Which of my pensions is my current employer still paying into, and what happened to the one from my old job?"}]}
+{"case_id": "PDU50-003", "user_turns": [{"turn": 1, "message": "My August payslip says £200 pension, but the provider shows £480. Have they taken it twice?"}]}
+{"case_id": "PDU50-004", "user_turns": [{"turn": 1, "message": "The statement I uploaded this week says £66,500, but the dashboard says £68,000. Which is the newer figure?"}]}
+{"case_id": "PDU50-005", "user_turns": [{"turn": 1, "message": "Bracken has £0 from my employer and Cedar has a blank box. Do both mean nobody is paying in?"}]}
+{"case_id": "PDU50-006", "user_turns": [{"turn": 1, "message": "How much is my employer paying into my workplace pension?"}, {"turn": 2, "message": "I mean the Merrow job and the Fern plan."}]}
+{"case_id": "PDU50-007", "user_turns": [{"turn": 1, "message": "Which figures from my uploaded policy are still unconfirmed, and are any being used in my forecast?"}]}
+{"case_id": "PDU50-008", "user_turns": [{"turn": 1, "message": "Where exactly did the 7% employer figure come from? Show me the document rather than just another link."}]}
+{"case_id": "PDU50-009", "user_turns": [{"turn": 1, "message": "I uploaded the same Cedar statement twice. Has that doubled my pension total?"}]}
+{"case_id": "PDU50-010", "user_turns": [{"turn": 1, "message": "I have just signed up. Can you tell me what my pension is worth and what I should check first?"}]}
+{"case_id": "PDU50-011", "user_turns": [{"turn": 1, "message": "If I put another £100 a month into Fern, will my employer add more too?"}, {"turn": 2, "message": "I mean £100 extra gross into the pension. HR has not promised any extra matching."}]}
+{"case_id": "PDU50-012", "user_turns": [{"turn": 1, "message": "My salary is £48,000 and I pay 5%, but a calculator online uses a smaller earnings figure. Is our payroll wrong?"}]}
+{"case_id": "PDU50-013", "user_turns": [{"turn": 1, "message": "I pay £80 into Cedar but the statement credits £100. Should I add another 20% myself?"}]}
+{"case_id": "PDU50-014", "user_turns": [{"turn": 1, "message": "Since salary sacrifice started, my employee payment is zero and the employer payment is £500. Has my pension contribution stopped?"}]}
+{"case_id": "PDU50-015", "user_turns": [{"turn": 1, "message": "Fern shows £45,000 paid in this tax year and Cedar £20,000. Do I get a separate annual allowance for each?"}]}
+{"case_id": "PDU50-016", "user_turns": [{"turn": 1, "message": "I took £10,000 from a pension earlier this year. Does that change how much I can pay in now?"}, {"turn": 2, "message": "It was only the tax-free cash; the rest stayed invested and I have taken no taxable drawdown."}]}
+{"case_id": "PDU50-017", "user_turns": [{"turn": 1, "message": "I am on paid maternity leave and my pay has dropped. Should Fern reduce both my payment and my employer’s payment?"}]}
+{"case_id": "PDU50-018", "user_turns": [{"turn": 1, "message": "I am taking unpaid leave for six weeks. Does my employer still have to pay into Fern?"}]}
+{"case_id": "PDU50-019", "user_turns": [{"turn": 1, "message": "I was enrolled this month. If I leave the pension now, do I get the money back?"}, {"turn": 2, "message": "The notice in my documents arrived on 3 September. Today is 10 September, and I have not sent an opt-out form."}]}
+{"case_id": "PDU50-020", "user_turns": [{"turn": 1, "message": "I opted out in 2023, so why have I been put back into a workplace pension this September?"}]}
+{"case_id": "PDU50-021", "user_turns": [{"turn": 1, "message": "My record says Merrow pays 7%, but the letter says it will become 3% next month. Can they just do that?"}, {"turn": 2, "message": "It is the Fern DC plan, and the letter says future payments only, not the money already in my pot."}]}
+{"case_id": "PDU50-022", "user_turns": [{"turn": 1, "message": "The change only affects future employer payments, not what I have already built up. Which legal checks still matter for my Fern plan?"}]}
+{"case_id": "PDU50-023", "user_turns": [{"turn": 1, "message": "My signed contract says 10% employer pension, but the newer handbook says 7%. Does the newer document automatically win?"}]}
+{"case_id": "PDU50-024", "user_turns": [{"turn": 1, "message": "The consultation letter was sent on 1 September and the lower contributions start on 1 October. Is that enough notice for our scheme?"}]}
+{"case_id": "PDU50-025", "user_turns": [{"turn": 1, "message": "There are only 20 people at my company. Does that mean they can cut pension contributions without any restrictions?"}]}
+{"case_id": "PDU50-026", "user_turns": [{"turn": 1, "message": "Merrow wants to move future contributions to a new provider. Does that mean my existing Fern pot has to move as well?"}]}
+{"case_id": "PDU50-027", "user_turns": [{"turn": 1, "message": "Dockside is closing to future accrual. Will I lose the £2,400 a year shown on my old statement?"}]}
+{"case_id": "PDU50-028", "user_turns": [{"turn": 1, "message": "I live in England now, but Fern comes from my Belfast job. Which rules should you use for the proposed pension change?"}, {"turn": 2, "message": "The scheme paperwork confirms Northern Ireland. Please do not apply the England rules just because I moved."}]}
+{"case_id": "PDU50-029", "user_turns": [{"turn": 1, "message": "My June and July payslips show pension deductions, but the provider still has no payments. What should I check and who deals with this?"}]}
+{"case_id": "PDU50-030", "user_turns": [{"turn": 1, "message": "The booklet uploaded yesterday says the old contribution rate. Can you check whether it is outdated before using it to explain my rights?"}]}
+{"case_id": "PDU50-031", "user_turns": [{"turn": 1, "message": "What am I paying in pension charges each year, roughly, and which of my pots costs the most?"}]}
+{"case_id": "PDU50-032", "user_turns": [{"turn": 1, "message": "Fern has the lowest listed fee. Would it automatically be better to move Bracken and Cedar into it?"}]}
+{"case_id": "PDU50-033", "user_turns": [{"turn": 1, "message": "Dockside offered a £45,000 transfer value. Can I move it into Cedar without getting advice?"}]}
+{"case_id": "PDU50-034", "user_turns": [{"turn": 1, "message": "The old Bracken leaflet mentions a guaranteed annuity rate. Would I lose it if I transferred?"}, {"turn": 2, "message": "I do not have the full policy, only that leaflet. Please tell me what is known and what I need to ask the provider."}]}
+{"case_id": "PDU50-035", "user_turns": [{"turn": 1, "message": "Someone says I must transfer my Fern pension today to avoid losing a bonus. They want me to sign while they are on the phone. What do I do?"}]}
+{"case_id": "PDU50-036", "user_turns": [{"turn": 1, "message": "The adviser gave me an FCA number and says they already know my pension balance. Does that prove the transfer is safe?"}]}
+{"case_id": "PDU50-037", "user_turns": [{"turn": 1, "message": "My dashboard says 60% shares. I am nervous about losses. Should I put all my pension into bonds?"}]}
+{"case_id": "PDU50-038", "user_turns": [{"turn": 1, "message": "Can you move my Fern pension into the cautious fund and reduce my contribution for next payday?"}]}
+{"case_id": "PDU50-039", "user_turns": [{"turn": 1, "message": "What would the forecast look like if I retired at 60 instead of 67? Please compare it without changing my saved plan."}, {"turn": 2, "message": "Keep my saved retirement age at 67. I only wanted a what-if comparison."}]}
+{"case_id": "PDU50-040", "user_turns": [{"turn": 1, "message": "Show my current forecast and the extra £50, £100 and £200 monthly options. Does any option guarantee I will reach my target?"}]}
+{"case_id": "PDU50-041", "user_turns": [{"turn": 1, "message": "I want to retire next year at 60. Your stored State Pension forecast starts at 67 — will I actually get that money at 60?"}]}
+{"case_id": "PDU50-042", "user_turns": [{"turn": 1, "message": "I turn 55 in June 2029. Can I take money from Fern then, or do the age changes apply to me?"}]}
+{"case_id": "PDU50-043", "user_turns": [{"turn": 1, "message": "My total pot is shown as £100,000. Does that mean I can take £25,000 tax-free from each of my three pots?"}]}
+{"case_id": "PDU50-044", "user_turns": [{"turn": 1, "message": "My nomination says 100% to my spouse. Does that guarantee they will receive all of Fern, and will it be tax-free?"}]}
+{"case_id": "PDU50-045", "user_turns": [{"turn": 1, "message": "We are separating. Does the dashboard automatically divide my pension in half, or is a court order needed?"}]}
+{"case_id": "PDU50-046", "user_turns": [{"turn": 1, "message": "My partner uses this laptop too. Can you show their pension next to mine so we can compare?"}, {"turn": 2, "message": "I have now signed out and signed into my own separate account. What pension value is recorded for me?"}]}
+{"case_id": "PDU50-047", "user_turns": [{"turn": 1, "message": "HR told me the employer rate is now 8%, but my dashboard still shows 7%. Which should you use?"}, {"turn": 2, "message": "The corrected September payroll confirmation has now been added to my records. Please use the current confirmed figure."}]}
+{"case_id": "PDU50-048", "user_turns": [{"turn": 1, "message": "I uploaded a new pension guide. Can you use it to explain my balance and check whether it conflicts with my statement?"}]}
+{"case_id": "PDU50-049", "user_turns": [{"turn": 1, "message": "I saw a headline saying salary-sacrifice pension rules are changing. Does it affect the arrangement shown in my records now, or only later?"}]}
+{"case_id": "PDU50-050", "user_turns": [{"turn": 1, "message": "Before I change anything, summarise my pension position, the figures or documents that still need checking, and what I should ask HR or the providers."}]}

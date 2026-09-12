@@ -1,0 +1,235 @@
+{
+  "scope": "OFFLINE_PACK_STRUCTURE_AND_SYNTHETIC_ARITHMETIC_ONLY",
+  "status": "PASS",
+  "passed_checks": 44,
+  "failed_checks": 0,
+  "live_database_test": "NOT_RUN",
+  "model_generation": "NOT_RUN",
+  "training": "NOT_RUN",
+  "legal_source_or_label_review": "PENDING",
+  "browser_evaluation": "NOT_RUN",
+  "runtime_reviewers": "NOT_RUN",
+  "unseen_access": "NOT_ACCESSED",
+  "checks": [
+    {
+      "check": "messages_ids_exactly_50",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "check": "setup_ids_exactly_50",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "check": "labels_ids_exactly_50",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "check": "unique_primary_wording",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "check": "exactly_60_user_turns",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "check": "exactly_10_followup_scenarios",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "check": "product_envelopes_no_fixture_or_gold_fields",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "check": "user_turn_order",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "check": "setup_case_fixture_exists",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "check": "all_synthetic_fixture_labels",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "check": "no_legal_label_claims_approved",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "check": "public_source_ids_resolve",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "check": "38_mixed_legal_scenarios",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "check": "5_balanced_groups",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "check": "private_document_ids_resolve",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "check": "documents_owned_by_fixture_user",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "check": "synthetic_docs_not_public_law",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "check": "unique_document_ids_per_fixture",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "check": "source_catalog_not_admitted",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "check": "all_cases_have_acceptance_requirements",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "check": "followups_have_assertions",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "check": "mutation_refs_exist",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "check": "user_switch_is_harness_not_text_authority",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "check": "all_declared_private_source_refs_resolve",
+      "status": "PASS",
+      "detail": {}
+    },
+    {
+      "check": "dc_total_100000_not_db_income",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "check": "gross_monthly_credits_580",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "check": "charge_illustration_580",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "check": "zero_distinct_from_null",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "check": "unconfirmed_locator_not_fabricated",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "check": "duplicate_is_actual_copy",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "check": "independent_annuity_reference_age67_extra0",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "check": "independent_annuity_reference_age67_extra50",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "check": "independent_annuity_reference_age67_extra100",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "check": "independent_annuity_reference_age67_extra200",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "check": "independent_annuity_reference_age60_extra0",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "check": "later_benefits_not_included_at_60",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "check": "state_not_included_at67_when_start68",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "check": "extra_credit_increases_declared_forecast",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "check": "suite_not_sealed_or_gradient_training",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "check": "original_00_25_and_new_26_29_sections_present",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "check": "appendices_A_F_present",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "check": "fixed48_execution_instruction_removed",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "check": "all_50_questions_in_full_prompt",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "check": "pack_file_hashes",
+      "status": "PASS",
+      "detail": []
+    }
+  ]
+}

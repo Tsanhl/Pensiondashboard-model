@@ -1,0 +1,247 @@
+{
+  "as_of": "2026-09-10",
+  "status": "DISCOVERY_CATALOG_NOT_ADMITTED_EVIDENCE_NOT_LEGAL_GOLD",
+  "note": "Open/search checks identify useful official starting points only. Codex must fetch permitted original passages, pin correct versions and run source/label review before legal scoring. No independent legal-review receipt exists in this generated pack.",
+  "sources": [
+    {
+      "source_id": "PUB_CHANGES",
+      "title": "MoneyHelper — employer pension changes",
+      "url": "https://www.moneyhelper.org.uk/en/pensions-and-retirement/pension-problems/changes-to-your-pension",
+      "research_status": "OPENED",
+      "research_date": "2026-09-10",
+      "required_use_check": "Scope of scheme changes, DB/DC distinction, conditions; not a universal legal conclusion.",
+      "corpus_admitted": false,
+      "review_receipts": []
+    },
+    {
+      "source_id": "PUB_EMPLOYER",
+      "title": "GOV.UK — employer workplace pension duties",
+      "url": "https://www.gov.uk/employers-workplace-pensions-rules",
+      "research_status": "SEARCH_CONTENT_CHECKED",
+      "research_date": "2026-09-10",
+      "required_use_check": "Employer duties, opt-out pressure, records, contribution timing; follow detailed provisions.",
+      "corpus_admitted": false,
+      "review_receipts": []
+    },
+    {
+      "source_id": "PUB_CONTRIB",
+      "title": "GOV.UK — contributions and calculation basis",
+      "url": "https://www.gov.uk/workplace-pensions/what-you-your-employer-and-the-government-pay",
+      "research_status": "OPENED",
+      "research_date": "2026-09-10",
+      "required_use_check": "Scheme contribution basis; distinguish qualifying earnings and full salary.",
+      "corpus_admitted": false,
+      "review_receipts": []
+    },
+    {
+      "source_id": "PUB_LEAVE",
+      "title": "GOV.UK — job changes and leave",
+      "url": "https://www.gov.uk/workplace-pensions/changing-jobs-and-taking-leave",
+      "research_status": "OPENED",
+      "research_date": "2026-09-10",
+      "required_use_check": "Paid/unpaid/maternity distinctions; avoid applying a simplified statement to every scheme.",
+      "corpus_admitted": false,
+      "review_receipts": []
+    },
+    {
+      "source_id": "PUB_JOIN",
+      "title": "GOV.UK — workplace pension joining",
+      "url": "https://www.gov.uk/workplace-pensions/joining-a-workplace-pension",
+      "research_status": "SEARCH_CONTENT_CHECKED",
+      "research_date": "2026-09-10",
+      "required_use_check": "Eligibility and enrolment context at the applicable date.",
+      "corpus_admitted": false,
+      "review_receipts": []
+    },
+    {
+      "source_id": "PUB_RELIEF",
+      "title": "GOV.UK — pension tax relief",
+      "url": "https://www.gov.uk/tax-on-your-private-pension/pension-tax-relief",
+      "research_status": "SEARCH_CONTENT_CHECKED",
+      "research_date": "2026-09-10",
+      "required_use_check": "Net pay/relief at source, tax status and relief conditions.",
+      "corpus_admitted": false,
+      "review_receipts": []
+    },
+    {
+      "source_id": "PUB_ALLOWANCE",
+      "title": "GOV.UK — annual allowance",
+      "url": "https://www.gov.uk/tax-on-your-private-pension/annual-allowance",
+      "research_status": "SEARCH_CONTENT_CHECKED",
+      "research_date": "2026-09-10",
+      "required_use_check": "Aggregate inputs, DB input amount, carry-forward, taper and flexible-access limitations.",
+      "corpus_admitted": false,
+      "review_receipts": []
+    },
+    {
+      "source_id": "PUB_TRANSFER",
+      "title": "MoneyHelper — transfers and consolidation",
+      "url": "https://www.moneyhelper.org.uk/en/pensions-and-retirement/pension-transfers-consolidation/transfer-or-combine-pensions",
+      "research_status": "SEARCH_CONTENT_CHECKED",
+      "research_date": "2026-09-10",
+      "required_use_check": "Pension types, guarantees, transfer restrictions and costs; suitability not determined by fee alone.",
+      "corpus_admitted": false,
+      "review_receipts": []
+    },
+    {
+      "source_id": "PUB_SCAM",
+      "title": "FCA — pension scams",
+      "url": "https://www.fca.org.uk/consumers/pension-scams",
+      "research_status": "SEARCH_CONTENT_CHECKED",
+      "research_date": "2026-09-10",
+      "required_use_check": "Pressure and early access warning signs; verify date-specific contact routes.",
+      "corpus_admitted": false,
+      "review_receipts": []
+    },
+    {
+      "source_id": "PUB_FIRM",
+      "title": "FCA — protect yourself from scams",
+      "url": "https://www.fca.org.uk/consumers/protect-yourself-scams",
+      "research_status": "SEARCH_CONTENT_CHECKED",
+      "research_date": "2026-09-10",
+      "required_use_check": "Independent contact verification and clone risk; identity claim is not verification.",
+      "corpus_admitted": false,
+      "review_receipts": []
+    },
+    {
+      "source_id": "PUB_STATE",
+      "title": "GOV.UK — State Pension forecast",
+      "url": "https://www.gov.uk/check-state-pension",
+      "research_status": "OPENED",
+      "research_date": "2026-09-10",
+      "required_use_check": "Forecast amount, start time and personal NI conditions.",
+      "corpus_admitted": false,
+      "review_receipts": []
+    },
+    {
+      "source_id": "PUB_DEATH",
+      "title": "GOV.UK — inherited private pensions",
+      "url": "https://www.gov.uk/tax-on-pension-death-benefits",
+      "research_status": "OPENED",
+      "research_date": "2026-09-10",
+      "required_use_check": "Benefit form, nomination/discretion and date-specific tax conditions; no universal guaranteed outcome.",
+      "corpus_admitted": false,
+      "review_receipts": []
+    },
+    {
+      "source_id": "PUB_CONSULT_GB",
+      "title": "GB consultation regulations — primary legislation seed",
+      "url": "https://www.legislation.gov.uk/uksi/2006/349/contents",
+      "research_status": "SEED_NOT_RECHECKED",
+      "research_date": "2026-09-10",
+      "required_use_check": "Obtain operative provisions, definitions, exclusions, commencement and current/historical effects.",
+      "corpus_admitted": false,
+      "review_receipts": []
+    },
+    {
+      "source_id": "PUB_MODIFY_GB",
+      "title": "Pensions Act 1995 section 67 — primary legislation seed",
+      "url": "https://www.legislation.gov.uk/ukpga/1995/26/section/67",
+      "research_status": "SEED_NOT_RECHECKED",
+      "research_date": "2026-09-10",
+      "required_use_check": "Subsisting rights and applicable modification restrictions; do not apply outside statutory scope.",
+      "corpus_admitted": false,
+      "review_receipts": []
+    },
+    {
+      "source_id": "PUB_TPR",
+      "title": "TPR employer scheme guidance — source seed",
+      "url": "https://www.thepensionsregulator.gov.uk/document-library/automatic-enrolment-detailed-guidance/4-pension-schemes-under-the-employer-duties",
+      "research_status": "SEED_NOT_RECHECKED",
+      "research_date": "2026-09-10",
+      "required_use_check": "Scheme changes and employer duties; follow correct legal dependencies.",
+      "corpus_admitted": false,
+      "review_receipts": []
+    },
+    {
+      "source_id": "PUB_NI",
+      "title": "Northern Ireland authority discovery",
+      "url": "https://www.legislation.gov.uk/nisr",
+      "research_status": "DISCOVERY_ROOT_ONLY",
+      "research_date": "2026-09-10",
+      "required_use_check": "Find actual applicable NI provisions independently; GB sources are not sufficient by default.",
+      "corpus_admitted": false,
+      "review_receipts": []
+    },
+    {
+      "source_id": "PUB_EXIT",
+      "title": "GOV.UK — leaving a workplace pension",
+      "url": "https://www.gov.uk/workplace-pensions/if-you-want-to-leave-your-workplace-pension-scheme",
+      "research_status": "SEED_NOT_RECHECKED",
+      "research_date": "2026-09-10",
+      "required_use_check": "Verify effective opt-out window and submission mechanism; do not execute an opt-out.",
+      "corpus_admitted": false,
+      "review_receipts": []
+    },
+    {
+      "source_id": "PUB_DB_ADVICE",
+      "title": "FCA DB-transfer guidance discovery",
+      "url": "https://www.fca.org.uk/consumers/pension-transfer",
+      "research_status": "SEED_NOT_RECHECKED",
+      "research_date": "2026-09-10",
+      "required_use_check": "Verify real current URL, safeguarded-benefit advice threshold/conditions and regulated-advice boundary.",
+      "corpus_admitted": false,
+      "review_receipts": []
+    },
+    {
+      "source_id": "PUB_ACCESS",
+      "title": "GOV.UK private pension access",
+      "url": "https://www.gov.uk/personal-pensions-your-rights/how-you-can-take-pension",
+      "research_status": "SEED_NOT_RECHECKED",
+      "research_date": "2026-09-10",
+      "required_use_check": "Minimum/protected pension age, scheme terms and relevant future-date rules.",
+      "corpus_admitted": false,
+      "review_receipts": []
+    },
+    {
+      "source_id": "PUB_DIVORCE",
+      "title": "MoneyHelper divorce/pension guidance discovery",
+      "url": "https://www.moneyhelper.org.uk/en/family-and-care/divorce-and-separation",
+      "research_status": "DISCOVERY_ROOT_ONLY",
+      "research_date": "2026-09-10",
+      "required_use_check": "Find applicable territorial pension-sharing guidance and orders; do not infer division from status alone.",
+      "corpus_admitted": false,
+      "review_receipts": []
+    },
+    {
+      "source_id": "PUB_SALARY_POLICY",
+      "title": "GOV.UK salary-sacrifice policy discovery",
+      "url": "https://www.gov.uk/government/collections/tax-information-and-impact-notes-tiins",
+      "research_status": "DISCOVERY_ROOT_ONLY",
+      "research_date": "2026-09-10",
+      "required_use_check": "Discover official operative and proposed reforms by legal/effective date; do not treat announcements as current law.",
+      "corpus_admitted": false,
+      "review_receipts": []
+    },
+    {
+      "source_id": "PUB_COMPLAINT",
+      "title": "The Pensions Ombudsman — official entry point",
+      "url": "https://www.pensions-ombudsman.org.uk/",
+      "research_status": "DISCOVERY_ROOT_ONLY",
+      "research_date": "2026-09-10",
+      "required_use_check": "Resolve applicable provider complaint and escalation routes; portal presence does not prove personal jurisdiction/outcome.",
+      "corpus_admitted": false,
+      "review_receipts": []
+    },
+    {
+      "source_id": "PUB_INVEST",
+      "title": "MoneyHelper — pension investment options",
+      "url": "https://www.moneyhelper.org.uk/en/pensions-and-retirement/building-your-retirement-pot/pension-investment-options-an-overview",
+      "research_status": "OPENED",
+      "research_date": "2026-09-10",
+      "required_use_check": "Investment risk, types, fees, personal circumstances; not a personalised allocation instruction.",
+      "corpus_admitted": false,
+      "review_receipts": []
+    },
+    {
+      "source_id": "PUB_WITHDRAWAL_TAX",
+      "title": "GOV.UK — tax when receiving a pension",
+      "url": "https://www.gov.uk/tax-on-pension",
+      "research_status": "OPENED",
+      "research_date": "2026-09-10",
+      "required_use_check": "Follow linked operative tax-free-cash/allowance rules for applicable dates and personal conditions.",
+      "corpus_admitted": false,
+      "review_receipts": []
+    }
+  ]
+}
